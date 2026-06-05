@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
-import io.github.qishr.cascara.lang.json.JsonDocument;
+import io.github.qishr.cascara.lang.json.ast.JsonNode;
 import io.github.qishr.cascara.lang.json.processor.JsonParser;
 import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.schema.structure.LazySchemaNode;
@@ -26,7 +26,7 @@ public class CompilerTests {
         }
         """;
         JsonParser parser = new JsonParser();
-        JsonDocument doc = parser.parse(json);
+        JsonNode doc = parser.parse(json);
 
         SchemaResolver resolver = new SchemaResolver();
         SchemaCompiler compiler = new SchemaCompiler(resolver);
@@ -34,7 +34,6 @@ public class CompilerTests {
 
         ObjectSchemaNode taskNode = (ObjectSchemaNode) schema.getDefinition("task");
 
-        // This is likely where your current failure is:
         assertNotNull(taskNode.getExtension("x-parent"), "Compiler dropped 'parent' keyword!");
         ObjectSchemaNode item = (ObjectSchemaNode)schema.getDefinition("item");
         SchemaNode statusNode = item.getProperty("status");
@@ -46,7 +45,7 @@ public class CompilerTests {
         String json = getStringResource("/io/github/qishr/cascara/schema/util/schema-01.json");
 
         JsonParser parser = new JsonParser();
-        JsonDocument doc = parser.parse(json);
+        JsonNode doc = parser.parse(json);
 
         SchemaResolver resolver = new SchemaResolver();
         SchemaCompiler compiler = new SchemaCompiler(resolver);

@@ -16,14 +16,14 @@ import io.github.qishr.cascara.common.io.ContentLoader;
 import io.github.qishr.cascara.common.io.IOUtils;
 import io.github.qishr.cascara.common.content.ResourceContent;
 import io.github.qishr.cascara.common.io.UriScheme;
-import io.github.qishr.cascara.common.lang.StructuredDocument;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;
 import io.github.qishr.cascara.common.lang.ast.SequenceAstNode;
+import io.github.qishr.cascara.common.lang.factory.ParserFactory;
 import io.github.qishr.cascara.common.lang.processor.Parser;
-import io.github.qishr.cascara.common.spi.ParserFactory;
-import io.github.qishr.cascara.common.spi.ServiceException;
+import io.github.qishr.cascara.common.service.ServiceException;
 import io.github.qishr.cascara.lang.json.processor.JsonParser;
+
 import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.schema.SchemaException;
 import io.github.qishr.cascara.schema.SchemaKeyword;
@@ -76,7 +76,7 @@ public class SchemaResolver {
             }
         }
 
-        StructuredDocument doc = parseContent(content);
+        AstNode doc = parseContent(content);
         SchemaCompiler compiler = new SchemaCompiler(this);
         return compiler.compile(doc, uri);
     }
@@ -135,6 +135,7 @@ public class SchemaResolver {
     //
 
     public SchemaNode resolve(String ref, SchemaNode relativeTo, DynamicScope scope) throws SchemaException {
+        // This is public because it's used by LazySchemaNode
         // Set the ThreadLocal so the Compiler can find it during this resolution
         DynamicScope previous = currentScope.get();
         currentScope.set(scope);
@@ -151,7 +152,10 @@ public class SchemaResolver {
         }
     }
 
-    public DynamicScope getCurrentScope() { return currentScope.get(); }
+    public DynamicScope getCurrentScope() {
+        // This is public because it's used by SchemaCompiler
+        return currentScope.get();
+    }
 
     //
     // Private MEthods
@@ -166,9 +170,8 @@ public class SchemaResolver {
                 generator.registerTypeAnalyzer(ta);
             }
         }
-        StructuredDocument schemaDoc = generator.generate(clazz);
-        Schema schema = compiler.compile(schemaDoc, originUri);
-        return schema;
+        AstNode schemaDoc = generator.generate(clazz);
+        return compiler.compile(schemaDoc, originUri);
     }
 
     /// Internal version that carries the scope
@@ -220,7 +223,7 @@ public class SchemaResolver {
         if (node == null) return null;
 
         // Check for $dynamicAnchor (using the extension map we set in the compiler)
-        Object dynamicAnchor = node.getExtension(SchemaKeyword.DYNAMIC_ANCHOR.string());
+        Object dynamicAnchor = node.getExtension(SchemaKeyword.DYNAMIC_ANCHOR.asString());
         if (dynamicAnchor instanceof String anchorName) {
             // Register this node's URI for this anchor name in the current resolution path
             scope.addAnchor(anchorName, node.getOriginUri());
@@ -324,10 +327,10 @@ public class SchemaResolver {
     private AstNode findNodeByAnchor(AstNode root, String anchor) {
         if (root instanceof MapAstNode map) {
             // 1. Check if this specific node is the target
-            String id = map.getString(SchemaKeyword.ID.string());
-            String nodeAnchor = map.getString(SchemaKeyword.ANCHOR.string());
+            String id = map.getString(SchemaKeyword.ID.asString());
+            String nodeAnchor = map.getString(SchemaKeyword.ANCHOR.asString());
 
-            String dynAnchor = map.getString(SchemaKeyword.DYNAMIC_ANCHOR.string());
+            String dynAnchor = map.getString(SchemaKeyword.DYNAMIC_ANCHOR.asString());
 
             if (anchor.equals(id) || anchor.equals(nodeAnchor) || anchor.equals(dynAnchor)) {
                 return map;
@@ -362,7 +365,7 @@ public class SchemaResolver {
         }
     }
 
-    private StructuredDocument parseContent(ResourceContent res) {
+    private AstNode parseContent(ResourceContent res) {
         String contentType;
         if (res.contentType() == null) {
             contentType = "application/schema+json";

@@ -1,7 +1,7 @@
 package io.github.qishr.cascara.schema.util;
 
-import io.github.qishr.cascara.common.lang.StructuredDocument;
-import io.github.qishr.cascara.common.lang.simple.SimpleMapNode;
+import io.github.qishr.cascara.common.lang.ast.AstNode;
+import io.github.qishr.cascara.common.lang.reference.ReferenceMapNode;
 import io.github.qishr.cascara.lang.json.processor.JsonConverter;
 import io.github.qishr.cascara.schema.annotation.SchemaProperty;
 
@@ -42,8 +42,7 @@ class ClassSchemaGeneratorTest {
 
     @Test
     void rootHasCorrectNameAndType() {
-        var doc = generator.generate(SimpleEntity.class);
-        var root = (SimpleMapNode) doc.getRoot();
+        var root = (ReferenceMapNode) generator.generate(SimpleEntity.class);
 
         // assertEquals("SimpleEntity", root.getString("name"));
         assertEquals("object", root.getString("type"));
@@ -51,23 +50,21 @@ class ClassSchemaGeneratorTest {
 
     @Test
     void generatesCorrectScalarProperties() {
-        var doc = generator.generate(SimpleEntity.class);
-        var root = (SimpleMapNode) doc.getRoot();
-        var props = (SimpleMapNode) root.get("properties");
+        var root = (ReferenceMapNode) generator.generate(SimpleEntity.class);
+        var props = (ReferenceMapNode) root.get("properties");
 
-        assertEquals("string", ((SimpleMapNode) props.get("title")).getString("type"));
-        assertEquals("integer", ((SimpleMapNode) props.get("count")).getString("type"));
-        assertEquals("boolean", ((SimpleMapNode) props.get("active")).getString("type"));
-        assertEquals("number", ((SimpleMapNode) props.get("score")).getString("type"));
+        assertEquals("string", ((ReferenceMapNode) props.get("title")).getString("type"));
+        assertEquals("integer", ((ReferenceMapNode) props.get("count")).getString("type"));
+        assertEquals("boolean", ((ReferenceMapNode) props.get("active")).getString("type"));
+        assertEquals("number", ((ReferenceMapNode) props.get("score")).getString("type"));
     }
 
     @Test
     void generatesNestedObjectProperty() {
-        var doc = generator.generate(NestedEntity.class);
-        var root = (SimpleMapNode) doc.getRoot();
-        var props = (SimpleMapNode) root.get("properties");
+        var root = (ReferenceMapNode) generator.generate(NestedEntity.class);
+        var props = (ReferenceMapNode) root.get("properties");
 
-        var child = (SimpleMapNode) props.get("child");
+        var child = (ReferenceMapNode) props.get("child");
         assertNotNull(child);
 
         // Nested objects become references
@@ -115,10 +112,10 @@ class ClassSchemaGeneratorTest {
         JsonConverter converter = new JsonConverter();
         SchemaDecompiler decompiler = new SchemaDecompiler();
 
-        StructuredDocument doc1a = decompiler.decompile(schema1);
+        AstNode doc1a = decompiler.decompile(schema1);
         String json1 = converter.toText(doc1a);
 
-        StructuredDocument doc2a = decompiler.decompile(schema2);
+        AstNode doc2a = decompiler.decompile(schema2);
         String json2 = converter.toText(doc2a);
 
         assertEquals(json1, json2);
@@ -148,13 +145,12 @@ class ClassSchemaGeneratorTest {
             @SchemaProperty public boolean active;
         }
 
-        var doc = generator.generate(Simple.class);
-        var root = (SimpleMapNode) doc.getRoot();
-        var props = (SimpleMapNode) root.get("properties");
+        var root = (ReferenceMapNode) generator.generate(Simple.class);
+        var props = (ReferenceMapNode) root.get("properties");
 
-        assertEquals("string", ((SimpleMapNode) props.get("name")).getString("type"));
-        assertEquals("integer", ((SimpleMapNode) props.get("age")).getString("type"));
-        assertEquals("boolean", ((SimpleMapNode) props.get("active")).getString("type"));
+        assertEquals("string", ((ReferenceMapNode) props.get("name")).getString("type"));
+        assertEquals("integer", ((ReferenceMapNode) props.get("age")).getString("type"));
+        assertEquals("boolean", ((ReferenceMapNode) props.get("active")).getString("type"));
     }
 
     @Test
@@ -166,10 +162,9 @@ class ClassSchemaGeneratorTest {
             @SchemaProperty public Address address;
         }
 
-        var doc = generator.generate(Person.class);
-        var root = (SimpleMapNode) doc.getRoot();
-        var props = (SimpleMapNode) root.get("properties");
-        var address = (SimpleMapNode) props.get("address");
+        var root = (ReferenceMapNode) generator.generate(Person.class);
+        var props = (ReferenceMapNode) root.get("properties");
+        var address = (ReferenceMapNode) props.get("address");
 
         assertEquals("#/$defs/Address", address.getString("$ref"));
         // assertEquals("Address", address.getString("target"));
@@ -184,14 +179,13 @@ class ClassSchemaGeneratorTest {
             @SchemaProperty public List<Tag> tags;
         }
 
-        var doc = generator.generate(Entry.class);
-        var root = (SimpleMapNode) doc.getRoot();
-        var props = (SimpleMapNode) root.get("properties");
-        var tags = (SimpleMapNode) props.get("tags");
+        var root = (ReferenceMapNode) generator.generate(Entry.class);
+        var props = (ReferenceMapNode) root.get("properties");
+        var tags = (ReferenceMapNode) props.get("tags");
 
         assertEquals("array", tags.getString("type"));
 
-        var items = (SimpleMapNode) tags.get("items");
+        var items = (ReferenceMapNode) tags.get("items");
         assertEquals("#/$defs/Tag", items.getString("$ref"));
         // assertEquals("Tag", items.getString("target"));
     }
@@ -210,22 +204,21 @@ class ClassSchemaGeneratorTest {
             @SchemaProperty public List<Tag> tags;
         }
 
-        var doc = generator.generate(Person.class);
-        var root = (SimpleMapNode) doc.getRoot();
-        var props = (SimpleMapNode) root.get("properties");
+        var root = (ReferenceMapNode) generator.generate(Person.class);
+        var props = (ReferenceMapNode) root.get("properties");
 
         // scalar
-        assertEquals("string", ((SimpleMapNode) props.get("name")).getString("type"));
+        assertEquals("string", ((ReferenceMapNode) props.get("name")).getString("type"));
 
         // reference
-        var address = (SimpleMapNode) props.get("address");
+        var address = (ReferenceMapNode) props.get("address");
         assertEquals("#/$defs/Address", address.getString("$ref"));
         // assertEquals("Address", address.getString("target"));
 
         // array of references
-        var tags = (SimpleMapNode) props.get("tags");
+        var tags = (ReferenceMapNode) props.get("tags");
         assertEquals("array", tags.getString("type"));
-        var items = (SimpleMapNode) tags.get("items");
+        var items = (ReferenceMapNode) tags.get("items");
         assertEquals("#/$defs/Tag", items.getString("$ref"));
         // assertEquals("Tag", items.getString("target"));
     }
@@ -240,8 +233,8 @@ class ClassSchemaGeneratorTest {
         }
 
         var doc = generator.generate(Person.class);
-        var props = (SimpleMapNode) ((SimpleMapNode) doc.getRoot()).get("properties");
-        var address = (SimpleMapNode) props.get("address");
+        var props = (ReferenceMapNode) ((ReferenceMapNode) doc).get("properties");
+        var address = (ReferenceMapNode) props.get("address");
 
         assertFalse(address.containsKey("properties"));
     }

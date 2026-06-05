@@ -10,4 +10,9 @@ public enum SchemaType {
             return OBJECT; // Default fallback
         }
     }
+
+    /// Return the JSON Schema type name
+    public String asString() {
+        return toString().toLowerCase();
+    }
 }
