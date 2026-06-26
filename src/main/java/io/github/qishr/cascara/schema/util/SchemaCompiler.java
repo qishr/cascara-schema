@@ -290,7 +290,7 @@ public class SchemaCompiler {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private void processComposition( MapAstNode astNode, SchemaKeyword key, BaseSchemaNode parent, URI uri, SchemaNode root, SchemaNode meta) {
+    private void processComposition(MapAstNode astNode, SchemaKeyword key, BaseSchemaNode parent, URI uri, SchemaNode root, SchemaNode meta) {
         if (astNode.get(key.asString()) instanceof SequenceAstNode seq) {
             seq.getElements().forEach(element -> {
                 if (element instanceof MapAstNode m) {
