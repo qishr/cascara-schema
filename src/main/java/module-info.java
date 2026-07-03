@@ -6,6 +6,7 @@ module cascara.schema {
 
     exports io.github.qishr.cascara.schema;
     exports io.github.qishr.cascara.schema.annotation;
+    exports io.github.qishr.cascara.schema.exception;
     exports io.github.qishr.cascara.schema.structure;
     exports io.github.qishr.cascara.schema.constraint;
     exports io.github.qishr.cascara.schema.rule;

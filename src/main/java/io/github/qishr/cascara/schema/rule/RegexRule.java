@@ -2,11 +2,13 @@ package io.github.qishr.cascara.schema.rule;
 
 import java.util.regex.Pattern;
 
+import io.github.qishr.cascara.common.diagnostic.LocatableException;
+import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.ScalarAstNode;
-import io.github.qishr.cascara.schema.util.ValidationResult;
+import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
 
-public class RegexRule implements ValidationRule {
+public class RegexRule extends AbstractValidationRule implements ValidationRule {
     private final Pattern pattern;
     private final String patternString;
 
@@ -16,25 +18,27 @@ public class RegexRule implements ValidationRule {
     }
 
     @Override
-    public void validate(AstNode node, String path, ValidationResult result) {
+    public boolean validate(AstNode node, String path, Reporter reporter) {
         if (node instanceof ScalarAstNode scalar) {
-            validateValue(scalar.getPrimitive(), path, result, node.getStartLine(), node.getStartColumn());
+            return validateValue(scalar.getPrimitive(), path, node.getStartLine(), node.getStartColumn(), reporter);
         }
+        return true;
     }
 
     @Override
-    public void validateValue(Object value, String path, ValidationResult result) {
-        validateValue(value, path, result, -1, -1);
+    public boolean validateValue(Object value, String path, Reporter reporter) {
+        return validateValue(value, path, LocatableException.UNKNOWN_COORD, LocatableException.UNKNOWN_COORD, reporter);
     }
 
-    private void validateValue(Object value, String path, ValidationResult result, int line, int col) {
+    private boolean validateValue(Object value, String path, int line, int column, Reporter reporter) {
         if (value != null) {
             String strValue = String.valueOf(value);
             if (!pattern.matcher(strValue).matches()) {
-                String msg = "Value does not match the required pattern: " + patternString;
-                result.addError(path, msg, line, col);
+                error(path, line, column, reporter, SchemaDiagnosticCode.DOES_NOT_MATCH_PATTERN, patternString);
+                return false;
             }
         }
+        return true;
     }
 
     public Pattern getPattern() {

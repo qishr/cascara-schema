@@ -1,4 +1,4 @@
-package io.github.qishr.cascara.schema;
+package io.github.qishr.cascara.schema.exception;
 
 import java.net.URI;
 
@@ -69,7 +69,7 @@ public class SchemaException extends LocatableException {
 
 
     private SchemaException(URI uri, String schemaPath, int line, int column, Class<?> clazz, Throwable cause, DiagnosticCode code, Object... details) {
-        super(uri, line, column, cause, code);
+        super(uri, line, column, cause, code, details);
         this.schemaPath = schemaPath;
         this.clazz = clazz;
     }

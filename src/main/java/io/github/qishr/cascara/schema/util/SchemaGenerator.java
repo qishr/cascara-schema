@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URI;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,8 +24,7 @@ import io.github.qishr.cascara.common.service.ServiceProviderLayer;
 import io.github.qishr.cascara.common.service.ServiceMetadata;
 import io.github.qishr.cascara.common.lang.type.ScalarDescriptor;
 import io.github.qishr.cascara.common.lang.type.TypeDescriptor;
-import io.github.qishr.cascara.schema.SchemaDiagnosticCode;
-import io.github.qishr.cascara.schema.SchemaException;
+import io.github.qishr.cascara.common.lang.type.TypeDescriptorFactory;
 import io.github.qishr.cascara.schema.SchemaKeyword;
 import io.github.qishr.cascara.schema.SchemaType;
 import io.github.qishr.cascara.schema.annotation.ContentMediaType;
@@ -36,9 +34,13 @@ import io.github.qishr.cascara.schema.constraint.FormatConstraint;
 import io.github.qishr.cascara.schema.constraint.NumberConstraint;
 import io.github.qishr.cascara.schema.constraint.ReadOnly;
 import io.github.qishr.cascara.schema.constraint.StringConstraint;
+import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.exception.SchemaException;
 import io.github.qishr.cascara.schema.internal.SchemaUtils;
 
 public final class SchemaGenerator {
+
+    private static final TypeDescriptorFactory FACTORY = new TypeDescriptorFactory();
 
     private static final String OBJECT_PROPERTY_CLASS = "javafx.beans.property.ObjectProperty";
 
@@ -50,7 +52,8 @@ public final class SchemaGenerator {
     private final Set<Class<?>> processingStack = new HashSet<>();
     private final Map<Class<?>, ReferenceMapNode> definitions = new LinkedHashMap<>();
     private final Set<TypeAnalyzer> typeAnalyzers = new HashSet<>();
-    private final Map<Class<?>,TypeDescriptor<?>> typeDescriptors = new HashMap<>();
+    private final Map<Class<?>,TypeDescriptor<?>> typeDescriptorsByJvmType = new HashMap<>();
+    private final Map<String,ScalarDescriptor<?>> typeDescriptorsByFormat = new HashMap<>();
 
     private boolean multiClassDocument = false;
     private ReferenceMapNode definitionsContainer;
@@ -63,7 +66,10 @@ public final class SchemaGenerator {
     }
 
     public void registerTypeDescriptor(TypeDescriptor<?> typeDescriptor) {
-        typeDescriptors.put(typeDescriptor.getJvmType(), typeDescriptor);
+        typeDescriptorsByJvmType.put(typeDescriptor.getJvmType(), typeDescriptor);
+        if (typeDescriptor instanceof ScalarDescriptor sd) {
+            typeDescriptorsByFormat.put(sd.getFormat(), sd);
+        }
     }
 
     public ReferenceMapNode generate(Object template) {
@@ -291,37 +297,36 @@ public final class SchemaGenerator {
         return node;
     }
 
-    private TypeDescriptor<?> getTypeDescriptor(Class<?> clazz) {
-        // TODO: Allow custom type descriptors to be registered
+    // private TypeDescriptor<?> getTypeDescriptor(Class<?> clazz) {
 
-        // 1. First check if one has been registered locally
-        TypeDescriptor<?> descriptor = typeDescriptors.get(clazz);
-        if (descriptor != null) {
-            return descriptor;
-        }
+    //     // 1. First check if one has been registered locally
+    //     TypeDescriptor<?> descriptor = typeDescriptorsByJvmType.get(clazz);
+    //     if (descriptor != null) {
+    //         return descriptor;
+    //     }
 
-        // 2. Use service provider layer to get one
-        ServiceProviderLayer rootLayer = ServiceProviderLayer.getRootLayer();
-        List<ServiceMetadata> typeDescriptors = rootLayer.findAllProviders(
-            TypeDescriptor.class,
-            capabilities -> {
-                String registeredTypeName = capabilities.getString("javaType");
-                if (registeredTypeName == null) return false;
-                try {
-                    // Check if the runtime object's class can be assigned to the descriptor's target type
-                    Class<?> registeredType = Class.forName(registeredTypeName);
-                    return registeredType.isAssignableFrom(clazz);
-                } catch (ClassNotFoundException e) {
-                    return false;
-                }
-            }
-        );
-        if (!typeDescriptors.isEmpty()) {
-            ServiceMetadata metadata = typeDescriptors.getFirst();
-            return ServiceProviderLayer.loadProvider(ScalarDescriptor.class, metadata);
-        }
-        return null;
-    }
+    //     // 2. Use service provider layer to get one
+    //     ServiceProviderLayer rootLayer = ServiceProviderLayer.getRootLayer();
+    //     List<ServiceMetadata> typeDescriptors = rootLayer.findAllProviders(
+    //         TypeDescriptor.class,
+    //         capabilities -> {
+    //             String registeredTypeName = capabilities.getProperty("javaType");
+    //             if (registeredTypeName == null) return false;
+    //             try {
+    //                 // Check if the runtime object's class can be assigned to the descriptor's target type
+    //                 Class<?> registeredType = Class.forName(registeredTypeName);
+    //                 return registeredType.isAssignableFrom(clazz);
+    //             } catch (ClassNotFoundException e) {
+    //                 return false;
+    //             }
+    //         }
+    //     );
+    //     if (!typeDescriptors.isEmpty()) {
+    //         ServiceMetadata metadata = typeDescriptors.getFirst();
+    //         return ServiceProviderLayer.loadProvider(ScalarDescriptor.class, metadata);
+    //     }
+    //     return null;
+    // }
 
 
     /// If the field is a JavaFX ObjectProperty, use the raw type, otherwise use the field's declared type
@@ -541,5 +546,17 @@ public final class SchemaGenerator {
         }
         // Heuristic: entities with their own schema documents
         return type.isAnnotationPresent(SchemaDefinition.class);
+    }
+
+    private TypeDescriptor<?> getTypeDescriptor(Class<?> jvmType) {
+        // 1. First check if one has been registered locally
+        if (typeDescriptorsByJvmType.containsKey(jvmType)) {
+            return typeDescriptorsByJvmType.get(jvmType);
+        }
+
+        // 2. Use service provider layer to get one
+        TypeDescriptor<?> descriptor = FACTORY.createTypeDescriptor(jvmType);
+        typeDescriptorsByJvmType.put(jvmType, descriptor);
+        return descriptor;
     }
 }

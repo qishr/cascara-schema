@@ -3,6 +3,7 @@ package io.github.qishr.cascara.schema.util;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,13 +16,17 @@ import io.github.qishr.cascara.common.lang.ast.MapAstNode;
 import io.github.qishr.cascara.common.lang.ast.MapEntryAstNode;
 import io.github.qishr.cascara.common.lang.ast.ScalarAstNode;
 import io.github.qishr.cascara.common.lang.ast.SequenceAstNode;
+import io.github.qishr.cascara.common.lang.type.ScalarDescriptor;
+import io.github.qishr.cascara.common.lang.type.TypeDescriptor;
+import io.github.qishr.cascara.common.lang.type.TypeDescriptorFactory;
 import io.github.qishr.cascara.schema.Schema;
-import io.github.qishr.cascara.schema.SchemaDiagnosticCode;
-import io.github.qishr.cascara.schema.SchemaException;
 import io.github.qishr.cascara.schema.SchemaKeyword;
 import io.github.qishr.cascara.schema.SchemaType;
+import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.exception.SchemaException;
 import io.github.qishr.cascara.schema.internal.CompiledSchema;
 import io.github.qishr.cascara.schema.rule.EnumRule;
+import io.github.qishr.cascara.schema.rule.FormatRule;
 import io.github.qishr.cascara.schema.rule.MaxItemsRule;
 import io.github.qishr.cascara.schema.rule.MaxLengthRule;
 import io.github.qishr.cascara.schema.rule.MaxValueRule;
@@ -29,8 +34,9 @@ import io.github.qishr.cascara.schema.rule.MinItemsRule;
 import io.github.qishr.cascara.schema.rule.MinLengthRule;
 import io.github.qishr.cascara.schema.rule.MinValueRule;
 import io.github.qishr.cascara.schema.rule.RequiredRule;
+import io.github.qishr.cascara.schema.rule.TypeRule;
 import io.github.qishr.cascara.schema.structure.ArraySchemaNode;
-import io.github.qishr.cascara.schema.structure.BaseSchemaNode;
+import io.github.qishr.cascara.schema.structure.AbstractSchemaNode;
 import io.github.qishr.cascara.schema.structure.LazySchemaNode;
 import io.github.qishr.cascara.schema.structure.ObjectSchemaNode;
 import io.github.qishr.cascara.schema.structure.ScalarSchemaNode;
@@ -38,6 +44,9 @@ import io.github.qishr.cascara.schema.structure.SchemaNode;
 import io.github.qishr.cascara.schema.util.SchemaCompiler;
 
 public class SchemaCompiler {
+
+    private static final TypeDescriptorFactory FACTORY = new TypeDescriptorFactory();
+
     public static final String META_SCHEMA_URI = "https://json-schema.org/draft/2020-12/schema";
 
     // TODO: These should be in a TypeAnalyzer
@@ -51,6 +60,8 @@ public class SchemaCompiler {
     private SchemaResolver resolver = Schemas.getResolver();
     private Reporter reporter = new StandardReporter();
 
+    private final Map<String,ScalarDescriptor<?>> typeDescriptors = new HashMap<>();
+
     @Deprecated
     public SchemaCompiler(SchemaResolver resolver, boolean resolveRefs) {
         this.resolver = resolver;
@@ -62,6 +73,10 @@ public class SchemaCompiler {
 
     public SchemaCompiler() {
         this.resolver = Schemas.getResolver();
+    }
+
+    public void registerTypeDescriptor(ScalarDescriptor<?> typeDescriptor) {
+        typeDescriptors.put(typeDescriptor.getFormat(), typeDescriptor);
     }
 
     public SchemaCompiler setReporter(Reporter reporter) {
@@ -92,8 +107,6 @@ public class SchemaCompiler {
             AstNode idNode = map.get(SchemaKeyword.ID.asString());
             if (!(idNode instanceof ScalarAstNode scalarId)) {
                 throw new SchemaException(SchemaDiagnosticCode.NO_ID);
-                // reporter.error(SchemaDiagnosticCode.NO_ID);
-                // return null;
             }
             originUri = URI.create(scalarId.asString());
         }
@@ -180,12 +193,13 @@ public class SchemaCompiler {
         }
 
         // 2. Use 'currentMeta' for the rest of this node and its children
-        BaseSchemaNode schemaNode;
+        AbstractSchemaNode schemaNode;
+        SchemaType type = null;
         if (refValue != null && !refValue.isEmpty()) {
             DynamicScope scope = (resolver instanceof SchemaResolver r) ? r.getCurrentScope() : null;
             schemaNode = new LazySchemaNode(refValue, resolver, rootSchema, currentBase, astNode, scope, currentMeta);
         } else {
-            SchemaType type = extractType(astNode);
+            type = extractType(astNode);
             schemaNode = switch (type) {
                 case OBJECT -> new ObjectSchemaNode(currentMeta);
                 case ARRAY  -> new ArraySchemaNode(currentMeta);
@@ -283,14 +297,14 @@ public class SchemaCompiler {
         processComposition(astNode, SchemaKeyword.ANY_OF, schemaNode, currentBase, effectiveRoot, meta);
         processComposition(astNode, SchemaKeyword.ONE_OF, schemaNode, currentBase, effectiveRoot, meta);
 
-        attachRules(astNode, schemaNode);
+        attachRules(astNode, schemaNode, type);
         handleExtensions(astNode, schemaNode);
 
         return schemaNode;
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private void processComposition(MapAstNode astNode, SchemaKeyword key, BaseSchemaNode parent, URI uri, SchemaNode root, SchemaNode meta) {
+    private void processComposition(MapAstNode astNode, SchemaKeyword key, AbstractSchemaNode parent, URI uri, SchemaNode root, SchemaNode meta) {
         if (astNode.get(key.asString()) instanceof SequenceAstNode seq) {
             seq.getElements().forEach(element -> {
                 if (element instanceof MapAstNode m) {
@@ -354,7 +368,7 @@ public class SchemaCompiler {
         }
     }
 
-    private void handleExtensions(MapAstNode<?,?> astNode, BaseSchemaNode schemaNode) {
+    private void handleExtensions(MapAstNode<?,?> astNode, AbstractSchemaNode schemaNode) {
         // Capture ALL extension keywords (x-load, x-storage, x-cascade, etc.)
         astNode.getEntries().forEach((entry) -> {
             if (entry instanceof MapEntryAstNode node) {
@@ -432,7 +446,11 @@ public class SchemaCompiler {
     }
 
     @SuppressWarnings("unchecked")
-    private void attachRules(@SuppressWarnings("rawtypes") MapAstNode astNode, BaseSchemaNode schemaNode) {
+    private void attachRules(@SuppressWarnings("rawtypes") MapAstNode astNode, AbstractSchemaNode schemaNode, SchemaType type) {
+        // Warning: Calling getType in this method casuses infinite recusrion
+
+        TypeRule typeRule = new TypeRule(type);
+        schemaNode.addRule(typeRule);
 
         AstNode defaultVal = astNode.get(SchemaKeyword.DEFAULT.asString());
         if (defaultVal instanceof ScalarAstNode scalar) {
@@ -447,17 +465,27 @@ public class SchemaCompiler {
         String format = astNode.getString(SchemaKeyword.FORMAT.asString());
         if (format != null && !format.isEmpty()) {
             schemaNode.setFormat(format);
+
+            ScalarDescriptor<?> descriptor = getScalarDescriptor(format);
+            if (descriptor != null) {
+                FormatRule rule = new FormatRule(descriptor);
+                schemaNode.addRule(rule);
+            } else {
+                // TODO: How should we handle this?
+                // System.out.println("Format without type descriptor: " + format);
+            }
         }
 
-
         //------------------------------
-        // TODO: These should be in a TypeAnalyzer
+        // TODO: This should be in a TypeAnalyzer
 
         // Capture absolute preference
         String absolute = astNode.getString(ABSOLUTE);
         if (absolute != null && !absolute.isEmpty()) {
             schemaNode.setFormatOption(ABSOLUTE, absolute);
         }
+        // -----------------------------
+
 
         // EnumRule
         if (astNode.get(SchemaKeyword.ENUM.asString()) instanceof SequenceAstNode enumNode) {
@@ -522,4 +550,17 @@ public class SchemaCompiler {
 
         return SchemaType.ANY;
     }
+
+    private ScalarDescriptor<?> getScalarDescriptor(String format) {
+        // 1. First check if one has been registered locally
+        if (typeDescriptors.containsKey(format)) {
+            return typeDescriptors.get(format);
+        }
+
+        // 2. Use service provider layer to get one
+        ScalarDescriptor<?> descriptor = FACTORY.createScalarDescriptor(format);
+        typeDescriptors.put(format, descriptor);
+        return descriptor;
+    }
+
 }

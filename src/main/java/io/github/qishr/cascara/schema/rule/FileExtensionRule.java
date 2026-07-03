@@ -1,9 +1,10 @@
 package io.github.qishr.cascara.schema.rule;
 
+import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
-import io.github.qishr.cascara.schema.util.ValidationResult;
 
-public class FileExtensionRule implements ValidationRule {
+// TODO: Does this not belong elsewhere?
+public class FileExtensionRule extends AbstractValidationRule implements ValidationRule {
     private final String[] extensions;
 
     public FileExtensionRule(String[] extensions) {
@@ -15,7 +16,8 @@ public class FileExtensionRule implements ValidationRule {
     }
 
     @Override
-    public void validate(AstNode node, String path, ValidationResult result) {
+    public boolean validate(AstNode node, String path, Reporter reporter) {
         // Optional: Implement actual validation logic here if desired
+        return true;
     }
 }

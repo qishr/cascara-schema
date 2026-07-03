@@ -14,9 +14,9 @@ import java.util.Set;
 
 import io.github.qishr.cascara.common.io.ContentLoader;
 import io.github.qishr.cascara.common.io.IOUtils;
-import io.github.qishr.cascara.common.io.ResourceException;
 import io.github.qishr.cascara.common.content.ResourceContent;
 import io.github.qishr.cascara.common.diagnostic.LocalizableException;
+import io.github.qishr.cascara.common.diagnostic.LocalizableIOException;
 import io.github.qishr.cascara.common.io.UriScheme;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;
@@ -27,9 +27,9 @@ import io.github.qishr.cascara.common.service.ServiceProviderFactory;
 import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
 
 import io.github.qishr.cascara.schema.Schema;
-import io.github.qishr.cascara.schema.SchemaDiagnosticCode;
-import io.github.qishr.cascara.schema.SchemaException;
 import io.github.qishr.cascara.schema.SchemaKeyword;
+import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.exception.SchemaException;
 import io.github.qishr.cascara.schema.internal.SchemaUtils;
 import io.github.qishr.cascara.schema.structure.ArraySchemaNode;
 import io.github.qishr.cascara.schema.structure.LazySchemaNode;
@@ -161,7 +161,7 @@ public class SchemaResolver {
     }
 
     //
-    // Private MEthods
+    // Private Methods
     //
 
     private Schema generateSchemaForClass(Class<?> clazz, List<TypeAnalyzer> typeAnalyzers) throws SchemaException {
@@ -423,7 +423,7 @@ public class SchemaResolver {
         ContentLoader realLoader = contentLoaderService;
         contentLoaderService = new ContentLoader() {
             @Override
-            public ResourceContent getContent(URI uri) throws ResourceException {
+            public ResourceContent getContent(URI uri) throws LocalizableIOException {
                 return metaSchemaResources.get(uri);
             }
         };
@@ -439,7 +439,7 @@ public class SchemaResolver {
 
     private class SchemaContentLoader implements ContentLoader {
         @Override
-        public ResourceContent getContent(URI uri) throws LocalizableException {
+        public ResourceContent getContent(URI uri) throws LocalizableIOException {
             return IOUtils.getResource(uri);
         }
     }

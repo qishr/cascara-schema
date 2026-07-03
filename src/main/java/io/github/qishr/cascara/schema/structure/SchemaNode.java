@@ -4,10 +4,10 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.schema.SchemaType;
 import io.github.qishr.cascara.schema.rule.ValidationRule;
-import io.github.qishr.cascara.schema.util.ValidationResult;
 
 public interface SchemaNode extends AstNode {
     SchemaType getType();
@@ -41,7 +41,7 @@ public interface SchemaNode extends AstNode {
     Object getDefaultValue();
     List<ValidationRule> getRules();
 
-    void validate(AstNode node, String path, ValidationResult result);
+    boolean validate(AstNode node, String path, Reporter reporter);
     AstNode getOriginAst();
 
     String getContentMediaType();

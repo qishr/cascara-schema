@@ -5,7 +5,7 @@ import java.util.Map;
 
 import io.github.qishr.cascara.schema.SchemaType;
 
-public class ScalarSchemaNode extends BaseSchemaNode {
+public class ScalarSchemaNode extends AbstractSchemaNode {
     private boolean primaryKey = false;
 
 

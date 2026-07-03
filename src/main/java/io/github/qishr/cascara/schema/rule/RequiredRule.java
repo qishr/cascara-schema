@@ -1,13 +1,15 @@
 package io.github.qishr.cascara.schema.rule;
 
+import io.github.qishr.cascara.common.diagnostic.LocatableException;
+import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;
-import io.github.qishr.cascara.schema.util.ValidationResult;
+import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
 
 import java.util.List;
 import java.util.Map;
 
-public class RequiredRule implements ValidationRule {
+public class RequiredRule extends AbstractValidationRule implements ValidationRule {
     private final List<String> requiredKeys;
 
     public RequiredRule(List<String> requiredKeys) {
@@ -15,35 +17,38 @@ public class RequiredRule implements ValidationRule {
     }
 
     @Override
-    public void validate(AstNode node, String path, ValidationResult result) {
+    public boolean validate(AstNode node, String path, Reporter reporter) {
         if (node instanceof MapAstNode mapNode) {
-            validateValue(mapNode, path, result, node.getStartLine(), node.getStartColumn());
+            return validateValue(mapNode, path, node.getStartLine(), node.getStartColumn(), reporter);
         }
+        return true;
     }
 
     @Override
-    public void validateValue(Object value, String path, ValidationResult result) {
-        validateValue(value, path, result, -1, -1);
+    public boolean validateValue(Object value, String path, Reporter reporter) {
+        return validateValue(value, path, LocatableException.UNKNOWN_COORD, LocatableException.UNKNOWN_COORD, reporter);
     }
 
-    private void validateValue(Object value, String path, ValidationResult result, int line, int col) {
+    private boolean validateValue(Object value, String path, int line, int column, Reporter reporter) {
+        boolean valid = true;
         // In the editor, 'value' is expected to be the Map/Object containing the keys
         if (value instanceof Map<?, ?> map) {
             for (String key : requiredKeys) {
                 if (!map.containsKey(key)) {
-                    String msg = "Missing required property: " + key;
-                    result.addError(path, msg, line, col);
+                    error(path, line, column, reporter, SchemaDiagnosticCode.MISSING_REQUIRED_PROPERTY, key);
+                    valid = false;
                 }
             }
         } else if (value instanceof MapAstNode mapNode) {
             // Helper for the bridge
             for (String key : requiredKeys) {
                 if (mapNode.get(key) == null) {
-                    String msg = "Missing required property: " + key;
-                    result.addError(path, msg, line, col);
+                    error(path, line, column, reporter, SchemaDiagnosticCode.MISSING_REQUIRED_PROPERTY, key);
+                    valid = false;
                 }
             }
         }
+        return valid;
     }
 
     public List<String> getRequiredKeys() {

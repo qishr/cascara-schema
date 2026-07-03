@@ -3,13 +3,16 @@ package io.github.qishr.cascara.schema.structure;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;
 import io.github.qishr.cascara.schema.SchemaType;
-import io.github.qishr.cascara.schema.util.ValidationResult;
+import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.exception.ValidationException;
 
-public class ObjectSchemaNode extends BaseSchemaNode {
+public class ObjectSchemaNode extends AbstractSchemaNode {
     private final Map<String, SchemaNode> properties = new LinkedHashMap<>();
 
     private boolean additionalPropertiesAllowed = true;
@@ -35,23 +38,27 @@ public class ObjectSchemaNode extends BaseSchemaNode {
     public SchemaNode getItemSchema() { return null; }
 
     @Override
-    public void validate(AstNode node, String path, ValidationResult result) {
-        super.validate(node, path, result);
+    public boolean validate(AstNode node, String path, Reporter reporter) {
+        boolean valid = super.validate(node, path, reporter);
 
         if (node instanceof MapAstNode mapNode) {
-            properties.forEach((key, childSchema) -> {
+            for (Entry<String, SchemaNode> entry : properties.entrySet()) {
+                String key = entry.getKey();
+                SchemaNode childSchema = entry.getValue();
                 // Use the Map interface's 'get' for cleaner lookups
                 AstNode dataNode = mapNode.get(key);
-                String childPath = path.isEmpty() ? key : path + "." + key;
+                String childPath = path.isEmpty() ? key : path + "/" + key;
 
                 if (dataNode != null) {
-                    childSchema.validate(dataNode, childPath, result);
+                    childSchema.validate(dataNode, childPath, reporter);
                 } else {
-                    result.addError(childPath, "Missing required property: " + key,
-                                    node.getStartLine(), node.getStartColumn());
+                    error(childPath, node, reporter, null, SchemaDiagnosticCode.MISSING_REQUIRED_PROPERTY, key);
+                    valid = false;
                 }
-            });
+            }
         }
+
+        return valid;
     }
 
     @Override
@@ -84,4 +91,20 @@ public class ObjectSchemaNode extends BaseSchemaNode {
     public void setAdditionalPropertiesAllowed(boolean b) { additionalPropertiesAllowed = b; }
     @Override
     public boolean areAdditionalPropertiesAllowed() { return additionalPropertiesAllowed; }
+
+    //
+    //
+    //
+
+    private void error(String fragmentPath, AstNode node, Reporter reporter, Throwable cause, SchemaDiagnosticCode code, Object... details) {
+        if (reporter == null || !reporter.collectsProblems()) {
+            throw new ValidationException(fragmentPath, node, cause, code, details);
+        }
+
+        // AstNode should not contain a URI, but for reporting we need a URI,
+        // or at least the fragment (from # onwards).
+        //
+        // TODO: errorAt method that takes URI and AstNode
+        reporter.errorAt(node.getStartLine(), node.getStartColumn(), cause, code, details);
+    }
 }

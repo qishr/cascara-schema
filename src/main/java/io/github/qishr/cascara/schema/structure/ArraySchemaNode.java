@@ -1,13 +1,13 @@
 package io.github.qishr.cascara.schema.structure;
 
+import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.SequenceAstNode;
 import io.github.qishr.cascara.schema.SchemaType;
-import io.github.qishr.cascara.schema.util.ValidationResult;
 
 import java.util.*;
 
-public class ArraySchemaNode extends BaseSchemaNode {
+public class ArraySchemaNode extends AbstractSchemaNode {
     private SchemaNode items; // This is our Item Template
 
     public ArraySchemaNode(SchemaNode metaSchema) {
@@ -28,16 +28,17 @@ public class ArraySchemaNode extends BaseSchemaNode {
     }
 
     @Override
-    public void validate(AstNode node, String path, ValidationResult result) {
-        super.validate(node, path, result);
+    public boolean validate(AstNode node, String path, Reporter reporter) {
+        boolean valid = super.validate(node, path, reporter);
 
         if (node instanceof SequenceAstNode sequence && items != null) {
             int i = 0;
             for (AstNode item : sequence.getChildren()) {
                 String itemPath = path + "[" + i + "]";
-                items.validate(item, itemPath, result);
+                valid &= items.validate(item, itemPath, reporter);
                 i++;
             }
         }
+        return valid;
     }
 }

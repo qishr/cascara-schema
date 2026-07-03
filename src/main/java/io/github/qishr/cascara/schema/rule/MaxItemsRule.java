@@ -1,12 +1,14 @@
 package io.github.qishr.cascara.schema.rule;
 
+import io.github.qishr.cascara.common.diagnostic.LocatableException;
+import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.SequenceAstNode;
-import io.github.qishr.cascara.schema.util.ValidationResult;
+import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
 
 import java.util.Collection;
 
-public class MaxItemsRule implements ValidationRule {
+public class MaxItemsRule extends AbstractValidationRule implements ValidationRule {
     private final int maxItems;
 
     public MaxItemsRule(int maxItems) {
@@ -14,18 +16,19 @@ public class MaxItemsRule implements ValidationRule {
     }
 
     @Override
-    public void validate(AstNode node, String path, ValidationResult result) {
+    public boolean validate(AstNode node, String path, Reporter reporter) {
         if (node instanceof SequenceAstNode sequence) {
-            validateValue(sequence.getChildren(), path, result, node.getStartLine(), node.getStartColumn());
+            return validateValue(sequence.getChildren(), path, node.getStartLine(), node.getStartColumn(), reporter);
         }
+        return true;
     }
 
     @Override
-    public void validateValue(Object value, String path, ValidationResult result) {
-        validateValue(value, path, result, -1, -1);
+    public boolean validateValue(Object value, String path, Reporter reporter) {
+        return validateValue(value, path, LocatableException.UNKNOWN_COORD, LocatableException.UNKNOWN_COORD, reporter);
     }
 
-    private void validateValue(Object value, String path, ValidationResult result, int line, int col) {
+    private boolean validateValue(Object value, String path, int line, int column, Reporter reporter) {
         int currentSize = -1;
 
         if (value instanceof Collection<?> collection) {
@@ -33,14 +36,15 @@ public class MaxItemsRule implements ValidationRule {
         } else if (value instanceof Iterable<?> iterable) {
             // Fallback for custom iterables if necessary
             int count = 0;
-            for (Object ignored : iterable) count++;
+            for (Object _ : iterable) count++;
             currentSize = count;
         }
 
         if (currentSize > maxItems) {
-            String msg = String.format("Array has too many items (%d). Maximum allowed is %d.", currentSize, maxItems);
-            result.addError(path, msg, line, col);
+            error(path, line, column, reporter, SchemaDiagnosticCode.MORE_THAN_MAX_ITEMS, currentSize, maxItems);
+            return false;
         }
+        return true;
     }
 
     public int getMaxItems() {

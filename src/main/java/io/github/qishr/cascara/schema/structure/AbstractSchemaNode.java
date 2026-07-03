@@ -1,11 +1,11 @@
 package io.github.qishr.cascara.schema.structure;
 
+import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.annotation.Nullable;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.CommentAstNode;
 import io.github.qishr.cascara.schema.SchemaType;
 import io.github.qishr.cascara.schema.rule.ValidationRule;
-import io.github.qishr.cascara.schema.util.ValidationResult;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class BaseSchemaNode implements SchemaNode {
+public abstract class AbstractSchemaNode implements SchemaNode {
     private SchemaType type;
     private String title;
     private String titleKey;
@@ -41,7 +41,7 @@ public abstract class BaseSchemaNode implements SchemaNode {
     // private final List<SchemaNode> anyOf = new ArrayList<>();
     // private final List<SchemaNode> oneOf = new ArrayList<>();
 
-    public BaseSchemaNode(SchemaType type, SchemaNode metaSchema) {
+    public AbstractSchemaNode(SchemaType type, SchemaNode metaSchema) {
         this.type = type;
         this.metaSchema = metaSchema;
     }
@@ -143,10 +143,12 @@ public abstract class BaseSchemaNode implements SchemaNode {
     }
 
     @Override
-    public void validate(AstNode node, String path, ValidationResult result) {
+    public boolean validate(AstNode node, String path, Reporter reporter) {
+        boolean valid = true;
         for (ValidationRule rule : rules) {
-            rule.validate(node, path, result);
+            valid = valid & rule.validate(node, path, reporter);
         }
+        return valid;
     }
 
     @Override
