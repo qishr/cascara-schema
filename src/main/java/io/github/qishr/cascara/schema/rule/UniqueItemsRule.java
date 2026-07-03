@@ -1,15 +1,17 @@
 package io.github.qishr.cascara.schema.rule;
 
+import io.github.qishr.cascara.common.diagnostic.LocatableException;
+import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.ScalarAstNode;
 import io.github.qishr.cascara.common.lang.ast.SequenceAstNode;
-import io.github.qishr.cascara.schema.util.ValidationResult;
+import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class UniqueItemsRule implements ValidationRule {
+public class UniqueItemsRule extends AbstractValidationRule implements ValidationRule {
     private final boolean active;
 
     public UniqueItemsRule(boolean active) {
@@ -17,8 +19,9 @@ public class UniqueItemsRule implements ValidationRule {
     }
 
     @Override
-    public void validate(AstNode node, String path, ValidationResult result) {
-        if (!active || !(node instanceof SequenceAstNode sequence)) return;
+    public boolean validate(AstNode node, String path, Reporter reporter) {
+        if (!active || !(node instanceof SequenceAstNode sequence)) return true;
+        boolean valid = true;
 
         // Bridge to the common logic, but maintaining individual item reporting
         // which requires a loop here to capture specific line/column info per duplicate.
@@ -28,33 +31,34 @@ public class UniqueItemsRule implements ValidationRule {
             if (item instanceof ScalarAstNode scalar) {
                 Object val = scalar.getPrimitive();
                 if (!seen.add(val)) {
-                    String msg = String.format("Duplicate item found: '%s'. Array must have unique items.", val);
-                    result.addError(path + "[" + i + "]", msg, item.getStartLine(), item.getStartColumn());
+                    error(path + "[" + i + "]", item, reporter, SchemaDiagnosticCode.DUPLICATE_ITEM, val);
+                    valid = false;
                 }
             }
             i++;
         }
+        return valid;
     }
 
     @Override
-    public void validateValue(Object value, String path, ValidationResult result) {
-        validateValue(value, path, result, -1, -1);
+    public boolean validateValue(Object value, String path, Reporter reporter) {
+       return validateValue(value, path, LocatableException.UNKNOWN_COORD, LocatableException.UNKNOWN_COORD, reporter);
     }
 
-    private void validateValue(Object value, String path, ValidationResult result, int line, int col) {
-        if (!active || value == null) return;
+    private boolean validateValue(Object value, String path, int line, int col, Reporter reporter) {
+        if (!active || value == null) return true;
+        boolean valid = true;
 
         if (value instanceof Collection<?> collection) {
             Set<Object> seen = new HashSet<>();
             for (Object item : collection) {
                 if (!seen.add(item)) {
-                    String msg = String.format("Duplicate item found: '%s'. Array must have unique items.", item);
-                    // In value-only mode (editor), we report on the main path as we don't have sub-node coords
-                    result.addError(path, msg, line, col);
-                    break; // One error is usually enough for live editor feedback
+                    error(path, line, col, reporter, SchemaDiagnosticCode.DUPLICATE_ITEM, item);
+                    valid = false;
                 }
             }
         }
+        return valid;
     }
 
     public boolean isActive() {

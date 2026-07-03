@@ -1,10 +1,39 @@
 package io.github.qishr.cascara.schema.internal;
 
+import java.net.URI;
+
+import io.github.qishr.cascara.common.lang.annotation.Nullable;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;
-import io.github.qishr.cascara.schema.SchemaException;
+import io.github.qishr.cascara.common.lang.ast.ScalarAstNode;
+import io.github.qishr.cascara.schema.Schema;
+import io.github.qishr.cascara.schema.SchemaKeyword;
+import io.github.qishr.cascara.schema.exception.SchemaException;
+import io.github.qishr.cascara.schema.util.SchemaResolver;
+import io.github.qishr.cascara.schema.util.Schemas;
 
 public class SchemaUtils {
+    /// Checks for top-level $schema key
+    @Nullable
+    public static Schema scanForSchema(AstNode root) {
+        return scanForSchema(root, null);
+    }
+
+    /// Checks for top-level $schema key
+    @Nullable
+    public static Schema scanForSchema(AstNode root, SchemaResolver resolver) {
+        if (resolver == null) {
+            resolver = Schemas.getResolver();
+        }
+        if (root instanceof MapAstNode map) {
+            AstNode schemaValue = map.get(SchemaKeyword.SCHEMA.asString());
+            if (schemaValue instanceof ScalarAstNode scalar) {
+                URI uri = URI.create(scalar.asString());
+                return resolver.getSchema(uri);
+            }
+        }
+        return null;
+    }
 
     public static AstNode resolveFragment(AstNode root, String fragment) throws SchemaException {
         if (fragment == null || fragment.isEmpty() || fragment.equals("#") || fragment.equals("/")) {

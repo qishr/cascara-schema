@@ -1,11 +1,12 @@
 package io.github.qishr.cascara.schema.rule;
 
+import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.ScalarAstNode;
 import io.github.qishr.cascara.schema.SchemaType;
-import io.github.qishr.cascara.schema.util.ValidationResult;
+import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
 
-public class TypeRule implements ValidationRule {
+public class TypeRule extends AbstractValidationRule implements ValidationRule {
     private final SchemaType expectedType;
 
     public TypeRule(SchemaType expectedType) {
@@ -13,10 +14,10 @@ public class TypeRule implements ValidationRule {
     }
 
     @Override
-    public void validate(AstNode node, String path, ValidationResult result) {
+    public boolean validate(AstNode node, String path, Reporter reporter) {
         if (node instanceof ScalarAstNode scalar) {
             Object value = scalar.getPrimitive();
-            if (value == null) return; // Let RequiredRule handle "Missing" vs "Wrong Type"
+            if (value == null) return true; // Let RequiredRule handle "Missing" vs "Wrong Type"
             boolean valid = switch (expectedType) {
                 case STRING -> value instanceof String;
                 case INTEGER -> value instanceof Integer || value instanceof Long;
@@ -26,14 +27,15 @@ public class TypeRule implements ValidationRule {
             };
 
             if (!valid) {
-                result.addError(path, "Expected type " + expectedType + " but found " +
-                               value.getClass().getSimpleName(), node.getStartLine(), node.getStartColumn());
+                error(path, node, reporter, SchemaDiagnosticCode.EXPECTED_TYPE, expectedType, value.getClass().getSimpleName());
+                return false;
             }
         }
+        return true; // TODO: Is this handled elsewhere?
     }
 
-    public void validateValue(Object value, String path, ValidationResult result, int line, int col) {
-        if (value == null) return;
+    public boolean validateValue(Object value, String path, int line, int column, Reporter reporter) {
+        if (value == null) return true;
 
         boolean valid = switch (expectedType) {
             case STRING -> value instanceof String;
@@ -44,9 +46,9 @@ public class TypeRule implements ValidationRule {
         };
 
         if (!valid) {
-            result.addError(path, "Expected " + expectedType + " but found " +
-                           value.getClass().getSimpleName(), line, col);
+            error(path, line, column, reporter, SchemaDiagnosticCode.EXPECTED_TYPE, expectedType, value.getClass().getSimpleName());
         }
+        return valid;
     }
 
     // Helper methods to handle String inputs from the UI TextFields

@@ -1,12 +1,14 @@
 package io.github.qishr.cascara.schema.rule;
 
+import io.github.qishr.cascara.common.diagnostic.LocatableException;
+import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.SequenceAstNode;
-import io.github.qishr.cascara.schema.util.ValidationResult;
+import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
 
 import java.util.Collection;
 
-public class MinItemsRule implements ValidationRule {
+public class MinItemsRule extends AbstractValidationRule implements ValidationRule {
     private final int minItems;
 
     public MinItemsRule(int minItems) {
@@ -14,36 +16,38 @@ public class MinItemsRule implements ValidationRule {
     }
 
     @Override
-    public void validate(AstNode node, String path, ValidationResult result) {
+    public boolean validate(AstNode node, String path, Reporter reporter) {
         if (node instanceof SequenceAstNode sequence) {
-            validateValue(sequence.getChildren(), path, result, node.getStartLine(), node.getStartColumn());
+            return validateValue(sequence.getChildren(), path, node.getStartLine(), node.getStartColumn(), reporter);
         } else if (minItems > 0) {
-            result.addError(path, "Expected an array with at least " + minItems + " items.",
-                           node.getStartLine(), node.getStartColumn());
+            error(path, node, reporter, SchemaDiagnosticCode.LESS_THAN_MIN_ITEMS, minItems);
+            return false;
         }
+        return true;
     }
 
     @Override
-    public void validateValue(Object value, String path, ValidationResult result) {
-        validateValue(value, path, result, -1, -1);
+    public boolean validateValue(Object value, String path, Reporter reporter) {
+        return validateValue(value, path, LocatableException.UNKNOWN_COORD, LocatableException.UNKNOWN_COORD, reporter);
     }
 
-    private void validateValue(Object value, String path, ValidationResult result, int line, int col) {
+    private boolean validateValue(Object value, String path, int line, int column, Reporter reporter) {
         int currentSize = 0;
 
         if (value instanceof Collection<?> collection) {
             currentSize = collection.size();
         } else if (value instanceof Iterable<?> iterable) {
-            for (Object ignored : iterable) currentSize++;
+            for (Object _ : iterable) currentSize++;
         } else if (value != null) {
-            // Not a collection/iterable but exists; depends if you want to treat non-arrays as error here
-            return;
+            // It's not a collection/iterable, so it's not got array items
+            return false;
         }
 
         if (currentSize < minItems) {
-            String msg = String.format("Array has too few items (%d). Minimum required is %d.", currentSize, minItems);
-            result.addError(path, msg, line, col);
+            error(path, line, column, reporter, SchemaDiagnosticCode.LESS_THAN_MIN_ITEMS_2, currentSize, minItems);
+            return false;
         }
+        return true;
     }
 
     public int getMinItems() {

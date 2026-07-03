@@ -1,10 +1,12 @@
 package io.github.qishr.cascara.schema.rule;
 
+import io.github.qishr.cascara.common.diagnostic.LocatableException;
+import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.ScalarAstNode;
-import io.github.qishr.cascara.schema.util.ValidationResult;
+import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
 
-public class MinLengthRule implements ValidationRule {
+public class MinLengthRule extends AbstractValidationRule implements ValidationRule {
     private final int min;
 
     public MinLengthRule(int min) {
@@ -12,25 +14,27 @@ public class MinLengthRule implements ValidationRule {
     }
 
     @Override
-    public void validate(AstNode node, String path, ValidationResult result) {
+    public boolean validate(AstNode node, String path, Reporter reporter) {
         if (node instanceof ScalarAstNode scalar) {
-            validateValue(scalar.getPrimitive(), path, result, node.getStartLine(), node.getStartColumn());
+            return validateValue(scalar.getPrimitive(), path, node.getStartLine(), node.getStartColumn(), reporter);
         }
+        return true;
     }
 
     @Override
-    public void validateValue(Object value, String path, ValidationResult result) {
-        validateValue(value, path, result, -1, -1);
+    public boolean validateValue(Object value, String path, Reporter reporter) {
+        return validateValue(value, path, LocatableException.UNKNOWN_COORD, LocatableException.UNKNOWN_COORD, reporter);
     }
 
-    private void validateValue(Object value, String path, ValidationResult result, int line, int col) {
+    private boolean validateValue(Object value, String path, int line, int column, Reporter reporter) {
         if (value instanceof String str) {
             int length = str.length();
             if (length < min) {
-                String msg = String.format("Length %s is less than the minimum allowed (%s)", length, min);
-                result.addError(path, msg, line, col);
+                error(path, line, column, reporter, SchemaDiagnosticCode.LESS_THAN_MIN_LENGTH, length, min);
+                return false;
             }
         }
+        return true;
     }
 
     public int getMin() {

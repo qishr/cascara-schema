@@ -12,8 +12,8 @@ import io.github.qishr.cascara.common.util.ContentTypes;
 import io.github.qishr.cascara.common.util.ContentType;
 import io.github.qishr.cascara.lang.json.processor.JsonConverter;
 import io.github.qishr.cascara.schema.Schema;
-import io.github.qishr.cascara.schema.SchemaDiagnosticCode;
-import io.github.qishr.cascara.schema.SchemaException;
+import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.exception.SchemaException;
 import io.github.qishr.cascara.schema.util.CascaraSchemaUri.Lifecycle;
 
 public class SchemaStore {

@@ -1,13 +1,14 @@
 package io.github.qishr.cascara.schema.structure;
 
+import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
-import io.github.qishr.cascara.schema.SchemaDiagnosticCode;
-import io.github.qishr.cascara.schema.SchemaException;
 import io.github.qishr.cascara.schema.SchemaType;
+import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.exception.SchemaException;
+import io.github.qishr.cascara.schema.exception.ValidationException;
 import io.github.qishr.cascara.schema.rule.ValidationRule;
 import io.github.qishr.cascara.schema.util.DynamicScope;
 import io.github.qishr.cascara.schema.util.SchemaResolver;
-import io.github.qishr.cascara.schema.util.ValidationResult;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class LazySchemaNode extends BaseSchemaNode {
+public class LazySchemaNode extends AbstractSchemaNode {
     private final SchemaResolver resolver;
     private SchemaNode resolvedNode;
     private SchemaNode root;
@@ -72,19 +73,21 @@ public class LazySchemaNode extends BaseSchemaNode {
     }
 
     @Override
-    public void validate(AstNode node, String path, ValidationResult result) {
+    public boolean validate(AstNode node, String path, Reporter reporter) {
+        boolean valid = true;
         try {
             SchemaNode target = getResolved();
             if (target != null) {
-                target.validate(node, path, result);
+                valid &= target.validate(node, path, reporter);
             } else {
-                result.addError(path, "Target of reference '" + ref + "' is null",
-                               node.getStartLine(), node.getStartColumn());
+                error(path, node, reporter, null, SchemaDiagnosticCode.TARGET_IS_NULL, ref);
+                valid = false;
             }
         } catch (Exception e) {
-            result.addError(path, "Broken schema reference: " + ref + " (" + e.getMessage() + ")",
-                           node.getStartLine(), node.getStartColumn());
+            error(path, node, reporter, e, SchemaDiagnosticCode.BROKEN_SCHEMA_REF, ref, e.getMessage());
+            valid = false;
         }
+        return valid;
     }
 
     public AstNode getInitialAst() {
@@ -155,5 +158,21 @@ public class LazySchemaNode extends BaseSchemaNode {
             }
         } catch (Exception ignored) {}
         return combined;
+    }
+
+    //
+    //
+    //
+
+    private void error(String fragmentPath, AstNode node, Reporter reporter, Throwable cause, SchemaDiagnosticCode code, Object... details) {
+        if (reporter == null || !reporter.collectsProblems()) {
+            throw new ValidationException(fragmentPath, node, cause, code, details);
+        }
+
+        // AstNode should not contain a URI, but for reporting we need a URI,
+        // or at least the fragment (from # onwards).
+        //
+        // TODO: errorAt method that takes URI and AstNode
+        reporter.errorAt(node.getStartLine(), node.getStartColumn(), cause, code, details);
     }
 }

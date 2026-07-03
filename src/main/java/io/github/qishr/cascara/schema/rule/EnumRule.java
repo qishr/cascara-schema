@@ -1,13 +1,15 @@
 package io.github.qishr.cascara.schema.rule;
 
+import io.github.qishr.cascara.common.diagnostic.LocatableException;
+import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.ScalarAstNode;
-import io.github.qishr.cascara.schema.util.ValidationResult;
+import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
 
 import java.util.Collections;
 import java.util.List;
 
-public class EnumRule implements ValidationRule {
+public class EnumRule extends AbstractValidationRule implements ValidationRule {
     private final List<String> allowedValues;
 
     public EnumRule(List<String> allowedValues) {
@@ -15,19 +17,22 @@ public class EnumRule implements ValidationRule {
     }
 
     @Override
-    public void validate(AstNode node, String path, ValidationResult result) {
+    public boolean validate(AstNode node, String path, Reporter reporter) {
         if (node instanceof ScalarAstNode scalar) {
-            validateValue(scalar.getPrimitive(), path, result);
+            return validateValue(scalar.getPrimitive(), path, reporter);
         }
+        return true;
     }
 
     @Override
-    public void validateValue(Object value, String path, ValidationResult result) {
-        if (value == null) return;
+    public boolean validateValue(Object value, String path, Reporter reporter) {
+        if (value == null) return true;
         String valStr = value.toString();
         if (!allowedValues.contains(valStr)) {
-            result.addError(path, "Value '" + valStr + "' is not in allowed list: " + allowedValues, -1, -1);
+            error(path, LocatableException.UNKNOWN_COORD, LocatableException.UNKNOWN_COORD, reporter, SchemaDiagnosticCode.NOT_ALLOWED_IN_LIST, valStr, allowedValues);
+            return false;
         }
+        return true;
     }
 
     public List<String> getAllowedValues() {

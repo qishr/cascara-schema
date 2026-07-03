@@ -20,8 +20,8 @@ import io.github.qishr.cascara.schema.structure.ObjectSchemaNode;
 import io.github.qishr.cascara.schema.structure.ScalarSchemaNode;
 import io.github.qishr.cascara.schema.structure.SchemaNode;
 import io.github.qishr.cascara.schema.Schema;
-import io.github.qishr.cascara.schema.SchemaException;
 import io.github.qishr.cascara.schema.SchemaType;
+import io.github.qishr.cascara.schema.exception.SchemaException;
 
 public class BasedTests extends SchemaIntegrationTestBase {
 

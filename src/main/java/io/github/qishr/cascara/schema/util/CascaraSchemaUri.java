@@ -4,8 +4,8 @@ import java.net.URI;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import io.github.qishr.cascara.schema.SchemaDiagnosticCode;
-import io.github.qishr.cascara.schema.SchemaException;
+import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.exception.SchemaException;
 
 public class CascaraSchemaUri {
     public static final String SCHEMA_SERVICE_URI = "cascara://core/schema-service";
@@ -134,4 +134,9 @@ public class CascaraSchemaUri {
     public String getModuleName() { return moduleName; }
     public String getSchemaName() { return schemaName; }
     public String getVersion() { return version; }
+
+    @Override
+    public String toString() {
+        return toUri().toString();
+    }
 }
