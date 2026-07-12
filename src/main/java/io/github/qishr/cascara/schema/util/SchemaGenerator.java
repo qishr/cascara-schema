@@ -26,7 +26,7 @@ import io.github.qishr.cascara.common.lang.type.ScalarDescriptor;
 import io.github.qishr.cascara.common.lang.type.TypeDescriptor;
 import io.github.qishr.cascara.common.lang.type.TypeDescriptorFactory;
 import io.github.qishr.cascara.schema.SchemaKeyword;
-import io.github.qishr.cascara.schema.SchemaType;
+import io.github.qishr.cascara.common.lang.type.PrimitiveType;
 import io.github.qishr.cascara.schema.annotation.ContentMediaType;
 import io.github.qishr.cascara.schema.annotation.SchemaDefinition;
 import io.github.qishr.cascara.schema.annotation.SchemaProperty;
@@ -84,12 +84,12 @@ public final class SchemaGenerator {
         return generate(parentDoc, null, clazz, null);
     }
 
-    public ReferenceMapNode generate(MapAstNode<?,?> parentDoc, String fragment, Class<?> clazz) {
+    public ReferenceMapNode generate(MapAstNode<?,?,?> parentDoc, String fragment, Class<?> clazz) {
         return generate(parentDoc, fragment, clazz, null);
     }
 
     // TODO: Perhaps fragment should be specified as a SchemaNode or AstNode?
-    public ReferenceMapNode generate(MapAstNode<?,?> parentDoc, String fragment, Class<?> clazz, Object template) {
+    public ReferenceMapNode generate(MapAstNode<?,?,?> parentDoc, String fragment, Class<?> clazz, Object template) {
         processingStack.clear();
         definitions.clear();
         multiClassDocument = false;
@@ -148,7 +148,7 @@ public final class SchemaGenerator {
         }
 
         fillObjectMetadata(clazz, root);
-        root.put(SchemaKeyword.TYPE.asString(), scalar(SchemaType.OBJECT.asString()));
+        root.put(SchemaKeyword.TYPE.asString(), scalar(PrimitiveType.OBJECT.asString()));
 
         ReferenceMapNode properties = new ReferenceMapNode();
         root.put(SchemaKeyword.PROPERTIES.asString(), properties);
@@ -257,13 +257,13 @@ public final class SchemaGenerator {
         String analyzedType = node.getString(SchemaKeyword.TYPE.asString());
 
         if (isStandardScalarType(type) || (analyzedType != null &&
-            !SchemaType.ARRAY.asString().equals(analyzedType) && !SchemaType.OBJECT.asString().equals(analyzedType))
+            !PrimitiveType.ARRAY.asString().equals(analyzedType) && !PrimitiveType.OBJECT.asString().equals(analyzedType))
         ) {
             fillTypeInfo(node, type, field);
         }
         else if (isList(type)) {
             Class<?> elementType = getListElementType(field);
-            node.put(SchemaKeyword.TYPE.asString(), scalar(SchemaType.ARRAY.asString()));
+            node.put(SchemaKeyword.TYPE.asString(), scalar(PrimitiveType.ARRAY.asString()));
             node.put(SchemaKeyword.ITEMS.asString(), createItemsNode(elementType, field));
         } else {
             // If there is a type descriptor, use it.
@@ -390,7 +390,7 @@ public final class SchemaGenerator {
         processingStack.add(clazz);
         try {
             ReferenceMapNode def = new ReferenceMapNode();
-            def.put(SchemaKeyword.TYPE.asString(), scalar(SchemaType.OBJECT.asString()));
+            def.put(SchemaKeyword.TYPE.asString(), scalar(PrimitiveType.OBJECT.asString()));
 
             fillObjectMetadata(clazz, def);
 
@@ -416,15 +416,15 @@ public final class SchemaGenerator {
 
     private void fillTypeInfo(ReferenceMapNode node, Class<?> type, Field field) {
         if (type == boolean.class || type == Boolean.class) {
-            node.put(SchemaKeyword.TYPE.asString(), scalar(SchemaType.BOOLEAN.asString()));
+            node.put(SchemaKeyword.TYPE.asString(), scalar(PrimitiveType.BOOLEAN.asString()));
         } else if (type == int.class || type == Integer.class
             || type == long.class || type == Long.class) {
-            node.put(SchemaKeyword.TYPE.asString(), scalar(SchemaType.INTEGER.asString()));
+            node.put(SchemaKeyword.TYPE.asString(), scalar(PrimitiveType.INTEGER.asString()));
         } else if (type == double.class || type == Double.class
             || type == float.class || type == Float.class) {
-            node.put(SchemaKeyword.TYPE.asString(), scalar(SchemaType.NUMBER.asString()));
+            node.put(SchemaKeyword.TYPE.asString(), scalar(PrimitiveType.NUMBER.asString()));
         } else if (type == String.class || type.isEnum()) {
-            node.put(SchemaKeyword.TYPE.asString(), scalar(SchemaType.STRING.asString()));
+            node.put(SchemaKeyword.TYPE.asString(), scalar(PrimitiveType.STRING.asString()));
         }
 
         applyConstraints(node, field);

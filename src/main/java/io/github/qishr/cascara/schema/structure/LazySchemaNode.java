@@ -2,7 +2,7 @@ package io.github.qishr.cascara.schema.structure;
 
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
-import io.github.qishr.cascara.schema.SchemaType;
+import io.github.qishr.cascara.common.lang.type.PrimitiveType;
 import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
 import io.github.qishr.cascara.schema.exception.SchemaException;
 import io.github.qishr.cascara.schema.exception.ValidationException;
@@ -100,7 +100,7 @@ public class LazySchemaNode extends AbstractSchemaNode {
         return (resolvedNode != null) ? resolvedNode.getOriginAst() : initialAst;
     }
 
-    public SchemaType getType() {
+    public PrimitiveType getType() {
         SchemaNode resolved = getResolved();
         if (resolved == null) {
             throw new IllegalStateException("Attempted to access type on LazySchemaNode before it was resolved.");

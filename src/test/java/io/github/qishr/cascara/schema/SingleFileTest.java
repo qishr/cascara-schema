@@ -6,27 +6,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import io.github.qishr.cascara.common.diagnostic.Reporter;
-import io.github.qishr.cascara.common.diagnostic.SilentCollectingReporter;
-import io.github.qishr.cascara.lang.json.JsonOptions;
 import io.github.qishr.cascara.lang.json.ast.JsonNode;
 import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
 import io.github.qishr.cascara.schema.util.SchemaCompiler;
-import io.github.qishr.cascara.schema.util.SchemaValidator;
 
 class SingleFileTest {
-
-    // private final JsonOptions options = new JsonOptions().setStrict(true);
-
-    // // TODO: diagnostic level in one place for all tests?
-
-    // private JsonAstParser parser = new JsonAstParser()
-    //         .setOptions(options);
-    //         // .setReporter(new StandardReporter().setLevel(Level.TRACE));
-
     // @Disabled
     @Test
     void testSingleFile() throws IOException {

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import io.github.qishr.cascara.common.lang.annotation.DataIgnore;
 import io.github.qishr.cascara.common.lang.reference.ReferenceNode;
+import io.github.qishr.cascara.common.lang.type.PrimitiveType;
 import io.github.qishr.cascara.schema.annotation.SchemaProperty;
 import io.github.qishr.cascara.schema.util.SchemaGenerator;
 import io.github.qishr.cascara.schema.util.SchemaResolver;
@@ -59,7 +60,7 @@ public class SimpleEntityTests {
         ArraySchemaNode arr = (ArraySchemaNode) children;
 
         assertTrue(arr.getItemSchema() instanceof LazySchemaNode);
-        assertEquals(SchemaType.OBJECT, ((LazySchemaNode) arr.getItemSchema()).getType());
+        assertEquals(PrimitiveType.OBJECT, ((LazySchemaNode) arr.getItemSchema()).getType());
     }
 
 

@@ -17,11 +17,10 @@ import io.github.qishr.cascara.common.lang.ast.MapEntryAstNode;
 import io.github.qishr.cascara.common.lang.ast.ScalarAstNode;
 import io.github.qishr.cascara.common.lang.ast.SequenceAstNode;
 import io.github.qishr.cascara.common.lang.type.ScalarDescriptor;
-import io.github.qishr.cascara.common.lang.type.TypeDescriptor;
 import io.github.qishr.cascara.common.lang.type.TypeDescriptorFactory;
 import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.schema.SchemaKeyword;
-import io.github.qishr.cascara.schema.SchemaType;
+import io.github.qishr.cascara.common.lang.type.PrimitiveType;
 import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
 import io.github.qishr.cascara.schema.exception.SchemaException;
 import io.github.qishr.cascara.schema.internal.CompiledSchema;
@@ -139,7 +138,7 @@ public class SchemaCompiler {
                 Schema metaDoc = resolver.getSchema(metaUri);
                 metaRoot = metaDoc.getRoot();
             } catch (Exception e) {
-                reporter.warn(GenericDiagnosticCode.WARN, "Could not resolve meta-schema " + metaUri + ": " + e.getMessage());
+                reporter.error(GenericDiagnosticCode.ERROR, "Could not resolve meta-schema " + metaUri + ": " + e.getMessage());
             }
         }
 
@@ -183,7 +182,7 @@ public class SchemaCompiler {
                     try {
                         currentMeta = resolver.getSchema(metaUri).getRoot();
                     } catch (Exception e) {
-                        reporter.warn(SchemaDiagnosticCode.LOCAL_RESOLUTION_FAILED, localSchema);
+                        reporter.error(SchemaDiagnosticCode.LOCAL_RESOLUTION_FAILED, localSchema);
                     }
                 }
             } catch (Exception e) {
@@ -194,7 +193,7 @@ public class SchemaCompiler {
 
         // 2. Use 'currentMeta' for the rest of this node and its children
         AbstractSchemaNode schemaNode;
-        SchemaType type = null;
+        PrimitiveType type = null;
         if (refValue != null && !refValue.isEmpty()) {
             DynamicScope scope = (resolver instanceof SchemaResolver r) ? r.getCurrentScope() : null;
             schemaNode = new LazySchemaNode(refValue, resolver, rootSchema, currentBase, astNode, scope, currentMeta);
@@ -260,9 +259,10 @@ public class SchemaCompiler {
             if (astNode.get(SchemaKeyword.PROPERTIES.asString()) instanceof MapAstNode props) {
                 props.getEntries().forEach((entry) -> {
                     if (entry instanceof MapEntryAstNode entryNode &&
-                            entryNode.getKey() instanceof ScalarAstNode scalar &&
+                            // entryNode.getKey() instanceof ScalarAstNode scalar &&
                             entryNode.getValue() instanceof MapAstNode m) {
-                        String propName = scalar.asString();
+                        // String propName = scalar.asString();
+                        String propName = entryNode.getKeyString();
                         objNode.addProperty(propName, processNode(m, propName, originUri, currentBase, effectiveRoot, meta));
                     }
                 });
@@ -281,9 +281,12 @@ public class SchemaCompiler {
         if (defsNode instanceof MapAstNode defs) {
             defs.getEntries().forEach((entry) -> {
                 if (entry instanceof MapEntryAstNode entryNode &&
-                        entryNode.getValue() instanceof MapAstNode m &&
-                        entryNode.getKey() instanceof ScalarAstNode scalar) {
-                    String key = scalar.asString();
+                        entryNode.getValue() instanceof MapAstNode m) {
+
+                    // TODO: Make this change everywhere MapEntryAstNode.getKey() is called
+                    // String key = scalar.asString();
+                    String key = entryNode.getKeyString();
+
                     SchemaNode defNode = processNode(m, key, originUri, currentBase, effectiveRoot, meta);
                     if (effectiveRoot instanceof ObjectSchemaNode objRoot) {
                         objRoot.addDefinition(key, defNode);
@@ -368,13 +371,13 @@ public class SchemaCompiler {
         }
     }
 
-    private void handleExtensions(MapAstNode<?,?> astNode, AbstractSchemaNode schemaNode) {
+    private void handleExtensions(MapAstNode<?,?,?> astNode, AbstractSchemaNode schemaNode) {
         // Capture ALL extension keywords (x-load, x-storage, x-cascade, etc.)
         astNode.getEntries().forEach((entry) -> {
             if (entry instanceof MapEntryAstNode node) {
-                AstNode keyBase = node.getKey();
-                if (keyBase instanceof ScalarAstNode keyNode) {
-                    String key = keyNode.asString();
+                // AstNode keyBase = node.getKey();
+                // if (keyBase instanceof ScalarAstNode keyNode) {
+                    String key = node.getKeyString();
                     if (key != null) {
                         if (!SchemaKeyword.exists(key)) { // it's not a standard JSONSchema keyword
                             AstNode valBase = node.getValue();
@@ -407,7 +410,7 @@ public class SchemaCompiler {
                             }
                         }
                     }
-                }
+                // }
             }
         });
     }
@@ -417,14 +420,16 @@ public class SchemaCompiler {
     private Map<String, Object> convertToMap(@SuppressWarnings("rawtypes") MapAstNode mapNode) {
         Map<String, Object> result = new LinkedHashMap<>();
         mapNode.getEntries().forEach(entry -> {
-            if (entry instanceof MapEntryAstNode node && node.getKey() instanceof ScalarAstNode kn) {
+            if (entry instanceof MapEntryAstNode node) {
+                // && node.getKey() instanceof ScalarAstNode kn) {
+                String key = node.getKeyString();
                 AstNode vn = node.getValue();
                 if (vn instanceof ScalarAstNode scalar) {
-                    result.put(kn.asString(), scalar.getPrimitive());
+                    result.put(key, scalar.getPrimitive());
                 } else if (vn instanceof MapAstNode nestedMap) {
-                    result.put(kn.asString(), convertToMap(nestedMap));
+                    result.put(key, convertToMap(nestedMap));
                 } else if (vn instanceof SequenceAstNode nestedSeq) {
-                    result.put(kn.asString(), convertToList(nestedSeq));
+                    result.put(key, convertToList(nestedSeq));
                 }
             }
         });
@@ -446,7 +451,7 @@ public class SchemaCompiler {
     }
 
     @SuppressWarnings("unchecked")
-    private void attachRules(@SuppressWarnings("rawtypes") MapAstNode astNode, AbstractSchemaNode schemaNode, SchemaType type) {
+    private void attachRules(@SuppressWarnings("rawtypes") MapAstNode astNode, AbstractSchemaNode schemaNode, PrimitiveType type) {
         // Warning: Calling getType in this method casuses infinite recusrion
 
         TypeRule typeRule = new TypeRule(type);
@@ -529,13 +534,13 @@ public class SchemaCompiler {
         }
     }
 
-    private static SchemaType extractType(@SuppressWarnings("rawtypes") MapAstNode node) {
+    private static PrimitiveType extractType(@SuppressWarnings("rawtypes") MapAstNode node) {
         String typeStr = node.getString(SchemaKeyword.TYPE.asString());
         if (typeStr != null && !typeStr.isEmpty()) {
             try {
-                return SchemaType.valueOf(typeStr.toUpperCase());
+                return PrimitiveType.valueOf(typeStr.toUpperCase());
             } catch (IllegalArgumentException e) {
-                return SchemaType.ANY;
+                return PrimitiveType.ANY;
             }
         }
 
@@ -545,10 +550,10 @@ public class SchemaCompiler {
             node.containsKey("$defs") ||
             node.containsKey("allOf") ||
             node.containsKey("additionalProperties")) {
-            return SchemaType.OBJECT;
+            return PrimitiveType.OBJECT;
         }
 
-        return SchemaType.ANY;
+        return PrimitiveType.ANY;
     }
 
     private ScalarDescriptor<?> getScalarDescriptor(String format) {

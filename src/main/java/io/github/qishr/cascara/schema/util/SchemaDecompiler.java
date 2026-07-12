@@ -9,9 +9,9 @@ import io.github.qishr.cascara.common.lang.reference.ReferenceMapEntryNode;
 import io.github.qishr.cascara.common.lang.reference.ReferenceMapNode;
 import io.github.qishr.cascara.common.lang.reference.ReferenceScalarNode;
 import io.github.qishr.cascara.common.lang.reference.ReferenceSequenceNode;
+import io.github.qishr.cascara.common.lang.type.PrimitiveType;
 import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.schema.SchemaKeyword;
-import io.github.qishr.cascara.schema.SchemaType;
 import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
 import io.github.qishr.cascara.schema.exception.SchemaException;
 import io.github.qishr.cascara.schema.rule.EnumRule;
@@ -52,7 +52,7 @@ public final class SchemaDecompiler {
 
         ReferenceMapNode decompiled = decompileInternal(compiledRoot);
         for (ReferenceMapEntryNode entry : decompiled.getEntries()) {
-            root.put(entry.getKey(), entry.getValue());
+            root.put(entry.getKeyString(), entry.getValue());
         }
         return root;
     }
@@ -103,7 +103,7 @@ public final class SchemaDecompiler {
 
         if (node != null) {
             for (ReferenceMapEntryNode entry : node.getEntries()) {
-                decompiled.put(entry.getKey(), entry.getValue());
+                decompiled.put(entry.getKeyString(), entry.getValue());
             }
         }
 
@@ -115,7 +115,7 @@ public final class SchemaDecompiler {
 
     private ReferenceMapNode object(ObjectSchemaNode object) throws SchemaException {
         ReferenceMapNode map = new ReferenceMapNode();
-        map.put(SchemaKeyword.TYPE.asString(), scalarValue(SchemaType.OBJECT.asString()));
+        map.put(SchemaKeyword.TYPE.asString(), scalarValue(PrimitiveType.OBJECT.asString()));
 
         // definitions
         if (!object.getDefinitions().isEmpty()) {
@@ -154,7 +154,7 @@ public final class SchemaDecompiler {
     private ReferenceMapNode array(ArraySchemaNode array) {
         ReferenceMapNode map = new ReferenceMapNode();
         ReferenceMapNode items = new ReferenceMapNode();
-        map.put(SchemaKeyword.TYPE.asString(), scalarValue(SchemaType.ARRAY.asString()));
+        map.put(SchemaKeyword.TYPE.asString(), scalarValue(PrimitiveType.ARRAY.asString()));
 
         SchemaNode template = array.getItemSchema();
         if (template instanceof LazySchemaNode lazy) {
@@ -178,7 +178,7 @@ public final class SchemaDecompiler {
     private ReferenceMapNode scalar(SchemaNode node) {
         ReferenceMapNode map = new ReferenceMapNode();
         String type = node.getType().toString().toLowerCase();
-        if (type != null && node.getType() != SchemaType.ANY) {
+        if (type != null && node.getType() != PrimitiveType.ANY) {
             map.put(SchemaKeyword.TYPE.asString(), scalarValue(type));
         }
         return map;

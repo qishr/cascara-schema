@@ -3,6 +3,7 @@ package io.github.qishr.cascara.schema.internal;
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.schema.Schema;
+import io.github.qishr.cascara.schema.exception.ValidationException;
 import io.github.qishr.cascara.schema.structure.*;
 import io.github.qishr.cascara.schema.util.SchemaResolver;
 import io.github.qishr.cascara.schema.util.SchemaValidator;
@@ -64,18 +65,26 @@ public final class CompiledSchema implements Schema {
         return ensureProperties().get(name);
     }
 
+    /// Validates and AST against this schema.
+    /// @param data an `AstNode` representing a document or part of a
+    ///             structured document (such as JSON or YAML) to validate.
+    /// @throws ValidationException if the AST is not valid.
     @Override
-    public void validate(AstNode root) {
+    public void validate(AstNode data) {
         SchemaValidator runner = new SchemaValidator(resolver);
-        runner.validate(root, this);
+        runner.validate(data, this);
     }
 
+    /// Validates and AST against this schema.
+    /// @param data an `AstNode` representing a document or part of a
+    ///             structured document (such as JSON or YAML) to validate.
+    /// @return true on success, false on failure.
+    /// @param reporter a reporter for collecting problem diagnostics.
     @Override
-    public boolean validate(AstNode root, Reporter reporter) {
+    public boolean validate(AstNode data, Reporter reporter) {
         SchemaValidator validator = new SchemaValidator(resolver);
-        // runner.setProblemCollector(collector);
         validator.setReporter(reporter);
-        return validator.validate(root, this);
+        return validator.validate(data, this);
     }
 
     @Override
