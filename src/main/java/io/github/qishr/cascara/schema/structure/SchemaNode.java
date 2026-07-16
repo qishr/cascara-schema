@@ -6,11 +6,11 @@ import java.util.Map;
 
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
-import io.github.qishr.cascara.schema.SchemaType;
+import io.github.qishr.cascara.common.lang.type.PrimitiveType;
 import io.github.qishr.cascara.schema.rule.ValidationRule;
 
 public interface SchemaNode extends AstNode {
-    SchemaType getType();
+    PrimitiveType getType();
 
     /// The human-readable title
     String getTitle();

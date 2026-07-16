@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;
-import io.github.qishr.cascara.schema.SchemaType;
+import io.github.qishr.cascara.common.lang.type.PrimitiveType;
 import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
 import io.github.qishr.cascara.schema.exception.ValidationException;
 
@@ -22,7 +22,7 @@ public class ObjectSchemaNode extends AbstractSchemaNode {
     private SchemaNode unevaluatedPropertiesSchema;
 
     public ObjectSchemaNode(SchemaNode metaSchema) {
-        super(SchemaType.OBJECT, metaSchema);
+        super(PrimitiveType.OBJECT, metaSchema);
     }
 
     public void addProperty(String name, SchemaNode node) {

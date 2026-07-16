@@ -4,7 +4,7 @@ import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.annotation.Nullable;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.CommentAstNode;
-import io.github.qishr.cascara.schema.SchemaType;
+import io.github.qishr.cascara.common.lang.type.PrimitiveType;
 import io.github.qishr.cascara.schema.rule.ValidationRule;
 
 import java.net.URI;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractSchemaNode implements SchemaNode {
-    private SchemaType type;
+    private PrimitiveType type;
     private String title;
     private String titleKey;
     private String description;
@@ -41,7 +41,7 @@ public abstract class AbstractSchemaNode implements SchemaNode {
     // private final List<SchemaNode> anyOf = new ArrayList<>();
     // private final List<SchemaNode> oneOf = new ArrayList<>();
 
-    public AbstractSchemaNode(SchemaType type, SchemaNode metaSchema) {
+    public AbstractSchemaNode(PrimitiveType type, SchemaNode metaSchema) {
         this.type = type;
         this.metaSchema = metaSchema;
     }
@@ -66,7 +66,7 @@ public abstract class AbstractSchemaNode implements SchemaNode {
     public void addRule(ValidationRule rule) { this.rules.add(rule); }
     public void addDefinition(String key, SchemaNode node) { this.definitions.put(key, node); }
 
-    public void setType(SchemaType type) { this.type = type; }
+    public void setType(PrimitiveType type) { this.type = type; }
     public void setOriginUri(URI originUri) { this.originUri = originUri; }
     public void setTitle(String title) { this.title = title; }
     public void setDescription(String description) { this.description = description; }
@@ -121,7 +121,7 @@ public abstract class AbstractSchemaNode implements SchemaNode {
         return extensions;
     }
 
-    @Override public SchemaType getType() { return type; }
+    @Override public PrimitiveType getType() { return type; }
     @Override public String getTitle() { return title; }
     @Override public String getTitleKey() { return titleKey; }
     @Override public String getDescription() { return description; }

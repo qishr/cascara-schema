@@ -1,6 +1,6 @@
 package io.github.qishr.cascara.schema.internal;
 
-import io.github.qishr.cascara.schema.SchemaType;
+import io.github.qishr.cascara.common.lang.type.PrimitiveType;
 import io.github.qishr.cascara.schema.structure.SchemaNode;
 
 public final class SchemaNodeDumper {
@@ -23,7 +23,7 @@ public final class SchemaNodeDumper {
         indent(sb, indent + 1).append("type: ").append(node.getType()).append("\n");
 
         // Object properties
-        if (node.getType() == SchemaType.OBJECT) {
+        if (node.getType() == PrimitiveType.OBJECT) {
             indent(sb, indent + 1).append("properties:\n");
             for (var e : node.getProperties().entrySet()) {
                 indent(sb, indent + 2).append(e.getKey()).append(":\n");
@@ -32,7 +32,7 @@ public final class SchemaNodeDumper {
         }
 
         // Array items
-        if (node.getType() == SchemaType.ARRAY) {
+        if (node.getType() == PrimitiveType.ARRAY) {
             indent(sb, indent + 1).append("items:\n");
             dump(node.getItemSchema(), sb, indent + 2);
         }

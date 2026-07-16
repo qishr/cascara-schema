@@ -20,7 +20,7 @@ import io.github.qishr.cascara.schema.structure.ObjectSchemaNode;
 import io.github.qishr.cascara.schema.structure.ScalarSchemaNode;
 import io.github.qishr.cascara.schema.structure.SchemaNode;
 import io.github.qishr.cascara.schema.Schema;
-import io.github.qishr.cascara.schema.SchemaType;
+import io.github.qishr.cascara.common.lang.type.PrimitiveType;
 import io.github.qishr.cascara.schema.exception.SchemaException;
 
 public class BasedTests extends SchemaIntegrationTestBase {
@@ -33,7 +33,7 @@ public class BasedTests extends SchemaIntegrationTestBase {
         SchemaNode mockMeta = mock(SchemaNode.class);
 
         // 1. Remove "common", add mockMeta
-        SchemaNode expectedNode = new ScalarSchemaNode(SchemaType.STRING, mockMeta);
+        SchemaNode expectedNode = new ScalarSchemaNode(PrimitiveType.STRING, mockMeta);
 
         // 2. Add mockMeta to the end of LazySchemaNode constructor
         LazySchemaNode lazy = new LazySchemaNode("common.json", mockResolver, null, baseUri, mockAst, null, mockMeta);
@@ -72,7 +72,7 @@ public class BasedTests extends SchemaIntegrationTestBase {
 
         assertTrue(result instanceof ScalarSchemaNode, "Result should be the compiled scalar node");
         // Note: If you removed the name field entirely, you should assert on the type or a title instead.
-        assertEquals(SchemaType.STRING, result.getType());
+        assertEquals(PrimitiveType.STRING, result.getType());
     }
 
     // TODO: This has been temporarily removed since CascaraSchemaResolver no longer

@@ -74,7 +74,7 @@ public class SchemaResolver {
         if (content == null) {
             try {
                 content = contentLoaderService.getContent(uri);
-            } catch (LocalizableException e) {
+            } catch (LocalizableIOException e) {
                 throw new SchemaException(e);
             }
         }
@@ -266,7 +266,7 @@ public class SchemaResolver {
         SchemaNode found = findNodeByAst(schemaDoc.getRoot(), targetAst);
 
         if (found == null) {
-            throw new SchemaException(schemaDoc.getOriginUri(), fragment, SchemaDiagnosticCode.NODE_NOT_FOUND);
+            throw new SchemaException(schemaDoc.getOriginUri(), fragment, SchemaDiagnosticCode.NODE_NOT_FOUND, fragment);
         }
 
         // 3. Update the Dynamic Scope and return

@@ -3,13 +3,13 @@ package io.github.qishr.cascara.schema.rule;
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.ScalarAstNode;
-import io.github.qishr.cascara.schema.SchemaType;
+import io.github.qishr.cascara.common.lang.type.PrimitiveType;
 import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
 
 public class TypeRule extends AbstractValidationRule implements ValidationRule {
-    private final SchemaType expectedType;
+    private final PrimitiveType expectedType;
 
-    public TypeRule(SchemaType expectedType) {
+    public TypeRule(PrimitiveType expectedType) {
         this.expectedType = expectedType;
     }
 

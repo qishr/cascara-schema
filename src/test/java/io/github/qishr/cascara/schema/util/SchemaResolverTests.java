@@ -11,11 +11,14 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import io.github.qishr.cascara.common.diagnostic.StandardReporter;
+import io.github.qishr.cascara.common.diagnostic.Diagnostic.Level;
 import io.github.qishr.cascara.common.lang.reference.ReferenceMapNode;
 import io.github.qishr.cascara.common.lang.reference.ReferenceNode;
 import io.github.qishr.cascara.common.lang.reference.ReferenceScalarNode;
 import io.github.qishr.cascara.lang.json.ast.JsonNode;
 import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
+import io.github.qishr.cascara.lang.json.util.JsonOptions;
 import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.schema.structure.ArraySchemaNode;
 import io.github.qishr.cascara.schema.structure.LazySchemaNode;
@@ -106,7 +109,9 @@ public class SchemaResolverTests {
               }
                 """;
 
-        JsonAstParser parser = new JsonAstParser();
+        JsonAstParser parser = new JsonAstParser()
+            .setOptions(JsonOptions.JSON5)
+            .setReporter(new StandardReporter().setLevel(Level.TRACE));
         JsonNode doc = parser.parse(json);
         SchemaResolver resolver = new SchemaResolver();
         SchemaCompiler compiler = new SchemaCompiler(resolver);

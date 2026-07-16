@@ -44,7 +44,7 @@ public class SchemaValidator {
     /// If the reporter is not capable of collecting problems, a ValidationException
     //  will be thrown if a call to `validate` finds a problem.
     ///
-    /// @param reporter The reporter that collects or reports problem [Diagnostic] objects.
+    /// @param reporter The reporter that collects or reports problem `Diagnostic` objects.
     public SchemaValidator setReporter(Reporter reporter) {
         this.reporter = reporter == null ? new NoOpReporter() : reporter;
         return this;
@@ -56,7 +56,7 @@ public class SchemaValidator {
     }
 
     public boolean validate(AstNode root, Schema schema) {
-        return validate(root, schema.getRoot(), "");
+        return validate(root, schema.getRoot(), "#");
     }
 
     public boolean validate(AstNode root, SchemaNode schema) {
@@ -68,8 +68,6 @@ public class SchemaValidator {
     //
 
     private boolean validate(AstNode data, SchemaNode schema, String path) {
-        // REPORTER.debug("validate " + path);
-
         boolean valid = true;
 
         // 1. Resolve references if the current node is lazy
@@ -84,23 +82,17 @@ public class SchemaValidator {
         }
 
         // 3. Recurse into children based on structure
-        if (data instanceof MapAstNode<? extends AstNode, ? extends MapEntryAstNode<? extends AstNode>> map && schema instanceof ObjectSchemaNode obj) {
-
-            // Actually faster...
-            for (MapEntryAstNode<? extends AstNode> entry : map) {
-
-            // }
-
-            // // This should be faster, but it's not...
-            // for (MapEntryAstNode<? extends AstNode> entry : map.entrySet()) {
-                AstNode keyNode = entry.getKey();
+        if (data instanceof MapAstNode<?, ? extends AstNode, ? extends MapEntryAstNode<?, ? extends AstNode>> map && schema instanceof ObjectSchemaNode obj) {
+        // if (data instanceof MapAstNode map && schema instanceof ObjectSchemaNode obj) {
+            // TODO: We can make this faster yet.
+            // If this for is using an iterator, change it to a regular for loop.
+            // The only problem is how do we get the entry set without using
+            // the underlying linked hash map's iterator.
+            for (MapEntryAstNode<?, ? extends AstNode> entry : map) {
+                // for (Object oe : map) {
+                //     MapEntryAstNode<? extends AstNode> entry = (MapEntryAstNode<? extends AstNode>)oe;
+                String key = entry.getKeyString();
                 AstNode valueNode = entry.getValue();
-                String key;
-                if (keyNode instanceof ScalarAstNode scalar) {
-                    key = scalar.asString();
-                } else {
-                    key = String.valueOf(keyNode);
-                }
                 SchemaNode propSchema = obj.getProperty(key);
                 // If property is defined in schema, validate it
                 if (propSchema != null) {
@@ -108,22 +100,6 @@ public class SchemaValidator {
                 }
             }
 
-            // // Original...
-            // for (Object objKey : map.keySet()) {
-            //     String key;
-            //     if (objKey instanceof ScalarAstNode scalar) {
-            //         key = scalar.asString();
-            //     } else {
-            //         key = String.valueOf(objKey);
-            //     }
-
-
-            //     SchemaNode propSchema = obj.getProperty(key);
-            //     // If property is defined in schema, validate it
-            //     if (propSchema != null) {
-            //         valid &= validate(map.get(key), propSchema, path + "/" + key);
-            //     }
-            // }
         } else if (data instanceof SequenceAstNode<? extends AstNode> seq && schema instanceof ArraySchemaNode arr) {
             int i = 0;
             for (AstNode element : seq) {

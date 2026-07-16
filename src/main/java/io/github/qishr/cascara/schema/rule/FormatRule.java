@@ -45,6 +45,7 @@ public class FormatRule extends AbstractValidationRule implements ValidationRule
                 String strValue = String.valueOf(value);
                 return descriptor.validate(strValue, reporter);
             } else {
+                // TODO: Handle this elegantly. Warning or Error?
                 System.out.println("Format with no type descriptor: " + format);
             }
         }

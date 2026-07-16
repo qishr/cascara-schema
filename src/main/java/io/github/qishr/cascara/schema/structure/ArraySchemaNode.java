@@ -3,7 +3,7 @@ package io.github.qishr.cascara.schema.structure;
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.SequenceAstNode;
-import io.github.qishr.cascara.schema.SchemaType;
+import io.github.qishr.cascara.common.lang.type.PrimitiveType;
 
 import java.util.*;
 
@@ -11,7 +11,7 @@ public class ArraySchemaNode extends AbstractSchemaNode {
     private SchemaNode items; // This is our Item Template
 
     public ArraySchemaNode(SchemaNode metaSchema) {
-        super(SchemaType.ARRAY, metaSchema);
+        super(PrimitiveType.ARRAY, metaSchema);
     }
 
     public SchemaNode getItemSchema() {

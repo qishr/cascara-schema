@@ -13,7 +13,7 @@ import io.github.qishr.cascara.common.lang.ast.MapAstNode;
 import io.github.qishr.cascara.lang.json.ast.JsonNode;
 import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
 import io.github.qishr.cascara.schema.Schema;
-import io.github.qishr.cascara.schema.SchemaType;
+import io.github.qishr.cascara.common.lang.type.PrimitiveType;
 import io.github.qishr.cascara.schema.structure.ObjectSchemaNode;
 import io.github.qishr.cascara.schema.structure.SchemaNode;
 
@@ -106,7 +106,7 @@ public class SystemTests {
         assertNotNull(inheritedIdNode, "The 'id' property must be present in 'task'");
 
         // Ensure it's still an IntegerSchemaNode (or has the correct type attribute)
-        assertEquals(SchemaType.INTEGER, inheritedIdNode.getType(), "Inherited 'id' should still be an integer");
+        assertEquals(PrimitiveType.INTEGER, inheritedIdNode.getType(), "Inherited 'id' should still be an integer");
 
         // 6. Verify Deep Extension Merger (Optional but recommended)
         // If 'item' had an 'x-storage' or 'x-indexed' tag, we'd check that here too.
@@ -191,7 +191,7 @@ public class SystemTests {
         JsonNode doc = new JsonAstParser().parse(json);
         Schema compiled = compiler.compile(doc);
         SchemaDecompiler decompiler = new SchemaDecompiler();
-        MapAstNode<?,?> root = (MapAstNode<?,?>)decompiler.decompile(compiled);
+        MapAstNode<?,?,?> root = (MapAstNode<?,?,?>)decompiler.decompile(compiled);
         if (root.get("$defs") instanceof MapAstNode defs) {
             if (defs.get("releasedModule") instanceof MapAstNode rm) {
                 if (rm.get("properties") instanceof MapAstNode properties) {
