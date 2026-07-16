@@ -3,7 +3,7 @@ package io.github.qishr.cascara.schema.util;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +13,7 @@ import io.github.qishr.cascara.common.diagnostic.Diagnostic;
 import io.github.qishr.cascara.common.diagnostic.SilentCollectingReporter;
 import io.github.qishr.cascara.common.lang.reference.ReferenceMapNode;
 import io.github.qishr.cascara.common.lang.reference.ReferenceNode;
-import io.github.qishr.cascara.common.lang.type.LocalDateTimeTypeDescriptor;
+import io.github.qishr.cascara.common.lang.type.DateTimeTypeDescriptor;
 import io.github.qishr.cascara.lang.json.ast.JsonNode;
 import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
 import io.github.qishr.cascara.lang.json.processor.JsonConverter;
@@ -25,13 +25,13 @@ public class FormatTests {
     @SchemaDefinition
     public static class TestClass {
         @SchemaProperty
-        private LocalDateTime dateTime;
+        private ZonedDateTime dateTime;
     }
 
     @Test
     void test_validDateTime() {
         SchemaGenerator generator = new SchemaGenerator();
-        generator.registerTypeDescriptor(new LocalDateTimeTypeDescriptor());
+        generator.registerTypeDescriptor(new DateTimeTypeDescriptor());
         ReferenceNode schemaDoc = generator.generate(TestClass.class);
 
         Schema schema = new SchemaCompiler().compile(schemaDoc);

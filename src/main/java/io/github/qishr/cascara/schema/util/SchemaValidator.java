@@ -44,7 +44,7 @@ public class SchemaValidator {
     /// If the reporter is not capable of collecting problems, a ValidationException
     //  will be thrown if a call to `validate` finds a problem.
     ///
-    /// @param reporter The reporter that collects or reports problem [Diagnostic] objects.
+    /// @param reporter The reporter that collects or reports problem `Diagnostic` objects.
     public SchemaValidator setReporter(Reporter reporter) {
         this.reporter = reporter == null ? new NoOpReporter() : reporter;
         return this;

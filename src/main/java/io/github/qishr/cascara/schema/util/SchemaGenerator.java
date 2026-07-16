@@ -297,38 +297,6 @@ public final class SchemaGenerator {
         return node;
     }
 
-    // private TypeDescriptor<?> getTypeDescriptor(Class<?> clazz) {
-
-    //     // 1. First check if one has been registered locally
-    //     TypeDescriptor<?> descriptor = typeDescriptorsByJvmType.get(clazz);
-    //     if (descriptor != null) {
-    //         return descriptor;
-    //     }
-
-    //     // 2. Use service provider layer to get one
-    //     ServiceProviderLayer rootLayer = ServiceProviderLayer.getRootLayer();
-    //     List<ServiceMetadata> typeDescriptors = rootLayer.findAllProviders(
-    //         TypeDescriptor.class,
-    //         capabilities -> {
-    //             String registeredTypeName = capabilities.getProperty("javaType");
-    //             if (registeredTypeName == null) return false;
-    //             try {
-    //                 // Check if the runtime object's class can be assigned to the descriptor's target type
-    //                 Class<?> registeredType = Class.forName(registeredTypeName);
-    //                 return registeredType.isAssignableFrom(clazz);
-    //             } catch (ClassNotFoundException e) {
-    //                 return false;
-    //             }
-    //         }
-    //     );
-    //     if (!typeDescriptors.isEmpty()) {
-    //         ServiceMetadata metadata = typeDescriptors.getFirst();
-    //         return ServiceProviderLayer.loadProvider(ScalarDescriptor.class, metadata);
-    //     }
-    //     return null;
-    // }
-
-
     /// If the field is a JavaFX ObjectProperty, use the raw type, otherwise use the field's declared type
     private Class<?> extractFieldType(Field field) {
         if (field.getGenericType() instanceof ParameterizedType paramaterizedType) {
@@ -397,9 +365,6 @@ public final class SchemaGenerator {
             ReferenceMapNode properties = new ReferenceMapNode();
 
             def.put(SchemaKeyword.PROPERTIES.asString(), properties);
-
-            // TODO: This probably shoudn't be here
-            // properties.put(SchemaKeyword.ID.string(), createIdFieldNode());
 
             Object template = instantiate(clazz);
             for (Field field : getAllFields(clazz)) {

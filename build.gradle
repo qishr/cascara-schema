@@ -11,7 +11,7 @@ repositories {
 
 
 dependencies {
-    implementation(platform("io.github.qishr:cascara-meta-bom:0.1.16"))
+    implementation(platform("io.github.qishr:cascara-meta-bom:0.1.17"))
 
     // JUnit
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
@@ -29,6 +29,11 @@ dependencies {
     implementation "io.github.qishr:cascara-common"
     implementation "io.github.qishr:cascara-common-io"
     implementation "io.github.qishr:cascara-lang-json"
+}
+
+
+tasks.withType(Javadoc).configureEach {
+    options.addStringOption('Xdoclint:-missing', '-quiet')
 }
 
 

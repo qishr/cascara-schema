@@ -74,7 +74,7 @@ public class SchemaResolver {
         if (content == null) {
             try {
                 content = contentLoaderService.getContent(uri);
-            } catch (LocalizableException e) {
+            } catch (LocalizableIOException e) {
                 throw new SchemaException(e);
             }
         }
