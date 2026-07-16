@@ -1,3 +1,38 @@
+// # License & Terms
+//
+// This file is part of **Cascara**.
+//
+// **Cascara** is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+//
+// ---
+//
+// ## Special Runtime Exception
+//
+// As a special exception, the copyright holders of this library give you
+// permission to link this library with independent modules to produce an
+// executable, regardless of the license terms of these independent modules,
+// and to copy and distribute the resulting executable under terms of your
+// choice, provided that you also meet, for each linked independent module,
+// the terms and conditions of the license of that module.
+//
+// An independent module is a module which is not derived from or based on
+// this library. If you modify this library, you may extend this exception
+// to your version of the library, but you are not obligated to do so. If
+// you do not wish to do so, delete this exception statement from your
+// version.
+
+
 package io.github.qishr.cascara.schema.util;
 
 import java.io.IOException;
@@ -7,83 +42,83 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import io.github.qishr.cascara.common.content.ContentLoader;
+import io.github.qishr.cascara.common.io.ContentLoader;
+import io.github.qishr.cascara.common.io.IOUtils;
 import io.github.qishr.cascara.common.content.ResourceContent;
-import io.github.qishr.cascara.common.lang.StructuredDocument;
+import io.github.qishr.cascara.common.diagnostic.LocalizableException;
+import io.github.qishr.cascara.common.diagnostic.LocalizableIOException;
+import io.github.qishr.cascara.common.io.UriScheme;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;
 import io.github.qishr.cascara.common.lang.ast.SequenceAstNode;
-import io.github.qishr.cascara.lang.json.processor.JsonParser;
-import io.github.qishr.cascara.schema.CompiledSchema;
-import io.github.qishr.cascara.schema.SchemaException;
-import io.github.qishr.cascara.schema.SchemaKeyword;
-import io.github.qishr.cascara.schema.api.SchemaCompiler;
-import io.github.qishr.cascara.schema.api.SchemaParser;
-import io.github.qishr.cascara.schema.api.SchemaResolver;
-import io.github.qishr.cascara.schema.ast.ArraySchemaNode;
-import io.github.qishr.cascara.schema.ast.LazySchemaNode;
-import io.github.qishr.cascara.schema.ast.ObjectSchemaNode;
-import io.github.qishr.cascara.schema.ast.SchemaNode;
-import io.github.qishr.cascara.schema.internal.SchemaUtils;
-import io.github.qishr.cascara.schema.util.CascaraSchemaResolver;
+import io.github.qishr.cascara.common.lang.processor.AstParser;
+import io.github.qishr.cascara.common.service.ServiceException;
+import io.github.qishr.cascara.common.service.ServiceProviderFactory;
+import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
 
-public class CascaraSchemaResolver implements SchemaResolver {
+import io.github.qishr.cascara.schema.Schema;
+import io.github.qishr.cascara.schema.SchemaKeyword;
+import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.exception.SchemaException;
+import io.github.qishr.cascara.schema.internal.SchemaUtils;
+import io.github.qishr.cascara.schema.structure.ArraySchemaNode;
+import io.github.qishr.cascara.schema.structure.LazySchemaNode;
+import io.github.qishr.cascara.schema.structure.ObjectSchemaNode;
+import io.github.qishr.cascara.schema.structure.SchemaNode;
+import io.github.qishr.cascara.schema.util.SchemaResolver;
+import io.github.qishr.cascara.schema.util.CascaraSchemaUri.Lifecycle;
+
+public class SchemaResolver {
     private ContentLoader contentLoaderService;
-    private final SchemaParser parserService;
 
     private static final Map<URI,ResourceContent> metaSchemaResources = new HashMap<>();
 
     private final Map<URI, SchemaNode> schemaNodeCache = new HashMap<>();
-    private final Map<URI, CompiledSchema> schemaDocCache = new HashMap<>();
+    private final Map<URI, Schema> schemaDocCache = new HashMap<>();
 
     private final ThreadLocal<DynamicScope> currentScope = new ThreadLocal<>();
 
-    public CascaraSchemaResolver(SchemaParser parserService, ContentLoader contentLoaderService) {
-        this.contentLoaderService = contentLoaderService;
-        this.parserService = parserService;
+    private final SchemaStore schemaStore;
+
+    public SchemaResolver() {
+        this.contentLoaderService = new SchemaContentLoader();
+        this.schemaStore = SchemaStore.instance();
         loadBuiltInMetaSchemas();
     }
 
-    @Override
-    public void registerSchema(URI uri, CompiledSchema compiled) {
-        schemaDocCache.put(uri, compiled);
-    }
-
-    @Override
-    public void registerSchemaNode(URI uri, SchemaNode node) {
-        schemaNodeCache.put(uri, node);
-    }
-
-    /// Returns the `CompiledSchema` indicated by the given `URI`.
-    /// If the `CompiledSchema` is cached, it will be retrieved from the cache,
+    /// Returns the `Schema` indicated by the given `URI`.
+    /// If the `Schema` is cached, it will be retrieved from the cache,
     /// otherwise it will be compiled and returned.
-    @Override
-    public CompiledSchema getSchema(URI uri) throws SchemaException {
-        CompiledSchema schema = schemaDocCache.get(uri);
+    public Schema getSchema(URI uri) throws SchemaException {
+        Schema schema = schemaDocCache.get(uri);
         if (schema != null) return schema;
 
-        StructuredDocument doc;
-        try {
-            ResourceContent content = contentLoaderService.getContent(uri);
-            doc = parseContent(content);
-        } catch (IOException e) {
-            throw new SchemaException("Could not load AST for URI", e, uri.toString());
+        ResourceContent content = null;
+        if (UriScheme.of(uri) == UriScheme.CASCARA) {
+            CascaraSchemaUri schemaUri = CascaraSchemaUri.of(uri);
+            if (schemaUri.getLifecycle() != Lifecycle.DYNAMIC) {
+                content = schemaStore.get(schemaUri);
+            }
         }
 
-        SchemaCompiler compiler = new CascaraSchemaCompiler(this);
+        if (content == null) {
+            try {
+                content = contentLoaderService.getContent(uri);
+            } catch (LocalizableIOException e) {
+                throw new SchemaException(e);
+            }
+        }
+
+        AstNode doc = parseContent(content);
+        SchemaCompiler compiler = new SchemaCompiler(this);
         return compiler.compile(doc, uri);
     }
 
-    @Override
-    public Map<URI, CompiledSchema> getCachedSchemas() {
-        return schemaDocCache;
-    }
-
-    @Override
     public SchemaNode resolve(String ref, SchemaNode relativeTo) throws SchemaException {
         // Start with an empty root scope for a fresh resolution
         DynamicScope scope = new DynamicScope(null);
@@ -95,8 +130,50 @@ public class CascaraSchemaResolver implements SchemaResolver {
         }
     }
 
-    @Override
+    public Schema getSchemaForClass(Class<?> clazz) {
+        return getSchemaForClass(clazz, null);
+    }
+
+    public Schema getSchemaForClass(Class<?> clazz, List<TypeAnalyzer> typeAnalyzers) {
+        URI uri = CascaraSchemaUri.of(clazz).toUri();
+        Schema schema = schemaDocCache.get(uri);
+        if (schema == null) {
+            // This calls the compiler which adds the compiled schema to the cache
+            return generateSchemaForClass(clazz, typeAnalyzers);
+        }
+        return schema;
+    }
+
+    //
+    // Cache
+    //
+
+    public void registerSchema(URI uri, Schema compiled) {
+        schemaDocCache.put(uri, compiled);
+        if (UriScheme.of(uri) == UriScheme.CASCARA) {
+            CascaraSchemaUri schemaUri = CascaraSchemaUri.of(uri);
+            if (schemaUri.getLifecycle() != Lifecycle.DYNAMIC) {
+                SchemaStore.instance().put(schemaUri, compiled);
+            }
+        }
+    }
+
+    public void registerSchemaNode(URI uri, SchemaNode node) {
+        schemaNodeCache.put(uri, node);
+    }
+
+    public Map<URI, Schema> getCachedSchemas() {
+        return schemaDocCache;
+    }
+
+    //
+    // DynamicScope
+    // TODO:
+    // This feels problematic if it were to be used from two places at the same time.
+    //
+
     public SchemaNode resolve(String ref, SchemaNode relativeTo, DynamicScope scope) throws SchemaException {
+        // This is public because it's used by LazySchemaNode
         // Set the ThreadLocal so the Compiler can find it during this resolution
         DynamicScope previous = currentScope.get();
         currentScope.set(scope);
@@ -113,7 +190,29 @@ public class CascaraSchemaResolver implements SchemaResolver {
         }
     }
 
-    // Internal version that carries the scope
+    public DynamicScope getCurrentScope() {
+        // This is public because it's used by SchemaCompiler
+        return currentScope.get();
+    }
+
+    //
+    // Private Methods
+    //
+
+    private Schema generateSchemaForClass(Class<?> clazz, List<TypeAnalyzer> typeAnalyzers) throws SchemaException {
+        URI originUri = CascaraSchemaUri.of(clazz).toUri();
+        SchemaCompiler compiler = new SchemaCompiler(this);
+        SchemaGenerator generator = new SchemaGenerator();
+        if (typeAnalyzers != null) {
+            for (TypeAnalyzer ta : typeAnalyzers) {
+                generator.registerTypeAnalyzer(ta);
+            }
+        }
+        AstNode schemaDoc = generator.generate(clazz);
+        return compiler.compile(schemaDoc, originUri);
+    }
+
+    /// Internal version that carries the scope
     private SchemaNode resolveInternal(String ref, SchemaNode relativeTo, DynamicScope scope) throws SchemaException {
         URI baseUri = relativeTo.getOriginUri();
         URI targetUri;
@@ -138,15 +237,15 @@ public class CascaraSchemaResolver implements SchemaResolver {
 
         // 3. The Compiler/Document Load (Your existing logic)
         URI docUri = stripFragment(targetUri);
-        CompiledSchema schemaDoc = getSchema(docUri); // This triggers compilation if needed
+        Schema schemaDoc = getSchema(docUri); // This triggers compilation if needed
 
         // 4. Fragment Resolution
         String fragment = targetUri.getFragment();
         SchemaNode schemaNode = resolveFragment(schemaDoc, fragment);
 
         if (schemaNode == null) {
-            throw new SchemaException("Resolution failed", ref, relativeTo.getStartLine(),
-                                      relativeTo.getStartColumn(), baseUri);
+            throw new SchemaException(baseUri, ref, relativeTo.getStartLine(),
+                                      relativeTo.getStartColumn(), SchemaDiagnosticCode.RESOLUTION_FAILED);
         }
 
         // 5. Update Cache and return
@@ -154,13 +253,7 @@ public class CascaraSchemaResolver implements SchemaResolver {
         return schemaNode;
     }
 
-    //
-    // New code
-    //
-
-    public DynamicScope getCurrentScope() { return currentScope.get(); }
-
-    private SchemaNode resolveFragment(CompiledSchema schemaDoc, String fragment) {
+    private SchemaNode resolveFragment(Schema schemaDoc, String fragment) {
         return resolveFragment(schemaDoc, fragment, new DynamicScope(null));
     }
 
@@ -168,7 +261,7 @@ public class CascaraSchemaResolver implements SchemaResolver {
         if (node == null) return null;
 
         // Check for $dynamicAnchor (using the extension map we set in the compiler)
-        Object dynamicAnchor = node.getExtension(SchemaKeyword.DYNAMIC_ANCHOR.string());
+        Object dynamicAnchor = node.getExtension(SchemaKeyword.DYNAMIC_ANCHOR.asString());
         if (dynamicAnchor instanceof String anchorName) {
             // Register this node's URI for this anchor name in the current resolution path
             scope.addAnchor(anchorName, node.getOriginUri());
@@ -184,11 +277,7 @@ public class CascaraSchemaResolver implements SchemaResolver {
         return ref.substring(1);
     }
 
-    //
-    //
-    //
-
-    private SchemaNode resolveFragment(CompiledSchema schemaDoc, String fragment, DynamicScope scope) throws SchemaException {
+    private SchemaNode resolveFragment(Schema schemaDoc, String fragment, DynamicScope scope) throws SchemaException {
         if (fragment == null || fragment.isEmpty() || fragment.equals("/")) {
             return updateScope(schemaDoc.getRoot(), scope);
         }
@@ -212,59 +301,12 @@ public class CascaraSchemaResolver implements SchemaResolver {
         SchemaNode found = findNodeByAst(schemaDoc.getRoot(), targetAst);
 
         if (found == null) {
-            throw new SchemaException("Could not find node for fragment", fragment);
+            throw new SchemaException(schemaDoc.getOriginUri(), fragment, SchemaDiagnosticCode.NODE_NOT_FOUND, fragment);
         }
 
         // 3. Update the Dynamic Scope and return
         return updateScope(found, scope);
     }
-
-    // private SchemaNode findNodeByAst(SchemaNode root, AstNode targetAst) {
-    //     return findNodeByAst(root, targetAst, 0);
-    // }
-
-    // private SchemaNode findNodeByAst(SchemaNode root, AstNode targetAst, int depth) {
-    //     if (root == null || targetAst == null) return null;
-
-    //     // 1. Double-Identity Check
-    //     // Check the current identity (Proxy/Resolved)
-    //     boolean matchesCurrent = root.getOriginAst() == targetAst;
-
-    //     // Check the original identity (Definition/Lazy Placeholder)
-    //     boolean matchesOriginal = (root instanceof LazySchemaNode lazy) &&
-    //                               lazy.getInitialAst() == targetAst;
-
-    //     if (matchesCurrent || matchesOriginal) {
-    //         return root;
-    //     }
-
-    //     // 2. Traversal (Peeking)
-    //     if (root instanceof LazySchemaNode lazy) {
-    //         SchemaNode internal = lazy.peekResolved();
-    //         if (internal != null && internal != root) {
-    //             return findNodeByAst(internal, targetAst, depth + 1); // INFINITE LOOP
-    //         }
-    //         return null;
-    //     }
-
-    //     // 3. Concrete Traversal (Safe, these are already-built maps)
-    //     if (root instanceof ObjectSchemaNode obj) {
-    //         for (SchemaNode def : obj.getDefinitions().values()) {
-    //             SchemaNode found = findNodeByAst(def, targetAst, depth + 1);
-    //             if (found != null) return found;
-    //         }
-    //         for (SchemaNode prop : obj.getProperties().values()) {
-    //             SchemaNode found = findNodeByAst(prop, targetAst, depth + 1);
-    //             if (found != null) return found;
-    //         }
-    //     }
-
-    //     if (root instanceof ArraySchemaNode arr) {
-    //         return findNodeByAst(arr.getItemSchema(), targetAst, depth + 1); // INFINITE LOOP
-    //     }
-
-    //     return null;
-    // }
 
     private SchemaNode findNodeByAst(SchemaNode root, AstNode targetAst) {
         // We use a set that uses reference equality (==) instead of .equals()
@@ -323,10 +365,10 @@ public class CascaraSchemaResolver implements SchemaResolver {
     private AstNode findNodeByAnchor(AstNode root, String anchor) {
         if (root instanceof MapAstNode map) {
             // 1. Check if this specific node is the target
-            String id = map.getString(SchemaKeyword.ID.string());
-            String nodeAnchor = map.getString(SchemaKeyword.ANCHOR.string());
+            String id = map.getString(SchemaKeyword.ID.asString());
+            String nodeAnchor = map.getString(SchemaKeyword.ANCHOR.asString());
 
-            String dynAnchor = map.getString(SchemaKeyword.DYNAMIC_ANCHOR.string());
+            String dynAnchor = map.getString(SchemaKeyword.DYNAMIC_ANCHOR.asString());
 
             if (anchor.equals(id) || anchor.equals(nodeAnchor) || anchor.equals(dynAnchor)) {
                 return map;
@@ -361,13 +403,26 @@ public class CascaraSchemaResolver implements SchemaResolver {
         }
     }
 
-    private StructuredDocument parseContent(ResourceContent res) {
-        if (res.contentType() == null || res.contentType().getId().contains("json")) {
-            JsonParser parser = new JsonParser();
-            // System.out.println("\n === PARSING ===\n" + res.content());
-            return parser.parse(res.content());
+    private AstNode parseContent(ResourceContent res) {
+        String contentType;
+        if (res.contentType() == null) {
+            contentType = "application/schema+json";
         } else {
-            return parserService.parseContent(res);
+            contentType = res.contentType().toString();
+        }
+        try {
+            AstParser<?,?> parser;
+            if (contentType.contains("json")) {
+                parser = new JsonAstParser();
+            } else {
+                parser = new ServiceProviderFactory().createParser(contentType);
+                if (parser == null) {
+                    throw new IllegalStateException("Failed to find parser for " + contentType);
+                }
+            }
+            return parser.parse(res.content());
+        } catch (ServiceException e) {
+            throw new IllegalStateException("Failed to load parser for " + contentType + ": " + e.getMessage(), e);
         }
     }
 
@@ -396,14 +451,14 @@ public class CascaraSchemaResolver implements SchemaResolver {
                 }
             }
         } catch (IOException e) {
-            throw new SchemaException("Failed to initialize built-in meta-schemas", e, propsPath);
+            throw new SchemaException((URI)null, e, SchemaDiagnosticCode.META_INITIALIZATION_FAILURE);
         }
 
         // 2. Temporarily swap the content loader for one that only loads cached meta schemas
         ContentLoader realLoader = contentLoaderService;
         contentLoaderService = new ContentLoader() {
             @Override
-            public ResourceContent getContent(URI uri) throws IOException {
+            public ResourceContent getContent(URI uri) throws LocalizableIOException {
                 return metaSchemaResources.get(uri);
             }
         };
@@ -415,5 +470,12 @@ public class CascaraSchemaResolver implements SchemaResolver {
 
         // 4. Restore the real content loader
         contentLoaderService = realLoader;
+    }
+
+    private class SchemaContentLoader implements ContentLoader {
+        @Override
+        public ResourceContent getContent(URI uri) throws LocalizableIOException {
+            return IOUtils.getResource(uri);
+        }
     }
 }

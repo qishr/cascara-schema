@@ -1,3 +1,38 @@
+// # License & Terms
+//
+// This file is part of **Cascara**.
+//
+// **Cascara** is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+//
+// ---
+//
+// ## Special Runtime Exception
+//
+// As a special exception, the copyright holders of this library give you
+// permission to link this library with independent modules to produce an
+// executable, regardless of the license terms of these independent modules,
+// and to copy and distribute the resulting executable under terms of your
+// choice, provided that you also meet, for each linked independent module,
+// the terms and conditions of the license of that module.
+//
+// An independent module is a module which is not derived from or based on
+// this library. If you modify this library, you may extend this exception
+// to your version of the library, but you are not obligated to do so. If
+// you do not wish to do so, delete this exception statement from your
+// version.
+
+
 package io.github.qishr.cascara.schema.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -9,23 +44,22 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;
-import io.github.qishr.cascara.lang.json.JsonDocument;
-import io.github.qishr.cascara.lang.json.processor.JsonParser;
-import io.github.qishr.cascara.schema.CompiledSchema;
-import io.github.qishr.cascara.schema.SchemaType;
-import io.github.qishr.cascara.schema.ast.ObjectSchemaNode;
-import io.github.qishr.cascara.schema.ast.SchemaNode;
+import io.github.qishr.cascara.lang.json.ast.JsonNode;
+import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
+import io.github.qishr.cascara.schema.Schema;
+import io.github.qishr.cascara.common.lang.type.PrimitiveType;
+import io.github.qishr.cascara.schema.structure.ObjectSchemaNode;
+import io.github.qishr.cascara.schema.structure.SchemaNode;
 
 public class SystemTests {
-    CascaraSchemaResolver resolver;
-    CascaraSchemaCompiler compiler;
+    SchemaResolver resolver;
+    SchemaCompiler compiler;
 
     @BeforeEach
     void setup() {
-        resolver = new CascaraSchemaResolver(null, null);
-        compiler = new CascaraSchemaCompiler(resolver);
+        resolver = new SchemaResolver();
+        compiler = new SchemaCompiler(resolver);
     }
 
     @Test
@@ -35,8 +69,8 @@ public class SystemTests {
 
         String json = """
             {
-                "$id": "cascara://core/test/entities",
-                "$schema": "cascara://core/schema-service/cascara.persistence.cema/cema-meta",
+                "$id": "cascara://core/schema-service/dynamic/cascara.schema/entities",
+                "$schema": "cascara://core/schema-service/dynamic/cascara.persistence.cema/cema-meta",
                 "$defs": {
                   "tag": {
                     "type": "object",
@@ -78,8 +112,8 @@ public class SystemTests {
               }
             """;
 
-        JsonDocument doc = new JsonParser().parse(json);
-        CompiledSchema compiled = compiler.compile(doc);
+        JsonNode doc = new JsonAstParser().parse(json);
+        Schema compiled = compiler.compile(doc);
 
         // 2. Resolve the "task" node
         ObjectSchemaNode taskNode = (ObjectSchemaNode) resolver.resolve("#/$defs/task", compiled.getRoot());
@@ -107,7 +141,7 @@ public class SystemTests {
         assertNotNull(inheritedIdNode, "The 'id' property must be present in 'task'");
 
         // Ensure it's still an IntegerSchemaNode (or has the correct type attribute)
-        assertEquals(SchemaType.INTEGER, inheritedIdNode.getType(), "Inherited 'id' should still be an integer");
+        assertEquals(PrimitiveType.INTEGER, inheritedIdNode.getType(), "Inherited 'id' should still be an integer");
 
         // 6. Verify Deep Extension Merger (Optional but recommended)
         // If 'item' had an 'x-storage' or 'x-indexed' tag, we'd check that here too.
@@ -121,8 +155,8 @@ public class SystemTests {
 
         String json = """
             {
-              "$id": "cascara://core/schema-service/schema/organizer/entities",
-              "$schema": "cascara://core/schema-service/cascara.persistence.cema/cema-meta",
+              "$id": "cascara://core/schema-service/dynamic/cascara.schema/entities",
+              "$schema": "cascara://core/schema-service/dynamic/cascara.persistence.cema/cema-meta",
               "$defs": {
                 "module": {
                   "type": "object",
@@ -189,10 +223,10 @@ public class SystemTests {
             }
             """;
 
-        JsonDocument doc = new JsonParser().parse(json);
-        CompiledSchema compiled = compiler.compile(doc);
-        CascaraSchemaDecompiler decompiler = new CascaraSchemaDecompiler();
-        MapAstNode<?,?> root = decompiler.decompile(compiled);
+        JsonNode doc = new JsonAstParser().parse(json);
+        Schema compiled = compiler.compile(doc);
+        SchemaDecompiler decompiler = new SchemaDecompiler();
+        MapAstNode<?,?,?> root = (MapAstNode<?,?,?>)decompiler.decompile(compiled);
         if (root.get("$defs") instanceof MapAstNode defs) {
             if (defs.get("releasedModule") instanceof MapAstNode rm) {
                 if (rm.get("properties") instanceof MapAstNode properties) {

@@ -1,11 +1,46 @@
-package io.github.qishr.cascara.schema.ast;
+// # License & Terms
+//
+// This file is part of **Cascara**.
+//
+// **Cascara** is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+//
+// ---
+//
+// ## Special Runtime Exception
+//
+// As a special exception, the copyright holders of this library give you
+// permission to link this library with independent modules to produce an
+// executable, regardless of the license terms of these independent modules,
+// and to copy and distribute the resulting executable under terms of your
+// choice, provided that you also meet, for each linked independent module,
+// the terms and conditions of the license of that module.
+//
+// An independent module is a module which is not derived from or based on
+// this library. If you modify this library, you may extend this exception
+// to your version of the library, but you are not obligated to do so. If
+// you do not wish to do so, delete this exception statement from your
+// version.
 
+
+package io.github.qishr.cascara.schema.structure;
+
+import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.annotation.Nullable;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.CommentAstNode;
-import io.github.qishr.cascara.schema.SchemaType;
+import io.github.qishr.cascara.common.lang.type.PrimitiveType;
 import io.github.qishr.cascara.schema.rule.ValidationRule;
-import io.github.qishr.cascara.schema.util.ValidationResult;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -14,31 +49,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class BaseSchemaNode implements SchemaNode {
-    private SchemaType type;
+public abstract class AbstractSchemaNode implements SchemaNode {
+    private PrimitiveType type;
     private String title;
+    private String titleKey;
     private String description;
+    private String descriptionKey;
     private Object defaultValue;
     protected URI originUri;
     protected String ref;
     private AstNode originAst;
+    private String format = "";
+    private String contentMediaType;
+    private String dynamicAnchor;
+    private boolean readOnly = false;
+
+    private final SchemaNode metaSchema;
 
     protected final Map<String, SchemaNode> definitions = new HashMap<>();
     private final List<ValidationRule> rules = new ArrayList<>();
-    private String format = "";
     private final Map<String, String> formatOptions = new HashMap<>();
-    private boolean readOnly = false; // Default to false
     private final java.util.Map<String, Object> extensions = new java.util.HashMap<>();
-    private String contentMediaType;
-    private String dynamicAnchor;
-    private final SchemaNode metaSchema;
 
     private final List<SchemaNode> allOf = new ArrayList<>();
     // TODO:
     // private final List<SchemaNode> anyOf = new ArrayList<>();
     // private final List<SchemaNode> oneOf = new ArrayList<>();
 
-    public BaseSchemaNode(SchemaType type, SchemaNode metaSchema) {
+    public AbstractSchemaNode(PrimitiveType type, SchemaNode metaSchema) {
         this.type = type;
         this.metaSchema = metaSchema;
     }
@@ -63,10 +101,12 @@ public abstract class BaseSchemaNode implements SchemaNode {
     public void addRule(ValidationRule rule) { this.rules.add(rule); }
     public void addDefinition(String key, SchemaNode node) { this.definitions.put(key, node); }
 
-    public void setType(SchemaType type) { this.type = type; }
+    public void setType(PrimitiveType type) { this.type = type; }
     public void setOriginUri(URI originUri) { this.originUri = originUri; }
     public void setTitle(String title) { this.title = title; }
     public void setDescription(String description) { this.description = description; }
+    public void setTitleKey(String titleKey) { this.titleKey = titleKey; }
+    public void setDescriptionKey(String descriptionKey) { this.descriptionKey = descriptionKey; }
     public void setRef(String ref) { this.ref = ref; }
     public void setDefaultValue(Object defaultValue) { this.defaultValue = defaultValue; }
 
@@ -116,9 +156,11 @@ public abstract class BaseSchemaNode implements SchemaNode {
         return extensions;
     }
 
-    @Override public SchemaType getType() { return type; }
+    @Override public PrimitiveType getType() { return type; }
     @Override public String getTitle() { return title; }
+    @Override public String getTitleKey() { return titleKey; }
     @Override public String getDescription() { return description; }
+    @Override public String getDescriptionKey() { return descriptionKey; }
     @Override public Object getDefaultValue() { return defaultValue; }
     @Override public Map<String, SchemaNode> getDefinitions() { return definitions; }
     @Override public List<ValidationRule> getRules() { return rules; }
@@ -136,10 +178,12 @@ public abstract class BaseSchemaNode implements SchemaNode {
     }
 
     @Override
-    public void validate(AstNode node, String path, ValidationResult result) {
+    public boolean validate(AstNode node, String path, Reporter reporter) {
+        boolean valid = true;
         for (ValidationRule rule : rules) {
-            rule.validate(node, path, result);
+            valid = valid & rule.validate(node, path, reporter);
         }
+        return valid;
     }
 
     @Override
