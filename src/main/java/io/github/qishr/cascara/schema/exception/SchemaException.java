@@ -37,12 +37,13 @@ package io.github.qishr.cascara.schema.exception;
 
 import java.net.URI;
 
+import io.github.qishr.cascara.common.diagnostic.Diagnostic;
 import io.github.qishr.cascara.common.diagnostic.LocalizableException;
 import io.github.qishr.cascara.common.diagnostic.LocatableException;
 import io.github.qishr.cascara.common.diagnostic.code.DiagnosticCode;
 
 public class SchemaException extends LocatableException {
-    private static final int UNKNOWN_COORD = LocatableException.UNKNOWN_COORD;
+    private static final int UNKNOWN_COORD = Diagnostic.UNKNOWN_COORD;
 
     private final String schemaPath;
     private final Class<?> clazz;

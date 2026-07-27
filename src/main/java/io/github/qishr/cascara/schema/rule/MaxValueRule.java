@@ -35,6 +35,7 @@
 
 package io.github.qishr.cascara.schema.rule;
 
+import io.github.qishr.cascara.common.diagnostic.Diagnostic;
 import io.github.qishr.cascara.common.diagnostic.LocatableException;
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
@@ -58,7 +59,7 @@ public class MaxValueRule extends AbstractValidationRule implements ValidationRu
 
     @Override
     public boolean validateValue(Object value, String path, Reporter reporter) {
-       return validateValue(value, path, LocatableException.UNKNOWN_COORD, LocatableException.UNKNOWN_COORD, reporter);
+       return validateValue(value, path, Diagnostic.UNKNOWN_COORD, Diagnostic.UNKNOWN_COORD, reporter);
     }
 
     private boolean validateValue(Object value, String path, int line, int column, Reporter reporter) {

@@ -35,6 +35,7 @@
 
 package io.github.qishr.cascara.schema.rule;
 
+import io.github.qishr.cascara.common.diagnostic.Diagnostic;
 import io.github.qishr.cascara.common.diagnostic.LocatableException;
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
@@ -64,7 +65,7 @@ public class EnumRule extends AbstractValidationRule implements ValidationRule {
         if (value == null) return true;
         String valStr = value.toString();
         if (!allowedValues.contains(valStr)) {
-            error(path, LocatableException.UNKNOWN_COORD, LocatableException.UNKNOWN_COORD, reporter, SchemaDiagnosticCode.NOT_ALLOWED_IN_LIST, valStr, allowedValues);
+            error(path, Diagnostic.UNKNOWN_COORD, Diagnostic.UNKNOWN_COORD, reporter, SchemaDiagnosticCode.NOT_ALLOWED_IN_LIST, valStr, allowedValues);
             return false;
         }
         return true;

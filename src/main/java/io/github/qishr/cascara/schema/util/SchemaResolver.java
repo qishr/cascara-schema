@@ -411,7 +411,7 @@ public class SchemaResolver {
             contentType = res.contentType().toString();
         }
         try {
-            AstParser<?,?> parser;
+            AstParser<?,?,?> parser;
             if (contentType.contains("json")) {
                 parser = new JsonAstParser();
             } else {
