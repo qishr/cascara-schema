@@ -50,7 +50,6 @@ import java.util.Set;
 import io.github.qishr.cascara.common.io.ContentLoader;
 import io.github.qishr.cascara.common.io.IOUtils;
 import io.github.qishr.cascara.common.content.ResourceContent;
-import io.github.qishr.cascara.common.diagnostic.LocalizableException;
 import io.github.qishr.cascara.common.diagnostic.LocalizableIOException;
 import io.github.qishr.cascara.common.io.UriScheme;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
