@@ -46,8 +46,8 @@ import org.junit.jupiter.api.Test;
 
 import io.github.qishr.cascara.common.diagnostic.Diagnostic;
 import io.github.qishr.cascara.common.diagnostic.SilentCollectingReporter;
-import io.github.qishr.cascara.common.lang.reference.ReferenceMapNode;
-import io.github.qishr.cascara.common.lang.reference.ReferenceNode;
+import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
+import io.github.qishr.cascara.common.lang.plain.PlainNode;
 import io.github.qishr.cascara.common.lang.type.DateTimeTypeDescriptor;
 import io.github.qishr.cascara.lang.json.ast.JsonNode;
 import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
@@ -67,11 +67,11 @@ public class FormatTests {
     void test_validDateTime() {
         SchemaGenerator generator = new SchemaGenerator();
         generator.registerTypeDescriptor(new DateTimeTypeDescriptor());
-        ReferenceNode schemaDoc = generator.generate(TestClass.class);
+        PlainMapNode schemaDoc = generator.generate(TestClass.class);
 
         Schema schema = new SchemaCompiler().compile(schemaDoc);
 
-        ReferenceMapNode decompiled = new SchemaDecompiler().decompile(schema);
+        PlainMapNode decompiled = new SchemaDecompiler().decompile(schema);
         String schemaString = new JsonConverter().toText(decompiled);
         System.out.println(schemaString);
 
@@ -81,7 +81,7 @@ public class FormatTests {
 
         List<Diagnostic> errors = new ArrayList<>();
         SilentCollectingReporter collector = new SilentCollectingReporter();
-        collector.setProblemCollector(p -> errors.add(p));
+        collector.setProblemConsumer(p -> errors.add(p));
 
         boolean valid = schema.validate(root, collector);
 
@@ -94,7 +94,7 @@ public class FormatTests {
     @Test
     void test_invalidDateTime() {
         SchemaGenerator generator = new SchemaGenerator();
-        ReferenceNode schemaDoc = generator.generate(TestClass.class);
+        PlainMapNode schemaDoc = generator.generate(TestClass.class);
 
         SchemaCompiler compiler = new SchemaCompiler();
         Schema schema = compiler.compile(schemaDoc);
@@ -104,7 +104,7 @@ public class FormatTests {
 
         List<Diagnostic> errors = new ArrayList<>();
         SilentCollectingReporter collector = new SilentCollectingReporter();
-        collector.setProblemCollector(p -> errors.add(p));
+        collector.setProblemConsumer(p -> errors.add(p));
 
         boolean valid = schema.validate(root, collector);
 

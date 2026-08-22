@@ -41,9 +41,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import io.github.qishr.cascara.common.lang.reference.ReferenceMapNode;
-import io.github.qishr.cascara.common.lang.reference.ReferenceScalarNode;
-import io.github.qishr.cascara.common.lang.reference.ReferenceSequenceNode;
+import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
+import io.github.qishr.cascara.common.lang.plain.PlainScalarNode;
+import io.github.qishr.cascara.common.lang.plain.PlainSequenceNode;
 import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.schema.structure.ObjectSchemaNode;
 
@@ -57,30 +57,30 @@ public class SchemaCompilerTests {
     @Test
     void shouldCaptureUnevaluatedPropertiesAndTypedHints() {
         // 1. Setup 'parent' with x-tracked: true (Boolean)
-        ReferenceMapNode parentProps = new ReferenceMapNode();
+        PlainMapNode parentProps = new PlainMapNode();
         parentProps.put("status", createScalarProperty("string", "x-tracked", true));
 
-        ReferenceMapNode parentDef = new ReferenceMapNode();
-        parentDef.put("type", new ReferenceScalarNode("object"));
+        PlainMapNode parentDef = new PlainMapNode();
+        parentDef.put("type", new PlainScalarNode("object"));
         parentDef.put("properties", parentProps);
 
         // 2. Setup 'child' with allOf: [parent] and unevaluatedProperties: false
-        ReferenceSequenceNode allOf = new ReferenceSequenceNode();
-        ReferenceMapNode refNode = new ReferenceMapNode();
-        refNode.put("$ref", new ReferenceScalarNode("#/definitions/parent"));
+        PlainSequenceNode allOf = new PlainSequenceNode();
+        PlainMapNode refNode = new PlainMapNode();
+        refNode.put("$ref", new PlainScalarNode("#/definitions/parent"));
         allOf.add(refNode);
 
-        ReferenceMapNode childDef = new ReferenceMapNode();
-        childDef.put("type", new ReferenceScalarNode("object"));
+        PlainMapNode childDef = new PlainMapNode();
+        childDef.put("type", new PlainScalarNode("object"));
         childDef.put("allOf", allOf);
-        childDef.put("unevaluatedProperties", new ReferenceScalarNode(false));
+        childDef.put("unevaluatedProperties", new PlainScalarNode(false));
 
-        ReferenceMapNode defs = new ReferenceMapNode();
+        PlainMapNode defs = new PlainMapNode();
         defs.put("parent", parentDef);
         defs.put("child", childDef);
 
-        ReferenceMapNode root = new ReferenceMapNode();
-        root.put("$id", new ReferenceScalarNode("cascara://core/schema-service/dynamic/cascara.schema/compiler-unevaluated-test"));
+        PlainMapNode root = new PlainMapNode();
+        root.put("$id", new PlainScalarNode("cascara://core/schema-service/dynamic/cascara.schema/compiler-unevaluated-test"));
         root.put("definitions", defs);
 
         Schema compiled = compiler.compile(root);
@@ -101,28 +101,28 @@ public class SchemaCompilerTests {
     @Test
     void shouldFlattenAllOfInheritance() {
         // 1. Create Parent
-        ReferenceMapNode parentProps = new ReferenceMapNode();
+        PlainMapNode parentProps = new PlainMapNode();
         parentProps.put("base_field", createScalarProperty("string", "x-tracked", true));
 
-        ReferenceMapNode parentDef = new ReferenceMapNode();
-        parentDef.put("type", new ReferenceScalarNode("object"));
+        PlainMapNode parentDef = new PlainMapNode();
+        parentDef.put("type", new PlainScalarNode("object"));
         parentDef.put("properties", parentProps);
 
         // 2. Create Child using allOf
-        ReferenceSequenceNode allOf = new ReferenceSequenceNode();
-        ReferenceMapNode refNode = new ReferenceMapNode();
-        refNode.put("$ref", new ReferenceScalarNode("#/definitions/parent"));
+        PlainSequenceNode allOf = new PlainSequenceNode();
+        PlainMapNode refNode = new PlainMapNode();
+        refNode.put("$ref", new PlainScalarNode("#/definitions/parent"));
         allOf.add(refNode);
 
-        ReferenceMapNode childDef = new ReferenceMapNode();
+        PlainMapNode childDef = new PlainMapNode();
         childDef.put("allOf", allOf);
 
-        ReferenceMapNode defs = new ReferenceMapNode();
+        PlainMapNode defs = new PlainMapNode();
         defs.put("parent", parentDef);
         defs.put("child", childDef);
 
-        ReferenceMapNode root = new ReferenceMapNode();
-        root.put("$id", new ReferenceScalarNode("cascara://core/schema-service/dynamic/cascara.schema/compiler-flatten-test"));
+        PlainMapNode root = new PlainMapNode();
+        root.put("$id", new PlainScalarNode("cascara://core/schema-service/dynamic/cascara.schema/compiler-flatten-test"));
         root.put("definitions", defs);
 
         Schema compiled = compiler.compile(root);
@@ -137,10 +137,10 @@ public class SchemaCompilerTests {
 
     @Test
     void shouldRespectAdditionalPropertiesFalse() {
-        ReferenceMapNode root = new ReferenceMapNode();
-        root.put("$id", new ReferenceScalarNode("cascara://core/schema-service/dynamic/cascara.schema/compiler-additional-properties-test"));
-        root.put("type", new ReferenceScalarNode("object"));
-        root.put("additionalProperties", new ReferenceScalarNode(false));
+        PlainMapNode root = new PlainMapNode();
+        root.put("$id", new PlainScalarNode("cascara://core/schema-service/dynamic/cascara.schema/compiler-additional-properties-test"));
+        root.put("type", new PlainScalarNode("object"));
+        root.put("additionalProperties", new PlainScalarNode(false));
 
         Schema compiled = compiler.compile(root);
         ObjectSchemaNode rootNode = (ObjectSchemaNode) compiled.getRoot();
@@ -148,10 +148,10 @@ public class SchemaCompilerTests {
         assertFalse(rootNode.areAdditionalPropertiesAllowed());
     }
 
-    private ReferenceMapNode createScalarProperty(String type, String hintKey, Object hintVal) {
-        ReferenceMapNode prop = new ReferenceMapNode();
-        prop.put("type", new ReferenceScalarNode(type));
-        prop.put(hintKey, new ReferenceScalarNode(hintVal));
+    private PlainMapNode createScalarProperty(String type, String hintKey, Object hintVal) {
+        PlainMapNode prop = new PlainMapNode();
+        prop.put("type", new PlainScalarNode(type));
+        prop.put(hintKey, new PlainScalarNode(hintVal));
         return prop;
     }
 }

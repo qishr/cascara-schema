@@ -37,8 +37,8 @@ package io.github.qishr.cascara.schema.util;
 
 import java.net.URI;
 
-import io.github.qishr.cascara.common.lang.reference.ReferenceMapNode;
-import io.github.qishr.cascara.common.lang.reference.ReferenceScalarNode;
+import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
+import io.github.qishr.cascara.common.lang.plain.PlainScalarNode;
 import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.schema.SchemaKeyword;
 
@@ -65,11 +65,11 @@ public class SchemaBuilder {
 
     public Schema buildSchema(URI originUri, Class<?>... classes)  {
         Schema schema;
-        ReferenceMapNode syntheticRoot = new ReferenceMapNode();
-        ReferenceMapNode definitions = new ReferenceMapNode();
+        PlainMapNode syntheticRoot = new PlainMapNode();
+        PlainMapNode definitions = new PlainMapNode();
 
         syntheticRoot.put(SchemaKeyword.DEFS.asString(), definitions);
-        syntheticRoot.put(SchemaKeyword.ID.asString(), new ReferenceScalarNode(originUri));
+        syntheticRoot.put(SchemaKeyword.ID.asString(), new PlainScalarNode(originUri));
 
         for (Class<?> clazz : classes) {
             // Give the generator the synthentic root AST and

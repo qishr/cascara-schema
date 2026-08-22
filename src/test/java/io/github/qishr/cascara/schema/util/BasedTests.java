@@ -48,8 +48,8 @@ import java.net.URI;
 import org.junit.jupiter.api.Test;
 
 import io.github.qishr.cascara.common.lang.ast.AstNode;
-import io.github.qishr.cascara.common.lang.reference.ReferenceMapNode;
-import io.github.qishr.cascara.common.lang.reference.ReferenceScalarNode;
+import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
+import io.github.qishr.cascara.common.lang.plain.PlainScalarNode;
 import io.github.qishr.cascara.schema.structure.LazySchemaNode;
 import io.github.qishr.cascara.schema.structure.ObjectSchemaNode;
 import io.github.qishr.cascara.schema.structure.ScalarSchemaNode;
@@ -89,15 +89,15 @@ public class BasedTests extends SchemaIntegrationTestBase {
         SchemaResolver localResolver = new SchemaResolver();
         SchemaCompiler compiler = new SchemaCompiler(localResolver);
 
-        ReferenceMapNode addrAst = new ReferenceMapNode();
-        addrAst.put("type", new ReferenceScalarNode("string"));
+        PlainMapNode addrAst = new PlainMapNode();
+        addrAst.put("type", new PlainScalarNode("string"));
 
-        ReferenceMapNode defsAst = new ReferenceMapNode();
+        PlainMapNode defsAst = new PlainMapNode();
         defsAst.put("address", addrAst);
 
         URI uri = URI.create("file:///schema.json");
-        ReferenceMapNode rootAst = new ReferenceMapNode();
-        rootAst.put("$id", new ReferenceScalarNode(uri.toString()));
+        PlainMapNode rootAst = new PlainMapNode();
+        rootAst.put("$id", new PlainScalarNode(uri.toString()));
         rootAst.put("definitions", defsAst);
 
         Schema compiled = compiler.compile(rootAst, uri);

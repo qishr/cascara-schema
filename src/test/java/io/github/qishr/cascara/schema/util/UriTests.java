@@ -41,16 +41,16 @@ import java.net.URI;
 
 import org.junit.jupiter.api.Test;
 
-import io.github.qishr.cascara.common.lang.reference.ReferenceMapNode;
-import io.github.qishr.cascara.common.lang.reference.ReferenceScalarNode;
+import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
+import io.github.qishr.cascara.common.lang.plain.PlainScalarNode;
 import io.github.qishr.cascara.schema.Schema;
 
 public class UriTests {
     @Test
     void test_id() {
         URI uri = URI.create("cascara://core/schema-service/dynamic/cascara.schema/uri-tests");
-        ReferenceScalarNode id = new ReferenceScalarNode(uri);
-        ReferenceMapNode root = new ReferenceMapNode();
+        PlainScalarNode id = new PlainScalarNode(uri);
+        PlainMapNode root = new PlainMapNode();
         root.put("$id", id);
 
         SchemaResolver resolver = new SchemaResolver();

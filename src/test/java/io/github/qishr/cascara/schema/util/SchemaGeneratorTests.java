@@ -41,7 +41,8 @@ import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
 
-import io.github.qishr.cascara.common.lang.reference.ReferenceNode;
+import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
+import io.github.qishr.cascara.common.lang.plain.PlainNode;
 import io.github.qishr.cascara.schema.annotation.SchemaDefinition;
 import io.github.qishr.cascara.schema.annotation.SchemaProperty;
 
@@ -56,7 +57,7 @@ public class SchemaGeneratorTests {
     @Test
     void t1() {
         SchemaGenerator generator = new SchemaGenerator();
-        ReferenceNode schemaDoc = generator.generate(TestClass.class);
+        PlainMapNode schemaDoc = generator.generate(TestClass.class);
         assertTrue(schemaDoc != null);
     }
 }

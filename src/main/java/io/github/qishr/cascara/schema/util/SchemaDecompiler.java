@@ -40,10 +40,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.github.qishr.cascara.common.lang.util.QuoteStyle;
-import io.github.qishr.cascara.common.lang.reference.ReferenceMapEntryNode;
-import io.github.qishr.cascara.common.lang.reference.ReferenceMapNode;
-import io.github.qishr.cascara.common.lang.reference.ReferenceScalarNode;
-import io.github.qishr.cascara.common.lang.reference.ReferenceSequenceNode;
+import io.github.qishr.cascara.common.lang.plain.PlainMapEntryNode;
+import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
+import io.github.qishr.cascara.common.lang.plain.PlainScalarNode;
+import io.github.qishr.cascara.common.lang.plain.PlainSequenceNode;
 import io.github.qishr.cascara.common.lang.type.PrimitiveType;
 import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.schema.SchemaKeyword;
@@ -67,11 +67,11 @@ public final class SchemaDecompiler {
 
     private URI originUri;
 
-    public ReferenceMapNode decompile(Schema compiled) {
+    public PlainMapNode decompile(Schema compiled) {
         if (compiled == null || compiled.getRoot() == null) return null;
 
         SchemaNode compiledRoot = compiled.getRoot();
-        ReferenceMapNode root = new ReferenceMapNode();
+        PlainMapNode root = new PlainMapNode();
 
         // DYNAMIC DIALECT: Use the Meta-Schema URI actually associated with the node
         // This handles CEMA vs Vanilla automatically.
@@ -85,15 +85,15 @@ public final class SchemaDecompiler {
         originUri = compiled.getOriginUri();
         root.put(SchemaKeyword.ID.asString(), scalarValue(originUri));
 
-        ReferenceMapNode decompiled = decompileInternal(compiledRoot);
-        for (ReferenceMapEntryNode entry : decompiled.getEntries()) {
+        PlainMapNode decompiled = decompileInternal(compiledRoot);
+        for (PlainMapEntryNode entry : decompiled.getEntries()) {
             root.put(entry.getKeyString(), entry.getValue());
         }
         return root;
     }
 
-    private ReferenceMapNode decompileInternal(SchemaNode compiled) throws SchemaException {
-        ReferenceMapNode decompiled = new ReferenceMapNode();
+    private PlainMapNode decompileInternal(SchemaNode compiled) throws SchemaException {
+        PlainMapNode decompiled = new PlainMapNode();
 
         if (compiled.getContentMediaType() instanceof String mediaType) {
             decompiled.put(SchemaKeyword.CONTENT_MEDIA_TYPE.asString(), scalarValue(mediaType));
@@ -112,16 +112,16 @@ public final class SchemaDecompiler {
         });
 
         // type-specific structure
-        ReferenceMapNode node = switch (compiled.getType()) {
+        PlainMapNode node = switch (compiled.getType()) {
             case OBJECT  -> {
                 if (compiled instanceof ObjectSchemaNode o) {
                     yield object(o);
                 }
                 else if (compiled instanceof LazySchemaNode lazy) {
-                    // ReferenceMapNode map = new ReferenceMapNode();
+                    // PlainMapNode map = new PlainMapNode();
                     // String reference = bridge.getRef();
 
-                    ReferenceMapNode refMap = new ReferenceMapNode();
+                    PlainMapNode refMap = new PlainMapNode();
                     String ref = lazy.getRef();
                     String refKey = (ref != null && ref.startsWith("#") && !ref.contains("/")) ? SchemaKeyword.DYNAMIC_REF.asString() : SchemaKeyword.REF.asString();
                     refMap.put(refKey, scalarValue(ref));
@@ -137,7 +137,7 @@ public final class SchemaDecompiler {
         };
 
         if (node != null) {
-            for (ReferenceMapEntryNode entry : node.getEntries()) {
+            for (PlainMapEntryNode entry : node.getEntries()) {
                 decompiled.put(entry.getKeyString(), entry.getValue());
             }
         }
@@ -148,13 +148,13 @@ public final class SchemaDecompiler {
         return decompiled;
     }
 
-    private ReferenceMapNode object(ObjectSchemaNode object) throws SchemaException {
-        ReferenceMapNode map = new ReferenceMapNode();
+    private PlainMapNode object(ObjectSchemaNode object) throws SchemaException {
+        PlainMapNode map = new PlainMapNode();
         map.put(SchemaKeyword.TYPE.asString(), scalarValue(PrimitiveType.OBJECT.asString()));
 
         // definitions
         if (!object.getDefinitions().isEmpty()) {
-            ReferenceMapNode definitions = new ReferenceMapNode();
+            PlainMapNode definitions = new PlainMapNode();
             for (var e : object.getDefinitions().entrySet()) {
                 definitions.put(e.getKey(), decompileInternal(e.getValue()));
             }
@@ -163,7 +163,7 @@ public final class SchemaDecompiler {
 
         // properties
         if (!object.getProperties().isEmpty()) {
-            ReferenceMapNode properties = new ReferenceMapNode();
+            PlainMapNode properties = new PlainMapNode();
             for (var e : object.getProperties().entrySet()) {
                 properties.put(e.getKey(), decompileInternal(e.getValue()));
             }
@@ -173,22 +173,22 @@ public final class SchemaDecompiler {
         if (object.getAdditionalPropertiesSchema() != null) {
             map.put("additionalProperties", decompileInternal(object.getAdditionalPropertiesSchema()));
         } else if (!object.areAdditionalPropertiesAllowed()) {
-            map.put("additionalProperties", new ReferenceScalarNode(false));
+            map.put("additionalProperties", new PlainScalarNode(false));
         }
 
         // Handle unevaluatedProperties
         if (object.getUnevaluatedPropertiesSchema() != null) {
             map.put("unevaluatedProperties", decompileInternal(object.getUnevaluatedPropertiesSchema()));
         } else if (!object.areUnevaluatedPropertiesAllowed()) {
-            map.put("unevaluatedProperties", new ReferenceScalarNode(false));
+            map.put("unevaluatedProperties", new PlainScalarNode(false));
         }
 
         return map;
     }
 
-    private ReferenceMapNode array(ArraySchemaNode array) {
-        ReferenceMapNode map = new ReferenceMapNode();
-        ReferenceMapNode items = new ReferenceMapNode();
+    private PlainMapNode array(ArraySchemaNode array) {
+        PlainMapNode map = new PlainMapNode();
+        PlainMapNode items = new PlainMapNode();
         map.put(SchemaKeyword.TYPE.asString(), scalarValue(PrimitiveType.ARRAY.asString()));
 
         SchemaNode template = array.getItemSchema();
@@ -210,8 +210,8 @@ public final class SchemaDecompiler {
         return map;
     }
 
-    private ReferenceMapNode scalar(SchemaNode node) {
-        ReferenceMapNode map = new ReferenceMapNode();
+    private PlainMapNode scalar(SchemaNode node) {
+        PlainMapNode map = new PlainMapNode();
         String type = node.getType().toString().toLowerCase();
         if (type != null && node.getType() != PrimitiveType.ANY) {
             map.put(SchemaKeyword.TYPE.asString(), scalarValue(type));
@@ -219,8 +219,8 @@ public final class SchemaDecompiler {
         return map;
     }
 
-    private ReferenceScalarNode scalarValue(Object value) {
-        ReferenceScalarNode scalar = new ReferenceScalarNode(value);
+    private PlainScalarNode scalarValue(Object value) {
+        PlainScalarNode scalar = new PlainScalarNode(value);
         if (value instanceof String) {
             scalar.setQuoteStyle(QuoteStyle.DOUBLE);
         }
@@ -250,8 +250,8 @@ public final class SchemaDecompiler {
         return map;
     }
 
-    private ReferenceMapNode convertToSimpleMap(Map<?, ?> map) {
-        ReferenceMapNode node = new ReferenceMapNode();
+    private PlainMapNode convertToSimpleMap(Map<?, ?> map) {
+        PlainMapNode node = new PlainMapNode();
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             Object val = entry.getValue();
             if (val instanceof Map<?, ?> subMap) {
@@ -263,15 +263,15 @@ public final class SchemaDecompiler {
         return node;
     }
 
-    private ReferenceSequenceNode sequenceOf(Iterable<?> values) {
-        ReferenceSequenceNode seq = new ReferenceSequenceNode();
+    private PlainSequenceNode sequenceOf(Iterable<?> values) {
+        PlainSequenceNode seq = new PlainSequenceNode();
         for (Object v : values) {
             seq.add(scalarValue(v));
         }
         return seq;
     }
 
-    private void applyRules(SchemaNode node, ReferenceMapNode target) {
+    private void applyRules(SchemaNode node, PlainMapNode target) {
         for (ValidationRule r : node.getRules()) {
             if (r instanceof EnumRule er) {
                 target.put("enum", sequenceOf(er.getAllowedValues()));
