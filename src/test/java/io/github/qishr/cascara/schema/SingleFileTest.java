@@ -43,6 +43,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
+import io.github.qishr.cascara.common.util.JreUtils;
 import io.github.qishr.cascara.lang.json.ast.JsonNode;
 import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
 import io.github.qishr.cascara.schema.util.SchemaCompiler;
@@ -65,11 +66,7 @@ class SingleFileTest {
         }
     }
 
-    private String readStringResource(String name) throws IOException {
-        InputStream inputStream = getClass().getResourceAsStream(name);
-        InputStreamReader streamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-        BufferedReader reader = new BufferedReader(streamReader);
-        String content = reader.readAllAsString();
-        return content;
+    private String readStringResource(String path) throws IOException {
+        return JreUtils.getResourceAsString(getClass(), path);
     }
 }

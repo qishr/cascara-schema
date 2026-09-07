@@ -56,7 +56,7 @@ import io.github.qishr.cascara.schema.structure.ScalarSchemaNode;
 import io.github.qishr.cascara.schema.structure.SchemaNode;
 import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.common.lang.type.PrimitiveType;
-import io.github.qishr.cascara.schema.exception.SchemaException;
+import io.github.qishr.cascara.schema.diagnostic.SchemaException;
 
 public class BasedTests extends SchemaIntegrationTestBase {
 

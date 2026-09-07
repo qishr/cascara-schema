@@ -62,8 +62,8 @@ import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
 
 import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.schema.SchemaKeyword;
-import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
-import io.github.qishr.cascara.schema.exception.SchemaException;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaException;
 import io.github.qishr.cascara.schema.internal.SchemaUtils;
 import io.github.qishr.cascara.schema.structure.ArraySchemaNode;
 import io.github.qishr.cascara.schema.structure.LazySchemaNode;

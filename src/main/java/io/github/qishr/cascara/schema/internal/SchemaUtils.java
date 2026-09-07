@@ -43,7 +43,7 @@ import io.github.qishr.cascara.common.lang.ast.MapAstNode;
 import io.github.qishr.cascara.common.lang.ast.ScalarAstNode;
 import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.schema.SchemaKeyword;
-import io.github.qishr.cascara.schema.exception.SchemaException;
+import io.github.qishr.cascara.schema.diagnostic.SchemaException;
 import io.github.qishr.cascara.schema.util.SchemaResolver;
 import io.github.qishr.cascara.schema.util.Schemas;
 

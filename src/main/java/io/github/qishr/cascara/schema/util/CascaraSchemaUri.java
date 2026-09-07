@@ -39,8 +39,8 @@ import java.net.URI;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
-import io.github.qishr.cascara.schema.exception.SchemaException;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaException;
 
 public class CascaraSchemaUri {
     public static final String SCHEMA_SERVICE_URI = "cascara://core/schema-service";

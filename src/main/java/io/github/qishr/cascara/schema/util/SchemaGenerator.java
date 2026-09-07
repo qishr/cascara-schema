@@ -69,8 +69,8 @@ import io.github.qishr.cascara.schema.constraint.FormatConstraint;
 import io.github.qishr.cascara.schema.constraint.NumberConstraint;
 import io.github.qishr.cascara.schema.constraint.ReadOnly;
 import io.github.qishr.cascara.schema.constraint.StringConstraint;
-import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
-import io.github.qishr.cascara.schema.exception.SchemaException;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaException;
 import io.github.qishr.cascara.schema.internal.SchemaUtils;
 
 public final class SchemaGenerator {

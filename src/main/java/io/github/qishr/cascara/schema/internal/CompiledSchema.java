@@ -38,7 +38,7 @@ package io.github.qishr.cascara.schema.internal;
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.schema.Schema;
-import io.github.qishr.cascara.schema.exception.ValidationException;
+import io.github.qishr.cascara.schema.diagnostic.ValidationException;
 import io.github.qishr.cascara.schema.structure.*;
 import io.github.qishr.cascara.schema.util.SchemaResolver;
 import io.github.qishr.cascara.schema.util.SchemaValidator;

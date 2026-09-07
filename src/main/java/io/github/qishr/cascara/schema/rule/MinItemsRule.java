@@ -39,7 +39,7 @@ import io.github.qishr.cascara.common.diagnostic.Diagnostic;
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.SequenceAstNode;
-import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
 
 import java.util.Collection;
 
@@ -72,7 +72,7 @@ public class MinItemsRule extends AbstractValidationRule implements ValidationRu
         if (value instanceof Collection<?> collection) {
             currentSize = collection.size();
         } else if (value instanceof Iterable<?> iterable) {
-            for (Object _ : iterable) currentSize++;
+            for (Object o : iterable) currentSize++;
         } else if (value != null) {
             // It's not a collection/iterable, so it's not got array items
             return false;

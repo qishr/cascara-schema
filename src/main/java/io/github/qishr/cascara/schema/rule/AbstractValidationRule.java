@@ -39,8 +39,8 @@ import java.net.URI;
 
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
-import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
-import io.github.qishr.cascara.schema.exception.ValidationException;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.ValidationException;
 
 public abstract class AbstractValidationRule {
 

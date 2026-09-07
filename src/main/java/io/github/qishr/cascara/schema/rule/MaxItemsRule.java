@@ -39,7 +39,7 @@ import io.github.qishr.cascara.common.diagnostic.Diagnostic;
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.SequenceAstNode;
-import io.github.qishr.cascara.schema.exception.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
 
 import java.util.Collection;
 
@@ -71,7 +71,7 @@ public class MaxItemsRule extends AbstractValidationRule implements ValidationRu
         } else if (value instanceof Iterable<?> iterable) {
             // Fallback for custom iterables if necessary
             int count = 0;
-            for (Object _ : iterable) count++;
+            for (Object o : iterable) count++;
             currentSize = count;
         }
 
