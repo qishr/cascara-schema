@@ -60,6 +60,7 @@ import io.github.qishr.cascara.common.service.ServiceMetadata;
 import io.github.qishr.cascara.common.lang.type.ScalarDescriptor;
 import io.github.qishr.cascara.common.lang.type.TypeDescriptor;
 import io.github.qishr.cascara.common.lang.type.TypeDescriptorFactory;
+import io.github.qishr.cascara.common.property.Property;
 import io.github.qishr.cascara.schema.SchemaKeyword;
 import io.github.qishr.cascara.common.lang.type.PrimitiveType;
 import io.github.qishr.cascara.schema.annotation.ContentMediaType;
@@ -72,12 +73,14 @@ import io.github.qishr.cascara.schema.constraint.StringConstraint;
 import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
 import io.github.qishr.cascara.schema.diagnostic.SchemaException;
 import io.github.qishr.cascara.schema.internal.SchemaUtils;
+import io.github.qishr.cascara.common.trackable.property.TrackableProperty;
 
 public final class SchemaGenerator {
 
     private static final TypeDescriptorFactory FACTORY = new TypeDescriptorFactory();
 
     private static final String OBJECT_PROPERTY_CLASS = "javafx.beans.property.ObjectProperty";
+    private static final String TRACKABLE_PROPERTY_CLASS = TrackableProperty.class.getName();
 
     // TODO: These should be able to be overridden by the caller
     public static final String TITLE_KEY = "x-i18n-title";
@@ -335,9 +338,26 @@ public final class SchemaGenerator {
     /// If the field is a JavaFX ObjectProperty, use the raw type, otherwise use the field's declared type
     private Class<?> extractFieldType(Field field) {
         if (field.getGenericType() instanceof ParameterizedType paramaterizedType) {
-            String typeName = paramaterizedType.getRawType().getTypeName();
+            Type type = paramaterizedType.getRawType();
+            String typeName = type.getTypeName();
             Type[] paramTypes = paramaterizedType.getActualTypeArguments();
+
             if (paramTypes.length == 1 && typeName.equals(OBJECT_PROPERTY_CLASS)) {
+                Type paramType = paramTypes[0];
+                if (paramType instanceof Class clazz) {
+                    return clazz;
+                }
+            }
+
+            String PROPERTY_CLASS = Property.class.getName();
+            if (paramTypes.length == 1 && typeName.equals(PROPERTY_CLASS)) {
+                Type paramType = paramTypes[0];
+                if (paramType instanceof Class clazz) {
+                    return clazz;
+                }
+            }
+
+            if (paramTypes.length == 1 && typeName.equals(TRACKABLE_PROPERTY_CLASS)) {
                 Type paramType = paramTypes[0];
                 if (paramType instanceof Class clazz) {
                     return clazz;

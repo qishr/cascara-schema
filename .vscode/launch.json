@@ -7,7 +7,20 @@
             "request": "launch",
             "mainClass": "org.junit.platform.console.ConsoleLauncher",
             "projectName": "cascara-schema",
-            "preLaunchTask": ""
+            "preLaunchTask": "",
+        },
+        {
+            "type": "java",
+            "name": "ObsObj",
+            "request": "launch",
+            "mainClass": "cascara.schema/io.github.qishr.cascara.schema.obsobj.Main",
+            "projectName": "cascara-schema",
+            "preLaunchTask": "",
+            "modulePaths": ["${workspaceFolder}/build/modulepath"],
+            "vmArgs": [
+                "--module-path",
+                "${workspaceFolder}/build/modulepath",
+            ]
         }
     ]
 }

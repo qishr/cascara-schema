@@ -110,6 +110,8 @@ public class SchemaResolver {
                 content = contentLoaderService.getContent(uri);
             } catch (LocalizableIOException e) {
                 throw new SchemaException(e);
+            } catch (Exception e) {
+                throw new SchemaException(uri, SchemaDiagnosticCode.RESOLVER, uri);
             }
         }
 
