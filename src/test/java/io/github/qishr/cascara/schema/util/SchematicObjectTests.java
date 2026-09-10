@@ -48,6 +48,13 @@ import io.github.qishr.cascara.common.trackable.property.TrackableProperty;
 
 public class SchematicObjectTests {
 
+    // TODO
+    //
+    // Add tests for SchematicObject referencing another SchematicObject that might not be registered yet.
+    //     // TODO: This currently has to come before instantiating TestObject due to a bug.
+    //     NestedTestObject nested = new NestedTestObject();
+    //     TestObject object = new TestObject();
+
     @SchemaDefinition
     public static class TestObject1 extends SchematicObject {
         @SchemaProperty

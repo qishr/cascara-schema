@@ -72,7 +72,7 @@ public class FormatTests {
         Schema schema = new SchemaCompiler().compile(schemaDoc);
 
         PlainMapNode decompiled = new SchemaDecompiler().decompile(schema);
-        String schemaString = new JsonConverter().toText(decompiled);
+        String schemaString = new JsonConverter().toString(decompiled);
         System.out.println(schemaString);
 
 

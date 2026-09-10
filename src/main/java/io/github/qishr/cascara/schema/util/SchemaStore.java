@@ -97,7 +97,7 @@ public class SchemaStore {
         SchemaDecompiler decompiler = new SchemaDecompiler();
         AstNode doc = decompiler.decompile(compiled);
 
-        String schemaString = new JsonConverter().toText(doc);
+        String schemaString = new JsonConverter().toString(doc);
 
         Path schemaDir = getPath(schemaUri);
         try {

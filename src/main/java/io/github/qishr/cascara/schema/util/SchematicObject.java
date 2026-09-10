@@ -176,7 +176,7 @@ public class SchematicObject extends TrackableObject {
         }
 
         configureProperty(property, propertyName, propertySchema.getType(), propertySchema.getContentMediaType(), true);
-        property.addListener((p) -> invalidate());
+        property.addTracker((p) -> invalidate());
         field.setAccessible(accessible);
     }
 
@@ -186,13 +186,13 @@ public class SchematicObject extends TrackableObject {
             case OBJECT: {
                 TrackableProperty prop = new TrackableProperty<>(this, key);
                 configureProperty(prop, key, propertySchema.getType(), propertySchema.getContentMediaType(), false);
-                prop.addListener((p) -> invalidate());
+                prop.addTracker((p) -> invalidate());
                 return;
             }
             case ARRAY: {
                 TrackableProperty prop = new TrackableProperty<>(this, key);
                 configureProperty(prop, key, propertySchema.getType(), propertySchema.getContentMediaType(), false);
-                prop.addListener((p) -> invalidate());
+                prop.addTracker((p) -> invalidate());
 
 
 
@@ -220,25 +220,25 @@ public class SchematicObject extends TrackableObject {
             case STRING: {
                 TrackableProperty<String> prop = new TrackableProperty<>(this, key);
                 configureProperty(prop, key, propertySchema.getType(), propertySchema.getContentMediaType(), false);
-                prop.addListener((p) -> invalidate());
+                prop.addTracker((p) -> invalidate());
                 return;
             }
             case NUMBER: {
                 TrackableProperty<Double> prop = new TrackableProperty<>(this, key);
                 configureProperty(prop, key, propertySchema.getType(), propertySchema.getContentMediaType(), false);
-                prop.addListener((p) -> invalidate());
+                prop.addTracker((p) -> invalidate());
                 return;
             }
             case INTEGER: {
                 TrackableProperty<Long> prop = new TrackableProperty<>(this, key);
                 configureProperty(prop, key, propertySchema.getType(), propertySchema.getContentMediaType(), false);
-                prop.addListener((p) -> invalidate());
+                prop.addTracker((p) -> invalidate());
                 return;
             }
             case BOOLEAN: {
                 TrackableProperty<Boolean> prop = new TrackableProperty<>(this, key);
                 configureProperty(prop, key, propertySchema.getType(), propertySchema.getContentMediaType(), false);
-                prop.addListener((p) -> invalidate());
+                prop.addTracker((p) -> invalidate());
                 return;
             }
             default: {

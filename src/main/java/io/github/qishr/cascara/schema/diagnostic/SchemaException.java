@@ -69,6 +69,13 @@ public class SchemaException extends LocatableException {
         );
     }
 
+    /// For errors in a schema caused by an exception.
+    public SchemaException(Throwable cause, DiagnosticCode code, Object... details) {
+        this(
+            null, null,  UNKNOWN_COORD, UNKNOWN_COORD, null, cause, code, details
+        );
+    }
+
     /// For errors in a schema.
     public SchemaException(URI uri, DiagnosticCode code, Object... details) {
         this(

@@ -111,7 +111,7 @@ public class SchemaResolver {
             } catch (LocalizableIOException e) {
                 throw new SchemaException(e);
             } catch (Exception e) {
-                throw new SchemaException(uri, SchemaDiagnosticCode.RESOLVER, uri);
+                throw new SchemaException(e, SchemaDiagnosticCode.RESOLUTION_FAILED_REASON, uri, e.getMessage());
             }
         }
 

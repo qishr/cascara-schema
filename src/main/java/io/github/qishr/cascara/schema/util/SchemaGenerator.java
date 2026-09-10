@@ -261,7 +261,10 @@ public final class SchemaGenerator {
     private PlainMapNode createFieldNode(Field field, Object template) {
         PlainMapNode node = new PlainMapNode();
         SchemaProperty sf = field.getAnnotation(SchemaProperty.class);
-        node.put(SchemaKeyword.TITLE.asString(), scalar(sf.title()));
+
+        if (!sf.title().isEmpty()) {
+            node.put(SchemaKeyword.TITLE.asString(), scalar(sf.title()));
+        }
 
         if (!sf.description().isEmpty()) {
             node.put(SchemaKeyword.DESCRIPTION.asString(), scalar(sf.description()));

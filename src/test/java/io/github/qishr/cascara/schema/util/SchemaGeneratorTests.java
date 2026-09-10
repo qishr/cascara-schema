@@ -35,6 +35,7 @@
 
 package io.github.qishr.cascara.schema.util;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
@@ -43,6 +44,8 @@ import org.junit.jupiter.api.Test;
 
 import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
 import io.github.qishr.cascara.common.lang.plain.PlainNode;
+import io.github.qishr.cascara.lang.json.processor.JsonConverter;
+import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.schema.annotation.SchemaDefinition;
 import io.github.qishr.cascara.schema.annotation.SchemaProperty;
 
@@ -54,10 +57,26 @@ public class SchemaGeneratorTests {
         private LocalDateTime dateTime;
     }
 
+    @SchemaDefinition
+    public static class OuterTestClass {
+        @SchemaProperty
+        private TestClass inner;
+    }
+
     @Test
     void t1() {
         SchemaGenerator generator = new SchemaGenerator();
         PlainMapNode schemaDoc = generator.generate(TestClass.class);
         assertTrue(schemaDoc != null);
+    }
+
+    // TODO: This should work but it doesn't
+    // Is it just failing when the class is inside another one?
+    @Test
+    void test2() {
+        Schema schema = new SchemaResolver().getSchemaForClass(OuterTestClass.class);
+        PlainMapNode decompiled = new SchemaDecompiler().decompile(schema);
+        String json = new JsonConverter().toString(decompiled);
+        assertNotNull(json);
     }
 }

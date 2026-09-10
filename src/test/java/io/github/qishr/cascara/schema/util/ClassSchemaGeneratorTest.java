@@ -148,10 +148,10 @@ class ClassSchemaGeneratorTest {
         SchemaDecompiler decompiler = new SchemaDecompiler();
 
         AstNode doc1a = decompiler.decompile(schema1);
-        String json1 = converter.toText(doc1a);
+        String json1 = converter.toString(doc1a);
 
         AstNode doc2a = decompiler.decompile(schema2);
-        String json2 = converter.toText(doc2a);
+        String json2 = converter.toString(doc2a);
 
         assertEquals(json1, json2);
     }
