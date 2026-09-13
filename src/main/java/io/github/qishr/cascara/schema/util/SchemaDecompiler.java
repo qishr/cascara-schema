@@ -46,7 +46,6 @@ import io.github.qishr.cascara.common.lang.plain.PlainScalarNode;
 import io.github.qishr.cascara.common.lang.plain.PlainSequenceNode;
 import io.github.qishr.cascara.common.lang.type.PrimitiveType;
 import io.github.qishr.cascara.schema.Schema;
-import io.github.qishr.cascara.schema.SchemaKeyword;
 import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
 import io.github.qishr.cascara.schema.diagnostic.SchemaException;
 import io.github.qishr.cascara.schema.rule.EnumRule;
@@ -94,6 +93,12 @@ public final class SchemaDecompiler {
 
     private PlainMapNode decompileInternal(SchemaNode compiled) throws SchemaException {
         PlainMapNode decompiled = new PlainMapNode();
+
+        if (compiled.getRef() instanceof String refString) {
+            if (refString.contains("TestClass")) {
+                System.out.println("Debug: TestClass");
+            }
+        }
 
         if (compiled.getContentMediaType() instanceof String mediaType) {
             decompiled.put(SchemaKeyword.CONTENT_MEDIA_TYPE.asString(), scalarValue(mediaType));

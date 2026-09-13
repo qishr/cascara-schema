@@ -40,7 +40,6 @@ import java.net.URI;
 import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
 import io.github.qishr.cascara.common.lang.plain.PlainScalarNode;
 import io.github.qishr.cascara.schema.Schema;
-import io.github.qishr.cascara.schema.SchemaKeyword;
 
 public class SchemaBuilder {
     SchemaGenerator generator;

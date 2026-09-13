@@ -38,33 +38,29 @@ package io.github.qishr.cascara.schema.util;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.LocalDateTime;
+import java.net.URI;
 
 import org.junit.jupiter.api.Test;
 
 import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
-import io.github.qishr.cascara.common.lang.plain.PlainNode;
 import io.github.qishr.cascara.lang.json.processor.JsonConverter;
 import io.github.qishr.cascara.schema.Schema;
-import io.github.qishr.cascara.schema.annotation.SchemaDefinition;
-import io.github.qishr.cascara.schema.annotation.SchemaProperty;
 
-public class SchemaGeneratorTests {
+public class SchemaGeneratorTests extends SchemaTestBase {
 
-    @SchemaDefinition
-    public static class TestClass {
-        @SchemaProperty
-        private LocalDateTime dateTime;
-    }
+    @Test
+    void test_buildSchema_2classes() {
+        URI uri = URI.create("cascara://core/schema-service/draft/cascara.schema/generator-test-3/0.1.0");
+        SchemaBuilder sb = new SchemaBuilder();
+        Schema schema = sb.buildSchema(uri, OuterTestClass.class, TestClass.class);
 
-    @SchemaDefinition
-    public static class OuterTestClass {
-        @SchemaProperty
-        private TestClass inner;
+        PlainMapNode decompiled = new SchemaDecompiler().decompile(schema);
+        String json = new JsonConverter().toString(decompiled);
+        assertNotNull(json);
     }
 
     @Test
-    void t1() {
+    void test_oneClass() {
         SchemaGenerator generator = new SchemaGenerator();
         PlainMapNode schemaDoc = generator.generate(TestClass.class);
         assertTrue(schemaDoc != null);
@@ -72,11 +68,60 @@ public class SchemaGeneratorTests {
 
     // TODO: This should work but it doesn't
     // Is it just failing when the class is inside another one?
+    // No, test_oneClass proves that works.
+    // The problem here is a class that refers to another class that has no
+    // schema in the system yet.
     @Test
-    void test2() {
+    void test_classReferingToOtherClass1() {
         Schema schema = new SchemaResolver().getSchemaForClass(OuterTestClass.class);
         PlainMapNode decompiled = new SchemaDecompiler().decompile(schema);
         String json = new JsonConverter().toString(decompiled);
         assertNotNull(json);
     }
+
+    // To prove this, if we cause TestClass's schema to be generated first, the
+    // code in the failing test will then wwork. This test does just that:
+    @Test
+    void test_classReferingToOtherClass2() {
+        SchemaGenerator generator = new SchemaGenerator();
+        SchemaCompiler compiler = new SchemaCompiler();
+
+        PlainMapNode testClassSchemaRoot = generator.generate(TestClass.class);
+        compiler.compile(testClassSchemaRoot);
+
+        PlainMapNode outerTestClassSchemaRoot = generator.generate(OuterTestClass.class);
+        Schema outerTestClassSchema = compiler.compile(outerTestClassSchemaRoot);
+
+        listCachedSchemas();
+
+        PlainMapNode decompiled = new SchemaDecompiler().decompile(outerTestClassSchema);
+        String json = new JsonConverter().toString(decompiled);
+        assertNotNull(json);
+    }
+
+    // -----------------------------------------------------------------------
+
+    // This is also broken in a similar way to test_classReferingToOtherClass1.
+    // It should have worked like test_classReferingToOtherClass2.
+    // getSchemaForClass *should* have picked testClassSchema up from the cache.
+    // Why did it fail?
+    @Test
+    void test_classReferingToOtherClass3() {
+        SchemaGenerator generator = new SchemaGenerator();
+        SchemaCompiler compiler = new SchemaCompiler();
+
+        PlainMapNode testClassSchemaRoot = generator.generate(TestClass.class);
+        compiler.compile(testClassSchemaRoot);
+
+        Schema outerTestClassSchema = new SchemaResolver().getSchemaForClass(OuterTestClass.class);
+
+        listCachedSchemas();
+
+        PlainMapNode decompiled = new SchemaDecompiler().decompile(outerTestClassSchema);
+        String json = new JsonConverter().toString(decompiled);
+        assertNotNull(json);
+    }
+
+
+
 }

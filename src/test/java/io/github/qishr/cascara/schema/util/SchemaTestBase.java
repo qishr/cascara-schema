@@ -35,10 +35,32 @@
 
 package io.github.qishr.cascara.schema.util;
 
+import java.net.URI;
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import io.github.qishr.cascara.schema.Schema;
+import io.github.qishr.cascara.schema.annotation.SchemaDefinition;
+import io.github.qishr.cascara.schema.annotation.SchemaProperty;
+
 import org.junit.jupiter.api.BeforeEach;
 
 
-public class SchemaIntegrationTestBase {
+public class SchemaTestBase {
+
+    @SchemaDefinition
+    public static class TestClass {
+        @SchemaProperty
+        private LocalDateTime dateTime;
+    }
+
+    @SchemaDefinition
+    public static class OuterTestClass {
+        @SchemaProperty
+        private TestClass inner;
+    }
+
     // protected ContentLoader mockLoader;
     // protected SchemaParser JsonAstParser;
     protected SchemaResolver resolver;
@@ -71,4 +93,12 @@ public class SchemaIntegrationTestBase {
     //         u != null && u.toString().equals(uri)
     //     ))).thenReturn(new ResourceContent(contentStr, null));
     // }
+
+    protected void listCachedSchemas() {
+        Map<URI, Schema> schemas = Schemas.getResolver().getCachedSchemas();
+        for (Entry<URI, Schema> entry : schemas.entrySet()) {
+            System.out.println(entry.getKey());
+        }
+    }
+
 }

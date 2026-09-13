@@ -58,7 +58,7 @@ import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.common.lang.type.PrimitiveType;
 import io.github.qishr.cascara.schema.diagnostic.SchemaException;
 
-public class BasedTests extends SchemaIntegrationTestBase {
+public class BasedTests extends SchemaTestBase {
 
     @Test
     void testLazyNodeTriggeringResolution() throws SchemaException {

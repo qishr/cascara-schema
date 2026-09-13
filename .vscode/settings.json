@@ -12,5 +12,8 @@
         "java.project.referencedLibraries": [
             "${workspaceFolder}/build/modulepath/*.jar"
         ]
-    }
+    },
+
+    "workbench.colorTheme": "Cascara Retro Amber on Heavy Metal"
+
 }

@@ -33,7 +33,7 @@
 // version.
 
 
-package io.github.qishr.cascara.schema;
+package io.github.qishr.cascara.schema.util;
 
 import java.util.Collections;
 import java.util.List;

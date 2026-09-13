@@ -166,7 +166,7 @@ public class SchematicObject extends TrackableObject {
         if (fieldValue instanceof TrackableProperty prop) {
             property = prop;
         } else {
-            property = new TrackableProperty<>(this, propertyName);
+            property = new TrackableProperty<>(this, propertyName, null);
             try {
                 field.set(this, property);
             } catch (Throwable e) {
@@ -184,13 +184,13 @@ public class SchematicObject extends TrackableObject {
     public void createObservableProperty(String key, SchemaNode propertySchema) {
         switch (propertySchema.getType()) {
             case OBJECT: {
-                TrackableProperty prop = new TrackableProperty<>(this, key);
+                TrackableProperty prop = new TrackableProperty<>(this, key, null);
                 configureProperty(prop, key, propertySchema.getType(), propertySchema.getContentMediaType(), false);
                 prop.addTracker((p) -> invalidate());
                 return;
             }
             case ARRAY: {
-                TrackableProperty prop = new TrackableProperty<>(this, key);
+                TrackableProperty prop = new TrackableProperty<>(this, key, null);
                 configureProperty(prop, key, propertySchema.getType(), propertySchema.getContentMediaType(), false);
                 prop.addTracker((p) -> invalidate());
 
@@ -218,25 +218,25 @@ public class SchematicObject extends TrackableObject {
                 return;
             }
             case STRING: {
-                TrackableProperty<String> prop = new TrackableProperty<>(this, key);
+                TrackableProperty<String> prop = new TrackableProperty<>(this, key, null);
                 configureProperty(prop, key, propertySchema.getType(), propertySchema.getContentMediaType(), false);
                 prop.addTracker((p) -> invalidate());
                 return;
             }
             case NUMBER: {
-                TrackableProperty<Double> prop = new TrackableProperty<>(this, key);
+                TrackableProperty<Double> prop = new TrackableProperty<>(this, key, null);
                 configureProperty(prop, key, propertySchema.getType(), propertySchema.getContentMediaType(), false);
                 prop.addTracker((p) -> invalidate());
                 return;
             }
             case INTEGER: {
-                TrackableProperty<Long> prop = new TrackableProperty<>(this, key);
+                TrackableProperty<Long> prop = new TrackableProperty<>(this, key, null);
                 configureProperty(prop, key, propertySchema.getType(), propertySchema.getContentMediaType(), false);
                 prop.addTracker((p) -> invalidate());
                 return;
             }
             case BOOLEAN: {
-                TrackableProperty<Boolean> prop = new TrackableProperty<>(this, key);
+                TrackableProperty<Boolean> prop = new TrackableProperty<>(this, key, null);
                 configureProperty(prop, key, propertySchema.getType(), propertySchema.getContentMediaType(), false);
                 prop.addTracker((p) -> invalidate());
                 return;
