@@ -2,16 +2,40 @@
     "java.configuration.updateBuildConfiguration": "automatic",
     "java.compile.nullAnalysis.mode": "automatic",
 
+
+
     "java.test.config": {
-        "modulePaths": ["${workspaceFolder}/build/modulepath"],
-        "module": "cascara.schema",
+        "modulePaths": ["${workspaceFolder}/cascara-schema/build/modulepath"],
+        "module": "test",
         "vmArgs": [
             "--module-path",
-            "${workspaceFolder}/build/modulepath",
+            "${workspaceFolder}/cascara-schema/build/modulepath",
         ],
         "java.project.referencedLibraries": [
-            "${workspaceFolder}/build/modulepath/*.jar"
+            "${workspaceFolder}/cascara-schema/build/modulepath/*.jar"
         ]
+    },
+
+    // "java.test.config": [
+    //     {
+    //         "name": "schema-test",
+    //         "modulePaths": ["${workspaceFolder}/schema-test/build/modulepath"],
+    //         "module": "schema-test",
+    //         "vmArgs": [
+    //             "--module-path",
+    //             "${workspaceFolder}/schema-test/build/modulepath",
+    //         ],
+    //         "java.project.referencedLibraries": [
+    //             "${workspaceFolder}/schema-test/build/modulepath/*.jar"
+    //         ]
+    //     },
+    // ],
+
+
+
+    "java.project.outputPath": "build/classes/java/main",
+    "files.exclude": {
+        "**/bin": true
     },
 
     "workbench.colorTheme": "Cascara Retro Amber on Heavy Metal"

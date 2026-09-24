@@ -1,0 +1,60 @@
+{
+    "apiVersion": "apps/v1",
+    "kind": "Deployment",
+    "metadata": {
+      "name": "cascara-engine-deployment",
+      "namespace": "production",
+      "labels": {
+        "app": "cascara-core",
+        "tier": "backend",
+        "environment": "live"
+      }
+    },
+    "spec": {
+      "replicas": 12,
+      "selector": {
+        "matchLabels": {
+          "app": "cascara-core"
+        }
+      },
+      "template": {
+        "metadata": {
+          "labels": {
+            "app": "cascara-core"
+          }
+        },
+        "spec": {
+          "containers": [
+            {
+              "name": "cascara-runtime",
+              "image": "io.github.qishr/cascara:v25.4.2",
+              "ports": [
+                { "containerPort": 8080, "protocol": "TCP" },
+                { "containerPort": 9090, "protocol": "TCP" }
+              ],
+              "resources": {
+                "limits": { "cpu": "2000m", "memory": "4Gi" },
+                "requests": { "cpu": "500m", "memory": "1Gi" }
+              },
+              "env": [
+                { "name": "JAVA_OPTS", "value": "-XX:+UseZGC -Xms2g" },
+                { "name": "CASCARA_ENV", "value": "PRODUCTION" },
+                { "name": "METRICS_ENABLED", "value": "true" }
+              ]
+            },
+            {
+              "name": "cascara-proxy",
+              "image": "envoyproxy/envoy:v1.30.0",
+              "ports": [
+                { "containerPort": 443, "protocol": "TCP" }
+              ],
+              "resources": {
+                "limits": { "cpu": "500m", "memory": "512Mi" },
+                "requests": { "cpu": "100m", "memory": "128Mi" }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
