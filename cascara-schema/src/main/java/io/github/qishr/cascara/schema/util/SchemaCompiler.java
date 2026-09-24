@@ -173,9 +173,9 @@ public class SchemaCompiler {
                 Schema metaDoc = resolver.getSchema(metaUri);
                 metaRoot = metaDoc.getRoot();
             } catch (Exception e) {
-                // for(Entry<URI, Schema> entry : resolver.getCachedSchemas().entrySet()) {
-                //     System.out.println("CACHED: " + entry.getKey());
-                // }
+                // TODO: This is annoying - it's too noisy in the logs for something
+                // that's not an exception. Should it be a warning? It should
+                // probably be using a global reporter to be configurable.
                 reporter.error(GenericDiagnosticCode.ERROR, "Could not resolve meta-schema " + metaUri + ": " + e.getMessage());
             }
         }
