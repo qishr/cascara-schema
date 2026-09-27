@@ -39,7 +39,7 @@ import java.net.URI;
 
 import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
 import io.github.qishr.cascara.common.lang.plain.PlainScalarNode;
-import io.github.qishr.cascara.schema.Schema;
+import io.github.qishr.cascara.schema.internal.SchemaUtils;
 
 public class SchemaBuilder {
     SchemaGenerator generator;
@@ -53,7 +53,7 @@ public class SchemaBuilder {
     }
 
     public SchemaBuilder() {
-        resolver = Schemas.getResolver();
+        resolver = SchemaUtils.getResolver();
         compiler = new SchemaCompiler(resolver);
         generator = new SchemaGenerator();
     }

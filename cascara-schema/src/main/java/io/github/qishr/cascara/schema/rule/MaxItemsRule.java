@@ -71,7 +71,7 @@ public class MaxItemsRule extends AbstractValidationRule implements ValidationRu
         } else if (value instanceof Iterable<?> iterable) {
             // Fallback for custom iterables if necessary
             int count = 0;
-            for (Object o : iterable) count++;
+            for (@SuppressWarnings("unused") Object o : iterable) count++;
             currentSize = count;
         }
 

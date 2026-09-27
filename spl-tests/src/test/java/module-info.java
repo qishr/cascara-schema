@@ -32,16 +32,20 @@
 // you do not wish to do so, delete this exception statement from your
 // version.
 
+module test.spl {
+    requires java.net.http;
+    requires cascara.common;
+    requires cascara.common.io;
+    requires cascara.lang.json;
+    requires transitive cascara.schema;
 
-package io.github.qishr.cascara.schema;
+    requires cascara.test.common.junit;
+    requires org.junit.jupiter.api;
+    requires org.mockito;
 
-import io.github.qishr.cascara.schema.annotation.SchemaProperty;
+    exports test.spl;
 
-public class SimpleEntity {
-    @SchemaProperty(title = "Name")
-    String name;
 
-    @SchemaProperty(title = "Age")
-    int age;
+    opens test.spl;
+
 }
-

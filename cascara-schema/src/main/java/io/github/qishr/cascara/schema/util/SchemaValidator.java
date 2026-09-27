@@ -41,7 +41,6 @@ import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;
 import io.github.qishr.cascara.common.lang.ast.MapEntryAstNode;
 import io.github.qishr.cascara.common.lang.ast.SequenceAstNode;
-import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.schema.internal.SchemaUtils;
 import io.github.qishr.cascara.schema.rule.ValidationRule;
 import io.github.qishr.cascara.schema.structure.ArraySchemaNode;
@@ -69,7 +68,7 @@ public class SchemaValidator {
 
     /// Sets the SchemaResolver that will be used to obtain the schema of the AST being validated.
     public SchemaValidator(SchemaResolver resolver, Reporter reporter) {
-        this.resolver = resolver == null ? Schemas.getResolver() : resolver;
+        this.resolver = resolver == null ? SchemaUtils.getResolver() : resolver;
         this.reporter = reporter == null ? new NoOpReporter() : reporter;
     }
 

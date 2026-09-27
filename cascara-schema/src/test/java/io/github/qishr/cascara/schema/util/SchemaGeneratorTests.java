@@ -44,13 +44,6 @@ import org.junit.jupiter.api.Test;
 
 import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
 import io.github.qishr.cascara.lang.json.processor.JsonConverter;
-import io.github.qishr.cascara.schema.Schema;
-import io.github.qishr.cascara.schema.util.SchemaBuilder;
-import io.github.qishr.cascara.schema.util.SchemaCompiler;
-import io.github.qishr.cascara.schema.util.SchemaDecompiler;
-import io.github.qishr.cascara.schema.util.SchemaGenerator;
-import io.github.qishr.cascara.schema.util.SchemaResolver;
-import io.github.qishr.cascara.schema.SchemaTestBase;
 
 public class SchemaGeneratorTests extends SchemaTestBase {
 
@@ -80,7 +73,7 @@ public class SchemaGeneratorTests extends SchemaTestBase {
     @Disabled
     @Test
     void test_classReferingToOtherClass1() {
-        Schema schema = new SchemaResolver().getSchemaForClass(OuterTestClass.class);
+        Schema schema = resolver.getSchemaForClass(OuterTestClass.class);
         PlainMapNode decompiled = new SchemaDecompiler().decompile(schema);
         String json = new JsonConverter().toString(decompiled);
         assertNotNull(json);
@@ -121,7 +114,7 @@ public class SchemaGeneratorTests extends SchemaTestBase {
         PlainMapNode testClassSchemaRoot = generator.generate(TestClass.class);
         compiler.compile(testClassSchemaRoot);
 
-        Schema outerTestClassSchema = new SchemaResolver().getSchemaForClass(OuterTestClass.class);
+        Schema outerTestClassSchema = resolver.getSchemaForClass(OuterTestClass.class);
 
         listCachedSchemas();
 

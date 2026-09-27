@@ -33,37 +33,16 @@
 // version.
 
 
-package io.github.qishr.cascara.schema;
+package io.github.qishr.cascara.schema.util;
 
-import java.io.IOException;
+import java.util.List;
 
-import org.junit.jupiter.api.Test;
+import io.github.qishr.cascara.schema.annotation.SchemaProperty;
 
-import io.github.qishr.cascara.common.util.JreUtils;
-import io.github.qishr.cascara.lang.json.ast.JsonNode;
-import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
-import io.github.qishr.cascara.schema.Schema;
-import io.github.qishr.cascara.schema.util.SchemaCompiler;
+public class RefEntity {
+    @SchemaProperty(title = "Child")
+    SimpleEntity child;
 
-class SingleFileTest {
-    // @Disabled
-    @Test
-    void testSingleFile() throws IOException {
-        String schemaString = readStringResource("complex-schema.json");
-        String dataString = readStringResource("complex-data.json");
-
-        JsonAstParser parser = new JsonAstParser();
-        Schema cascaraSchema = new SchemaCompiler().compile(parser.parse(schemaString));
-        JsonNode cascaraData = parser.parse(dataString);
-
-        int times = 1000000;
-
-        for (int i = 0; i < times; i++) {
-            cascaraSchema.validate(cascaraData);
-        }
-    }
-
-    private String readStringResource(String path) throws IOException {
-        return JreUtils.getResourceAsString(getClass(), path);
-    }
+    @SchemaProperty(title = "Children")
+    List<RefEntity> children;
 }

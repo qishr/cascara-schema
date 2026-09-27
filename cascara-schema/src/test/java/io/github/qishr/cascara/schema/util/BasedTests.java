@@ -53,11 +53,6 @@ import io.github.qishr.cascara.schema.structure.LazySchemaNode;
 import io.github.qishr.cascara.schema.structure.ObjectSchemaNode;
 import io.github.qishr.cascara.schema.structure.ScalarSchemaNode;
 import io.github.qishr.cascara.schema.structure.SchemaNode;
-import io.github.qishr.cascara.schema.util.DynamicScope;
-import io.github.qishr.cascara.schema.util.SchemaCompiler;
-import io.github.qishr.cascara.schema.util.SchemaResolver;
-import io.github.qishr.cascara.schema.SchemaTestBase;
-import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.common.lang.type.PrimitiveType;
 import io.github.qishr.cascara.schema.diagnostic.SchemaException;
 
@@ -89,7 +84,8 @@ public class BasedTests extends SchemaTestBase {
 
     @Test
     void testInternalFragmentResolution() {
-        SchemaResolver localResolver = new SchemaResolver();
+        // SchemaResolver localResolver = new SchemaResolver();
+        SchemaResolver localResolver = resolver;
         SchemaCompiler compiler = new SchemaCompiler(localResolver);
 
         PlainMapNode addrAst = new PlainMapNode();

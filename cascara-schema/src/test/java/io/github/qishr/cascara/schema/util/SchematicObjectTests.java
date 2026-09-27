@@ -45,9 +45,8 @@ import io.github.qishr.cascara.common.property.StringProperty;
 import io.github.qishr.cascara.schema.annotation.SchemaDefinition;
 import io.github.qishr.cascara.schema.annotation.SchemaProperty;
 import io.github.qishr.cascara.common.trackable.property.TrackableProperty;
-import io.github.qishr.cascara.schema.util.SchematicObject;
 
-public class SchematicObjectTests {
+public class SchematicObjectTests extends SchemaTestBase {
 
     // TODO
     //

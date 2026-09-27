@@ -34,6 +34,6 @@
 
 package io.github.qishr.cascara.schema.util;
 
-public class SchemaValidationTests {
+public class SchemaValidationTests extends SchemaTestBase {
 
 }

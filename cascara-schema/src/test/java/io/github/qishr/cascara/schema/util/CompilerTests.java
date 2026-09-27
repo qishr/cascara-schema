@@ -36,22 +36,17 @@ package io.github.qishr.cascara.schema.util;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.nio.charset.StandardCharsets;
-
 import org.junit.jupiter.api.Test;
 
 import io.github.qishr.cascara.common.diagnostic.LocalizableIOException;
 import io.github.qishr.cascara.common.util.JreUtils;
 import io.github.qishr.cascara.lang.json.ast.JsonNode;
 import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
-import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.schema.structure.LazySchemaNode;
 import io.github.qishr.cascara.schema.structure.ObjectSchemaNode;
 import io.github.qishr.cascara.schema.structure.SchemaNode;
-import io.github.qishr.cascara.schema.util.SchemaCompiler;
-import io.github.qishr.cascara.schema.util.SchemaResolver;
 
-public class CompilerTests {
+public class CompilerTests extends SchemaTestBase {
     @Test
     void compiler_shouldPreserveCustomMetadata() {
         String json = """
@@ -66,7 +61,6 @@ public class CompilerTests {
         JsonAstParser parser = new JsonAstParser();
         JsonNode doc = parser.parse(json);
 
-        SchemaResolver resolver = new SchemaResolver();
         SchemaCompiler compiler = new SchemaCompiler(resolver);
         Schema schema = compiler.compile(doc);
 
@@ -85,7 +79,6 @@ public class CompilerTests {
         JsonAstParser parser = new JsonAstParser();
         JsonNode doc = parser.parse(json);
 
-        SchemaResolver resolver = new SchemaResolver();
         SchemaCompiler compiler = new SchemaCompiler(resolver);
         Schema schema = compiler.compile(doc);
 

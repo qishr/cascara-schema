@@ -35,12 +35,33 @@
 
 package io.github.qishr.cascara.schema.util;
 
-public class Schemas {
-    private static SchemaResolver schemaResolver = new SchemaResolver();
+import java.io.IOException;
 
-    public static SchemaResolver getResolver() { return schemaResolver; }
+import org.junit.jupiter.api.Test;
 
-    public static void setResolver(SchemaResolver resolver) {
-        schemaResolver = resolver;
+import io.github.qishr.cascara.common.util.JreUtils;
+import io.github.qishr.cascara.lang.json.ast.JsonNode;
+import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
+
+class SingleFileTest {
+    // @Disabled
+    @Test
+    void testSingleFile() throws IOException {
+        String schemaString = readStringResource("complex-schema.json");
+        String dataString = readStringResource("complex-data.json");
+
+        JsonAstParser parser = new JsonAstParser();
+        Schema cascaraSchema = new SchemaCompiler().compile(parser.parse(schemaString));
+        JsonNode cascaraData = parser.parse(dataString);
+
+        int times = 1000000;
+
+        for (int i = 0; i < times; i++) {
+            cascaraSchema.validate(cascaraData);
+        }
+    }
+
+    private String readStringResource(String path) throws IOException {
+        return JreUtils.getResourceAsString(getClass(), path);
     }
 }

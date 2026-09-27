@@ -72,7 +72,7 @@ public class MinItemsRule extends AbstractValidationRule implements ValidationRu
         if (value instanceof Collection<?> collection) {
             currentSize = collection.size();
         } else if (value instanceof Iterable<?> iterable) {
-            for (Object o : iterable) currentSize++;
+            for (@SuppressWarnings("unused") Object o : iterable) currentSize++;
         } else if (value != null) {
             // It's not a collection/iterable, so it's not got array items
             return false;

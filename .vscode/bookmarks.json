@@ -16,7 +16,7 @@
 			]
 		},
 		{
-			"path": "test-schema/src/test/java/test/schema/util/SystemTests.java",
+			"path": "spl-tests/src/test/java/test/spl/util/SystemTests.java",
 			"bookmarks": [
 				{
 					"line": 66,
@@ -29,7 +29,7 @@
 			"path": "cascara-schema/src/test/java/io/github/qishr/cascara/schema/util/SchemaGeneratorTests.java",
 			"bookmarks": [
 				{
-					"line": 90,
+					"line": 86,
 					"column": 9,
 					"label": ""
 				}

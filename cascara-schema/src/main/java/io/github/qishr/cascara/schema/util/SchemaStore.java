@@ -38,16 +38,15 @@ package io.github.qishr.cascara.schema.util;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import io.github.qishr.cascara.common.content.ResourceContent;
 import io.github.qishr.cascara.common.diagnostic.code.GenericDiagnosticCode;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
+import io.github.qishr.cascara.common.service.ServiceProviderFactory;
 import io.github.qishr.cascara.common.util.Cascara;
-import io.github.qishr.cascara.common.util.ContentTypes;
 import io.github.qishr.cascara.common.util.ContentType;
+import io.github.qishr.cascara.common.util.ContentTypeResolver;
 import io.github.qishr.cascara.lang.json.processor.JsonConverter;
-import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
 import io.github.qishr.cascara.schema.diagnostic.SchemaException;
 import io.github.qishr.cascara.schema.util.CascaraSchemaUri.Lifecycle;
@@ -55,9 +54,6 @@ import io.github.qishr.cascara.schema.util.CascaraSchemaUri.Lifecycle;
 public class SchemaStore {
 
     private static SchemaStore instance;
-    // private static final Path cascaraDir = Paths.get(System.getProperty("user.home")).resolve(".cascara");
-    // private static final Path schemasDir = cascaraDir.resolve("schemas");
-    private static final Path schemasDir = Cascara.getSchemasPath();
 
     public static SchemaStore instance() {
         if (instance == null) {
@@ -86,9 +82,18 @@ public class SchemaStore {
             throw new SchemaException(schemaUri.toUri(), GenericDiagnosticCode.IO_ERROR, e.getMessage());
         }
 
-        ContentType contentType = ContentTypes.find("application/schema+json");
-        ResourceContent rc = new ResourceContent(schemaSource, contentType);
+        ResourceContent rc = new ResourceContent(schemaSource, getJsonSchemaContentType());
         return rc;
+    }
+
+    private ContentType jsonSchemaContentType;
+
+    private ContentType getJsonSchemaContentType() {
+        if (jsonSchemaContentType == null) {
+            ContentTypeResolver resolver = new ServiceProviderFactory().getContentTypeResolver();
+            jsonSchemaContentType = resolver.resolve("application/schema+json");
+        }
+        return jsonSchemaContentType;
     }
 
     public void put(CascaraSchemaUri schemaUri, Schema compiled) {
@@ -115,7 +120,7 @@ public class SchemaStore {
     }
 
     private Path getPath(CascaraSchemaUri schemaUri) throws SchemaException {
-        Path moduleDir = schemasDir.resolve(schemaUri.getModuleName());
+        Path moduleDir = Cascara.getSchemasPath().resolve(schemaUri.getModuleName());
         Path schemaDir = moduleDir.resolve(schemaUri.getSchemaName());
 
         Path versionDir;

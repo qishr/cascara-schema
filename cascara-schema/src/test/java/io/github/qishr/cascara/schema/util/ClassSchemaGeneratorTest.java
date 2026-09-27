@@ -38,10 +38,6 @@ import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
 import io.github.qishr.cascara.lang.json.processor.JsonConverter;
 import io.github.qishr.cascara.schema.annotation.SchemaProperty;
-import io.github.qishr.cascara.schema.util.SchemaCompiler;
-import io.github.qishr.cascara.schema.util.SchemaDecompiler;
-import io.github.qishr.cascara.schema.util.SchemaGenerator;
-import io.github.qishr.cascara.schema.util.SchemaResolver;
 
 import org.junit.jupiter.api.Test;
 
@@ -50,7 +46,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ClassSchemaGeneratorTest {
+class ClassSchemaGeneratorTest extends SchemaTestBase {
 
     static class SimpleEntity {
         @SchemaProperty
@@ -141,7 +137,6 @@ class ClassSchemaGeneratorTest {
         var doc1 = generator.generate(SimpleEntity.class);
         var doc2 = generator.generate(SimpleEntity.class);
 
-        SchemaResolver resolver = new SchemaResolver();
         SchemaCompiler compiler = new SchemaCompiler(resolver);
 
         var schema1 = compiler.compile(doc1, URI.create("runtime://schema1"));

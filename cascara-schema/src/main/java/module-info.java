@@ -38,7 +38,6 @@ module cascara.schema {
     requires transitive cascara.common.io;
     requires cascara.lang.json;
 
-    exports io.github.qishr.cascara.schema;
     exports io.github.qishr.cascara.schema.annotation;
     exports io.github.qishr.cascara.schema.diagnostic;
     exports io.github.qishr.cascara.schema.structure;
@@ -46,6 +45,5 @@ module cascara.schema {
     exports io.github.qishr.cascara.schema.rule;
     exports io.github.qishr.cascara.schema.util;
 
-    opens io.github.qishr.cascara.schema;
     opens io.github.qishr.cascara.schema.util;
 }

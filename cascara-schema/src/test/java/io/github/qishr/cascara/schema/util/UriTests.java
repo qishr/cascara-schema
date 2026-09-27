@@ -40,13 +40,12 @@ import java.net.URI;
 
 import org.junit.jupiter.api.Test;
 
+import io.github.qishr.cascara.common.diagnostic.LocalizableIOException;
+import io.github.qishr.cascara.common.io.IOUtils;
 import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
 import io.github.qishr.cascara.common.lang.plain.PlainScalarNode;
-import io.github.qishr.cascara.schema.Schema;
-import io.github.qishr.cascara.schema.util.SchemaCompiler;
-import io.github.qishr.cascara.schema.util.SchemaResolver;
 
-public class UriTests {
+public class UriTests extends SchemaTestBase {
     @Test
     void test_id() {
         URI uri = URI.create("cascara://core/schema-service/dynamic/cascara.schema/uri-tests");
@@ -54,7 +53,6 @@ public class UriTests {
         PlainMapNode root = new PlainMapNode();
         root.put("$id", id);
 
-        SchemaResolver resolver = new SchemaResolver();
         SchemaCompiler compiler = new SchemaCompiler(resolver);
 
         Schema schema = compiler.compile(root, uri);
@@ -62,4 +60,25 @@ public class UriTests {
         URI schemaUri = schema.getOriginUri();
         assertEquals(uri, schemaUri);
     }
+
+    @Test
+    void test_absoluteFilePath() throws LocalizableIOException {
+        assertEquals(
+            "file:///tmp/a",
+            IOUtils.normalizeUri(URI.create(
+                "/tmp/a"
+            )).toString()
+        );
+    }
+
+    @Test
+    void test_relativeFilePath() throws LocalizableIOException {
+        assertEquals(
+            "file://" + System.getProperty("user.dir") + "/tmp/a",
+            IOUtils.normalizeUri(URI.create(
+                "tmp/a"
+            )).toString()
+        );
+    }
+
 }

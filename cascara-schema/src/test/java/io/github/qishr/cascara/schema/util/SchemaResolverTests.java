@@ -38,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.io.IOException;
 import java.net.URI;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -52,23 +53,18 @@ import io.github.qishr.cascara.common.lang.plain.PlainScalarNode;
 import io.github.qishr.cascara.lang.json.ast.JsonNode;
 import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
 import io.github.qishr.cascara.lang.json.util.JsonOptions;
-import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.schema.structure.ArraySchemaNode;
 import io.github.qishr.cascara.schema.structure.LazySchemaNode;
 import io.github.qishr.cascara.schema.structure.ObjectSchemaNode;
 import io.github.qishr.cascara.schema.structure.SchemaNode;
-import io.github.qishr.cascara.schema.util.SchemaCompiler;
-import io.github.qishr.cascara.schema.util.SchemaDecompiler;
-import io.github.qishr.cascara.schema.util.SchemaResolver;
 
-public class SchemaResolverTests {
-    SchemaResolver resolver;
+public class SchemaResolverTests extends SchemaTestBase {
     SchemaCompiler compiler;
     SchemaDecompiler decompiler;
 
     @BeforeEach
-    void setup() {
-        resolver = new SchemaResolver();
+    protected void setUp() throws IOException {
+        super.setUp();
         compiler = new SchemaCompiler(resolver);
         decompiler = new SchemaDecompiler();
     }
@@ -103,7 +99,6 @@ public class SchemaResolverTests {
         PlainMapNode tagDoc = createTagDoc();
         PlainMapNode taskDoc = createTaskDoc();
 
-        SchemaResolver resolver = new SchemaResolver();
         SchemaCompiler compiler = new SchemaCompiler(resolver);
 
         compiler.compile(tagDoc); // This automatically registers it with the resolver
@@ -149,7 +144,6 @@ public class SchemaResolverTests {
             .setOptions(JsonOptions.JSON5)
             .setReporter(new StandardReporter().setLevel(Level.INFO));
         JsonNode doc = parser.parse(json);
-        SchemaResolver resolver = new SchemaResolver();
         SchemaCompiler compiler = new SchemaCompiler(resolver);
         Schema schema = compiler.compile(doc);
 

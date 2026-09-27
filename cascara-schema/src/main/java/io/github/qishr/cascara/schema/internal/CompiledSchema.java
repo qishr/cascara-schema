@@ -37,12 +37,10 @@ package io.github.qishr.cascara.schema.internal;
 
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
-import io.github.qishr.cascara.schema.Schema;
-import io.github.qishr.cascara.schema.diagnostic.ValidationException;
 import io.github.qishr.cascara.schema.structure.*;
+import io.github.qishr.cascara.schema.util.Schema;
 import io.github.qishr.cascara.schema.util.SchemaResolver;
 import io.github.qishr.cascara.schema.util.SchemaValidator;
-import io.github.qishr.cascara.schema.util.Schemas;
 
 import java.net.URI;
 import java.util.*;
@@ -53,7 +51,7 @@ public final class CompiledSchema implements Schema {
     private final URI originUri; // Store explicitly as the schema's identity
     private Map<String, SchemaNode> properties;
     private Map<String, SchemaNode> definitions;
-    private SchemaResolver resolver = Schemas.getResolver();
+    private SchemaResolver resolver = SchemaUtils.getResolver();
 
     public CompiledSchema(URI originUri, SchemaNode root) {
         this.originUri = originUri;

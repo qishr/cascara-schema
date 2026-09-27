@@ -41,13 +41,23 @@ import io.github.qishr.cascara.common.annotation.Nullable;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;
 import io.github.qishr.cascara.common.lang.ast.ScalarAstNode;
-import io.github.qishr.cascara.schema.Schema;
+import io.github.qishr.cascara.common.service.ServiceProviderLayer;
 import io.github.qishr.cascara.schema.diagnostic.SchemaException;
+import io.github.qishr.cascara.schema.util.Schema;
 import io.github.qishr.cascara.schema.util.SchemaKeyword;
 import io.github.qishr.cascara.schema.util.SchemaResolver;
-import io.github.qishr.cascara.schema.util.Schemas;
 
 public class SchemaUtils {
+
+    private static SchemaResolver resolver;
+
+    public static SchemaResolver getResolver() {
+        if (resolver == null) {
+            resolver = ServiceProviderLayer.loadDefault(SchemaResolver.class);
+        }
+        return resolver;
+    }
+
     /// Checks for top-level $schema key
     @Nullable
     public static Schema scanForSchema(AstNode root) {
@@ -58,7 +68,7 @@ public class SchemaUtils {
     @Nullable
     public static Schema scanForSchema(AstNode root, SchemaResolver resolver) {
         if (resolver == null) {
-            resolver = Schemas.getResolver();
+            resolver = getResolver();
         }
         if (root instanceof MapAstNode map) {
             AstNode schemaValue = map.get(SchemaKeyword.SCHEMA.asString());

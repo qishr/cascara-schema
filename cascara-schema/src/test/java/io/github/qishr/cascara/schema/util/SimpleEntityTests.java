@@ -32,7 +32,7 @@
 // you do not wish to do so, delete this exception statement from your
 // version.
 
-package io.github.qishr.cascara.schema;
+package io.github.qishr.cascara.schema.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -46,22 +46,17 @@ import org.junit.jupiter.api.Test;
 import io.github.qishr.cascara.common.annotation.DataIgnore;
 import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
 import io.github.qishr.cascara.common.lang.type.PrimitiveType;
-import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.schema.annotation.SchemaProperty;
-import io.github.qishr.cascara.schema.util.SchemaGenerator;
-import io.github.qishr.cascara.schema.util.SchemaResolver;
 import io.github.qishr.cascara.schema.structure.ArraySchemaNode;
 import io.github.qishr.cascara.schema.structure.LazySchemaNode;
 import io.github.qishr.cascara.schema.structure.ObjectSchemaNode;
 import io.github.qishr.cascara.schema.structure.ScalarSchemaNode;
 import io.github.qishr.cascara.schema.structure.SchemaNode;
-import io.github.qishr.cascara.schema.util.SchemaCompiler;
 
-public class SimpleEntityTests {
+public class SimpleEntityTests extends SchemaTestBase {
     @Test
     public void simpleEntity_has_scalar_fields() {
         SchemaGenerator generator = new SchemaGenerator();
-        SchemaResolver resolver = new SchemaResolver();
         SchemaCompiler compiler = new SchemaCompiler(resolver);
 
         PlainMapNode doc = generator.generate(SimpleEntity.class);
@@ -76,7 +71,7 @@ public class SimpleEntityTests {
     @Test
     public void refEntity_distinguishes_single_and_collection_references() {
         SchemaGenerator generator = new SchemaGenerator();
-        SchemaCompiler compiler = new SchemaCompiler(new SchemaResolver());
+        SchemaCompiler compiler = new SchemaCompiler(resolver);
 
         PlainMapNode doc = generator.generate(RefEntity.class);
         Schema schema = compiler.compile(doc, URI.create("runtime://schema"));
@@ -110,7 +105,6 @@ public class SimpleEntityTests {
     @Test
     public void ignoreEntity_ignores_dataignore_fields() {
         SchemaGenerator generator = new SchemaGenerator();
-        SchemaResolver resolver = new SchemaResolver();
         SchemaCompiler compiler = new SchemaCompiler(resolver);
 
         PlainMapNode doc = generator.generate(IgnoreEntity.class);
@@ -126,7 +120,6 @@ public class SimpleEntityTests {
     public void array_reference_is_marked_as_collection() {
         SchemaGenerator generator = new SchemaGenerator();
         // TestResolver resolver = new TestResolver();
-        SchemaResolver resolver = new SchemaResolver() ;
         SchemaCompiler compiler = new SchemaCompiler(resolver);
 
         URI uri = URI.create("runtime://schema");

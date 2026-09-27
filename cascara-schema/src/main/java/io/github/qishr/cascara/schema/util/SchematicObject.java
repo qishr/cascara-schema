@@ -47,7 +47,6 @@ import io.github.qishr.cascara.common.trackable.TrackableObject;
 import io.github.qishr.cascara.common.trackable.TrackingDiagnosticCode;
 import io.github.qishr.cascara.common.trackable.TrackingException;
 import io.github.qishr.cascara.common.trackable.property.TrackableProperty;
-import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.schema.structure.SchemaNode;
 
 public class SchematicObject extends TrackableObject {

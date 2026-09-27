@@ -42,10 +42,11 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.diagnostic.StandardReporter;
+import io.github.qishr.cascara.common.diagnostic.UnexpectedNullParameterException;
+import io.github.qishr.cascara.common.diagnostic.UnexpectedNullReturnException;
 import io.github.qishr.cascara.common.diagnostic.code.GenericDiagnosticCode;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;
@@ -54,11 +55,11 @@ import io.github.qishr.cascara.common.lang.ast.ScalarAstNode;
 import io.github.qishr.cascara.common.lang.ast.SequenceAstNode;
 import io.github.qishr.cascara.common.lang.type.ScalarDescriptor;
 import io.github.qishr.cascara.common.lang.type.TypeDescriptorFactory;
-import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.common.lang.type.PrimitiveType;
 import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
 import io.github.qishr.cascara.schema.diagnostic.SchemaException;
 import io.github.qishr.cascara.schema.internal.CompiledSchema;
+import io.github.qishr.cascara.schema.internal.SchemaUtils;
 import io.github.qishr.cascara.schema.rule.EnumRule;
 import io.github.qishr.cascara.schema.rule.FormatRule;
 import io.github.qishr.cascara.schema.rule.MaxItemsRule;
@@ -91,22 +92,31 @@ public class SchemaCompiler {
     private static final String ROOT = "root";
     private static final String ITEM = "item";
 
-    private SchemaResolver resolver = Schemas.getResolver();
+    private SchemaResolver resolver;
     private Reporter reporter = new StandardReporter();
 
     private final Map<String,ScalarDescriptor<?>> typeDescriptors = new HashMap<>();
 
     @Deprecated
     public SchemaCompiler(SchemaResolver resolver, boolean resolveRefs) {
+        if (resolver == null) {
+            throw new UnexpectedNullParameterException("resolver");
+        }
         this.resolver = resolver;
     }
 
     public SchemaCompiler(SchemaResolver resolver) {
+        if (resolver == null) {
+            throw new UnexpectedNullParameterException("resolver");
+        }
         this.resolver = resolver;
     }
 
     public SchemaCompiler() {
-        this.resolver = Schemas.getResolver();
+        this.resolver = SchemaUtils.getResolver();
+        if (resolver == null) {
+            throw new UnexpectedNullReturnException("SchemaUtils", "getResolver");
+        }
     }
 
     public void registerTypeDescriptor(ScalarDescriptor<?> typeDescriptor) {

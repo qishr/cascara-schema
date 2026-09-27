@@ -45,7 +45,7 @@ import io.github.qishr.cascara.common.trackable.property.TrackableIntegerPropert
 import io.github.qishr.cascara.common.trackable.property.TrackableStringProperty;
 import io.github.qishr.cascara.common.trackable.property.TrackableProperty;
 
-public class TrackablePropertyTests {
+public class TrackablePropertyTests extends SchemaTestBase {
     @Test
     void testTrackableProperty() {
         TrackableProperty<String> property = new TrackableProperty<>(null, "name", "");

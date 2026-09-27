@@ -38,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -46,21 +47,16 @@ import org.junit.jupiter.api.Test;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;
 import io.github.qishr.cascara.lang.json.ast.JsonNode;
 import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
-import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.common.lang.type.PrimitiveType;
 import io.github.qishr.cascara.schema.structure.ObjectSchemaNode;
 import io.github.qishr.cascara.schema.structure.SchemaNode;
-import io.github.qishr.cascara.schema.util.SchemaCompiler;
-import io.github.qishr.cascara.schema.util.SchemaDecompiler;
-import io.github.qishr.cascara.schema.util.SchemaResolver;
 
-public class SystemTests {
-    SchemaResolver resolver;
+public class SystemTests extends SchemaTestBase {
     SchemaCompiler compiler;
 
     @BeforeEach
-    void setup() {
-        resolver = new SchemaResolver();
+    protected void setUp() throws IOException {
+        super.setUp();
         compiler = new SchemaCompiler(resolver);
     }
 

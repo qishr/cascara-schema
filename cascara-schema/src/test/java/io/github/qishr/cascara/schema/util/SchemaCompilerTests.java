@@ -38,22 +38,25 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
 import io.github.qishr.cascara.common.lang.plain.PlainScalarNode;
 import io.github.qishr.cascara.common.lang.plain.PlainSequenceNode;
-import io.github.qishr.cascara.schema.Schema;
 import io.github.qishr.cascara.schema.structure.ObjectSchemaNode;
-import io.github.qishr.cascara.schema.util.SchemaCompiler;
-import io.github.qishr.cascara.schema.util.SchemaResolver;
 
-public class SchemaCompilerTests {
+public class SchemaCompilerTests extends SchemaTestBase {
 
-    private SchemaResolver resolver = new SchemaResolver();
-    private SchemaCompiler compiler = new SchemaCompiler(resolver);
+    private SchemaCompiler compiler;
 
-
+    @BeforeEach
+    protected void setUp() throws IOException {
+        super.setUp();
+        compiler = new SchemaCompiler(resolver);
+    }
 
     @Test
     void shouldCaptureUnevaluatedPropertiesAndTypedHints() {

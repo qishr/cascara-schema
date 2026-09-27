@@ -49,3 +49,10 @@ tasks.withType(Javadoc).configureEach {
 //     // forkEvery = 1
 //     // jvmArgs '-XX:StartFlightRecording=duration=20s,filename=json_profile.jfr'
 // }
+
+test {
+    testLogging {
+        events "started"
+    }
+}
+

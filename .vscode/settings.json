@@ -4,31 +4,52 @@
 
 
 
-    "java.test.config": {
-        "modulePaths": ["${workspaceFolder}/cascara-schema/build/modulepath"],
-        "module": "test",
-        "vmArgs": [
-            "--module-path",
-            "${workspaceFolder}/cascara-schema/build/modulepath",
-        ],
-        "java.project.referencedLibraries": [
-            "${workspaceFolder}/cascara-schema/build/modulepath/*.jar"
-        ]
-    },
+    "java.test.defaultConfig": "tests",
+    "java.test.config": [
+        {
+            "name": "tests",
+            "modulePaths": ["${workspaceFolder}/cascara-schema/build/modulepath"],
+            "module": "cascara.schema",
+            "classPaths": [
+                "${workspaceFolder}/cascara-schema/build/classes/java/main",
+                "${workspaceFolder}/cascara-schema/build/resources/main"
+            ]
+        },
+        {
+            "name": "modular-tests",
+            "modulePaths": ["${workspaceFolder}/schema-test/build/modulepath"],
+            "module": "schema-test",
+            "vmArgs": [
+                "--module-path",
+                "${workspaceFolder}/schema-test/build/modulepath",
+            ],
+            "java.project.referencedLibraries": [
+                "${workspaceFolder}/schema-test/build/modulepath/*.jar"
+            ]
+        },
+    ],
+
+    // "vmArgs": [
+        //     "--module-path",
+        //     "${workspaceFolder}/cascara-schema/build/modulepath",
+        // ],
+        // "java.project.referencedLibraries": [
+        //     "${workspaceFolder}/cascara-schema/build/modulepath/*.jar"
+        // ]
 
     // "java.test.config": [
-    //     {
-    //         "name": "schema-test",
-    //         "modulePaths": ["${workspaceFolder}/schema-test/build/modulepath"],
-    //         "module": "schema-test",
-    //         "vmArgs": [
-    //             "--module-path",
-    //             "${workspaceFolder}/schema-test/build/modulepath",
-    //         ],
-    //         "java.project.referencedLibraries": [
-    //             "${workspaceFolder}/schema-test/build/modulepath/*.jar"
-    //         ]
-    //     },
+        // {
+        //     "name": "schema-test",
+        //     "modulePaths": ["${workspaceFolder}/schema-test/build/modulepath"],
+        //     "module": "schema-test",
+        //     "vmArgs": [
+        //         "--module-path",
+        //         "${workspaceFolder}/schema-test/build/modulepath",
+        //     ],
+        //     "java.project.referencedLibraries": [
+        //         "${workspaceFolder}/schema-test/build/modulepath/*.jar"
+        //     ]
+        // },
     // ],
 
 

@@ -32,7 +32,7 @@
 // you do not wish to do so, delete this exception statement from your
 // version.
 
-package io.github.qishr.cascara.schema;
+package io.github.qishr.cascara.schema.util;
 
 import java.io.IOException;
 import java.net.URI;
@@ -40,11 +40,9 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import io.github.qishr.cascara.schema.Schema;
+import io.github.qishr.cascara.common.service.ServiceProviderLayer;
 import io.github.qishr.cascara.schema.annotation.SchemaDefinition;
 import io.github.qishr.cascara.schema.annotation.SchemaProperty;
-import io.github.qishr.cascara.schema.util.SchemaResolver;
-import io.github.qishr.cascara.schema.util.Schemas;
 import io.github.qishr.cascara.test.common.junit.util.VfsTestBase;
 
 import org.junit.jupiter.api.AfterEach;
@@ -52,6 +50,8 @@ import org.junit.jupiter.api.BeforeEach;
 
 
 public class SchemaTestBase extends VfsTestBase {
+
+    protected SchemaResolver resolver;
 
     @SchemaDefinition
     public static class TestClass {
@@ -65,20 +65,35 @@ public class SchemaTestBase extends VfsTestBase {
         private TestClass inner;
     }
 
-    // protected ContentLoader mockLoader;
-    // protected SchemaParser JsonAstParser;
-    protected SchemaResolver resolver;
+
+    // private static void dumpProcessArgs() {
+    //     ProcessHandle ph = ProcessHandle.current();
+    //     String[] args = ph.info().arguments().orElse(null);
+    //     if (args != null) {
+    //         for (String s : args) {
+    //             System.out.println(s);
+    //         }
+    //     }
+    // }
+
+    // private void dumpJvmInfo() {
+    //     System.out.println("\n--------");
+    //     System.out.println("ARGS");
+    //     dumpProcessArgs();
+
+    //     System.out.println("\n--------");
+    //     System.out.println("MODULE: " + getClass().getModule().getName());
+    //     System.out.println("\n--------");
+    // }
+
 
     @BeforeEach
     protected void setUp() throws IOException {
+        // dumpJvmInfo();
+        // setSplReportingLevel(Level.TRACE);
+
         super.setUp();
-        // mockLoader = mock(ContentLoader.class);
-
-        // Bridge: extract the 'content' string from the record to feed the JsonAstParser
-        // JsonAstParser = resource -> new JsonAstParser().parse(resource.content());
-
-        // System Under Test
-        resolver = new SchemaResolver();
+        resolver = ServiceProviderLayer.loadDefault(SchemaResolver.class);
     }
 
     @AfterEach
@@ -86,26 +101,8 @@ public class SchemaTestBase extends VfsTestBase {
         super.tearDown();
     }
 
-    // protected void mockRemoteFile(String uri, String contentStr) throws IOException {
-    //     URI targetUri = URI.create(uri);
-
-    //     // Match the record: (String content, ContentType contentType)
-    //     // We pass null for ContentType unless the test explicitly validates it
-    //     ResourceContent resource = new ResourceContent(contentStr, null);
-
-    //     // Match the interface: getContent(URI)
-    //     when(mockLoader.getContent(eq(targetUri))).thenReturn(resource);
-    // }
-
-    // protected void mockRemoteFile(String uri, String contentStr) throws IOException {
-    //     // Match by the string representation of the URI to avoid instance-equality issues
-    //     when(mockLoader.getContent(org.mockito.ArgumentMatchers.argThat(u ->
-    //         u != null && u.toString().equals(uri)
-    //     ))).thenReturn(new ResourceContent(contentStr, null));
-    // }
-
     protected void listCachedSchemas() {
-        Map<URI, Schema> schemas = Schemas.getResolver().getCachedSchemas();
+        Map<URI, Schema> schemas = resolver.getCachedSchemas();
         for (Entry<URI, Schema> entry : schemas.entrySet()) {
             System.out.println(entry.getKey());
         }
