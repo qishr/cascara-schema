@@ -93,12 +93,6 @@ public final class SchemaDecompiler {
     private PlainMapNode decompileInternal(SchemaNode compiled) throws SchemaException {
         PlainMapNode decompiled = new PlainMapNode();
 
-        if (compiled.getRef() instanceof String refString) {
-            if (refString.contains("TestClass")) {
-                System.out.println("Debug: TestClass");
-            }
-        }
-
         if (compiled.getContentMediaType() instanceof String mediaType) {
             decompiled.put(SchemaKeyword.CONTENT_MEDIA_TYPE.asString(), scalarValue(mediaType));
         }

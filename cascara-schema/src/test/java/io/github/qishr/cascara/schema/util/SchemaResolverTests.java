@@ -229,8 +229,7 @@ public class SchemaResolverTests extends SchemaTestBase {
     @Test
     @DisplayName("Should resolve fragment sitting in $defs even if it is a LazySchemaNode")
     void shouldResolveLazyFragmentInDefs() {
-        // 1. Setup the environment with your real services
-        // (Assuming these are available in your test setup)
+        // 1. Setup the environment
         URI docUri = URI.create("https://cascara.io/test/lazy-lookup");
 
         // 2. A schema where a definition is present.

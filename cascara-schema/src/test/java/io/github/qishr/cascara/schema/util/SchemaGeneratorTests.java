@@ -65,15 +65,14 @@ public class SchemaGeneratorTests extends SchemaTestBase {
         assertTrue(schemaDoc != null);
     }
 
-    // TODO: This should work but it doesn't
-    // Is it just failing when the class is inside another one?
-    // No, test_oneClass proves that works.
-    // The problem here is a class that refers to another class that has no
-    // schema in the system yet.
-    @Disabled
     @Test
     void test_classReferingToOtherClass1() {
         Schema schema = resolver.getSchemaForClass(OuterTestClass.class);
+
+        // System.out.println(Cascara.getHomePath());
+        // displayVfs();
+        // listCachedSchemas();
+
         PlainMapNode decompiled = new SchemaDecompiler().decompile(schema);
         String json = new JsonConverter().toString(decompiled);
         assertNotNull(json);
@@ -99,13 +98,6 @@ public class SchemaGeneratorTests extends SchemaTestBase {
         assertNotNull(json);
     }
 
-    // -----------------------------------------------------------------------
-
-    // This is also broken in a similar way to test_classReferingToOtherClass1.
-    // It should have worked like test_classReferingToOtherClass2.
-    // getSchemaForClass *should* have picked testClassSchema up from the cache.
-    // Why did it fail?
-    @Disabled
     @Test
     void test_classReferingToOtherClass3() {
         SchemaGenerator generator = new SchemaGenerator();
@@ -116,7 +108,8 @@ public class SchemaGeneratorTests extends SchemaTestBase {
 
         Schema outerTestClassSchema = resolver.getSchemaForClass(OuterTestClass.class);
 
-        listCachedSchemas();
+        // displayVfs();
+        // listCachedSchemas();
 
         PlainMapNode decompiled = new SchemaDecompiler().decompile(outerTestClassSchema);
         String json = new JsonConverter().toString(decompiled);

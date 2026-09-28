@@ -83,21 +83,17 @@ public class SchemaResolverImpl implements SchemaResolver {
 
     private SchemaResolverImpl() {}
 
-    public static void dumpStackTrace() {
-        Thread c = Thread.currentThread();
-        String n = c.getName() + "/" + c.threadId() + "/" + c.hashCode();
-        StackTraceElement[] st = c.getStackTrace();
-        for (StackTraceElement el : st) {
-            System.out.println(n + " STACK: " + el.getClassName() + "." + el.getMethodName());
-        }
-    }
+    // private static void dumpStackTrace() {
+    //     Thread c = Thread.currentThread();
+    //     String n = c.getName() + "/" + c.threadId() + "/" + c.hashCode();
+    //     StackTraceElement[] st = c.getStackTrace();
+    //     for (StackTraceElement el : st) {
+    //         System.out.println(n + " STACK: " + el.getClassName() + "." + el.getMethodName());
+    //     }
+    // }
 
     @SingletonInitializer
     private void init() {
-
-        // System.out.println("Debug: *********************************");
-        // dumpStackTrace();
-
         this.contentLoaderService = new SchemaContentLoader();
         this.schemaStore = SchemaStore.instance();
         loadBuiltInMetaSchemas();
@@ -194,6 +190,8 @@ public class SchemaResolverImpl implements SchemaResolver {
 
         try {
             return resolveInternal(ref, relativeTo, scope);
+        } catch (Exception e) {
+            throw new SchemaException(e, SchemaDiagnosticCode.RESOLUTION_FAILED_RELATIVE, ref, relativeTo);
         } finally {
             // Restore previous scope (handles nested resolutions)
             if (previous != null) {
@@ -214,16 +212,32 @@ public class SchemaResolverImpl implements SchemaResolver {
     //
 
     private Schema generateSchemaForClass(Class<?> clazz, List<TypeAnalyzer> typeAnalyzers) throws SchemaException {
-        URI originUri = CascaraSchemaUri.of(clazz).toUri();
-        SchemaCompiler compiler = new SchemaCompiler(this);
+        // 1. Schemas for classes referenced by the specified class
         SchemaGenerator generator = new SchemaGenerator();
         if (typeAnalyzers != null) {
             for (TypeAnalyzer ta : typeAnalyzers) {
                 generator.registerTypeAnalyzer(ta);
             }
         }
+        Set<Class<?>> referencedClasses = generator.getReferencedClasses(clazz);
+        generateSchemasForClasses(referencedClasses, generator);
+
+        // 2. Schema for the specified class
+        URI originUri = CascaraSchemaUri.of(clazz).toUri();
+        SchemaCompiler compiler = new SchemaCompiler(this);
         AstNode schemaDoc = generator.generate(clazz);
         return compiler.compile(schemaDoc, originUri);
+    }
+
+    private void generateSchemasForClasses(Set<Class<?>> referencedClasses, SchemaGenerator generator) throws SchemaException {
+        for (Class<?> clazz : referencedClasses) {
+            URI originUri = CascaraSchemaUri.of(clazz).toUri();
+            if (!schemaDocCache.containsKey(originUri)) {
+                SchemaCompiler compiler = new SchemaCompiler(this);
+                AstNode schemaDoc = generator.generate(clazz);
+                compiler.compile(schemaDoc, originUri);
+            }
+        }
     }
 
     /// Internal version that carries the scope
@@ -246,10 +260,13 @@ public class SchemaResolverImpl implements SchemaResolver {
         }
 
         // If the compiled `SchemaNode` is cached, return it
-        SchemaNode cached = schemaNodeCache.get(targetUri);
-        if (cached != null) return cached;
+        SchemaNode cachedNode = schemaNodeCache.get(targetUri);
+        if (cachedNode != null) return cachedNode;
 
-        // 3. The Compiler/Document Load (Your existing logic)
+        Schema cachedDoc = schemaDocCache.get(targetUri);
+        if (cachedDoc != null) return cachedDoc.getRoot();
+
+        // 3. The Compiler/Document Load
         URI docUri = stripFragment(targetUri);
         Schema schemaDoc = getSchema(docUri); // This triggers compilation if needed
 

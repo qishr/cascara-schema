@@ -64,11 +64,12 @@ public enum SchemaDiagnosticCode implements DiagnosticCode {
     NOT_FOUND("SCHEMA-404", "Schema not found: {0}"),
 
     // Resolver
-    RESOLUTION_FAILED("SCHEMA-501", "Resolution failed: {0}"),
-    RESOLUTION_FAILED_REASON("SCHEMA-502", "Resolution failed for {0}: {1}"),
-    LOCAL_RESOLUTION_FAILED("SCHEMA-503", "Could not resolve local $schema: {0}"),
-    NODE_NOT_FOUND("SCHEMA-504", "Could not find node for fragment {0}"),
-    META_INITIALIZATION_FAILURE("SCHEMA-505", "Failed to initialize built-in meta-schemas."),
+    LOCAL_RESOLUTION_FAILED("SCHEMA-501", "Could not resolve local $schema: {0}"),
+    RESOLUTION_FAILED("SCHEMA-502", "Resolution failed: {0}"),
+    RESOLUTION_FAILED_REASON("SCHEMA-503", "Resolution failed for {0}: {1}"),
+    RESOLUTION_FAILED_RELATIVE("SCHEMA-504", "Resolution failed for {0} realtive to {1}"),
+    NODE_NOT_FOUND("SCHEMA-511", "Could not find node for fragment {0}"),
+    META_INITIALIZATION_FAILURE("SCHEMA-512", "Failed to initialize built-in meta-schemas."),
 
     // Generator
     GENERATOR("SCHEMA-601", "Error: {0}"),

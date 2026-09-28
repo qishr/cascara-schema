@@ -55,7 +55,7 @@ import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
 import io.github.qishr.cascara.common.lang.plain.PlainScalarNode;
 import io.github.qishr.cascara.common.lang.plain.PlainSequenceNode;
 import io.github.qishr.cascara.common.service.CapabilityQueries;
-import io.github.qishr.cascara.common.service.ServiceProviderLayer;
+import io.github.qishr.cascara.common.service.SPL;
 import io.github.qishr.cascara.common.service.ServiceMetadata;
 import io.github.qishr.cascara.common.lang.type.ScalarDescriptor;
 import io.github.qishr.cascara.common.lang.type.TypeDescriptor;
@@ -98,6 +98,9 @@ public final class SchemaGenerator {
 
     private URI originUri;
 
+    private Set<Class<?>> externalRefs = new HashSet<>();
+
+
     public void registerTypeAnalyzer(TypeAnalyzer ta) {
         typeAnalyzers.add(ta);
     }
@@ -129,8 +132,66 @@ public final class SchemaGenerator {
     public PlainMapNode generate(MapAstNode<?,?,?> parentDoc, String fragment, Class<?> clazz, Object template) {
         processingStack.clear();
         definitions.clear();
+        externalRefs.clear();
         multiClassDocument = false;
+        PlainMapNode schemaRoot = generateInternal(parentDoc, fragment, clazz, template);
+        return schemaRoot;
+    }
 
+    public Set<Class<?>> getReferencedClasses(Class<?> clazz) {
+        Set<Class<?>> collected = new HashSet<>();
+        collectRefClasses(clazz, collected);
+        return collected;
+    }
+
+    //
+    //
+    //
+
+    private void collectRefClasses(Class<?> clazz, Set<Class<?>> collected) {
+        PlainMapNode node = new PlainMapNode();
+
+        for (Field field : getAllFields(clazz)) {
+            if (shouldInclude(field)) {
+                Class<?> type = extractFieldType(field);
+                applyTypeAnalysis(field, node);
+                String analyzedType = node.getString(SchemaKeyword.TYPE.asString());
+                if (isStandardScalarType(type) ||
+                    (analyzedType != null && !PrimitiveType.ARRAY.asString().equals(analyzedType) && !PrimitiveType.OBJECT.asString().equals(analyzedType) ||
+                    isList(type))
+                ) {
+                    // It doesn't need a schema
+                } else {
+                    List<ServiceMetadata> typeConverters = getTypeConverters(type);
+                    if (typeConverters.isEmpty()) {
+                        boolean isExternal = type.isAnnotationPresent(SchemaDefinition.class);
+
+                        if (isExternal) {
+                            collected.add(type);
+                            collectRefClasses(type, collected);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    //
+    //
+    //
+
+    private List<ServiceMetadata> getTypeConverters(Class<?> type){
+        SPL rootLayer = SPL.getRoot();
+        List<ServiceMetadata> typeConverters = rootLayer.getProviders(
+            TypeDescriptor.class,
+            CapabilityQueries.allOf(
+                CapabilityQueries.hasExactValue("javaType", type.getName())
+            )
+        );
+        return typeConverters;
+    }
+
+    private PlainMapNode generateInternal(MapAstNode<?,?,?> parentDoc, String fragment, Class<?> clazz, Object template) {
         if (parentDoc != null) {
             multiClassDocument = true;
             String id = parentDoc.getString(SchemaKeyword.ID.asString());
@@ -242,7 +303,7 @@ public final class SchemaGenerator {
         }
     }
 
-    private boolean shouldInclude(Field field) {
+    private static boolean shouldInclude(Field field) {
         if (field.isAnnotationPresent(DataIgnore.class)) return false;
         return field.isAnnotationPresent(SchemaProperty.class);
     }
@@ -308,13 +369,15 @@ public final class SchemaGenerator {
         } else {
             // If there is a type descriptor, use it.
             // If there isn't, then use a $ref
-            ServiceProviderLayer rootLayer = ServiceProviderLayer.getRoot();
-            List<ServiceMetadata> typeConverters = rootLayer.getProviders(
-                TypeDescriptor.class,
-                CapabilityQueries.allOf(
-                    CapabilityQueries.hasExactValue("javaType", type.getName())
-                )
-            );
+            List<ServiceMetadata> typeConverters = getTypeConverters(type);
+
+            // SPL rootLayer = SPL.getRoot();
+            // List<ServiceMetadata> typeConverters = rootLayer.getProviders(
+            //     TypeDescriptor.class,
+            //     CapabilityQueries.allOf(
+            //         CapabilityQueries.hasExactValue("javaType", type.getName())
+            //     )
+            // );
 
             if (typeConverters.isEmpty()) {
                 if (isExternalEntityType(type)) {
@@ -337,8 +400,9 @@ public final class SchemaGenerator {
         return node;
     }
 
-    /// If the field is a JavaFX ObjectProperty, use the raw type, otherwise use the field's declared type
-    private Class<?> extractFieldType(Field field) {
+    /// If the field is a JavaFX ObjectProperty, a Property, or a TrackableProperty,
+    /// use the raw type, otherwise use the field's declared type
+    private static Class<?> extractFieldType(Field field) {
         if (field.getGenericType() instanceof ParameterizedType paramaterizedType) {
             Type type = paramaterizedType.getRawType();
             String typeName = type.getTypeName();
@@ -359,6 +423,7 @@ public final class SchemaGenerator {
                 }
             }
 
+            // TODO: Subclasses of TrackableProperty
             if (paramTypes.length == 1 && typeName.equals(TRACKABLE_PROPERTY_CLASS)) {
                 Type paramType = paramTypes[0];
                 if (paramType instanceof Class clazz) {
@@ -398,6 +463,7 @@ public final class SchemaGenerator {
     }
 
     private void applyExternalRef(PlainMapNode node, Class<?> target, Field field) {
+        externalRefs.add(target);
         CascaraSchemaUri schemaUri = CascaraSchemaUri.of(target);
         String schemaUriString = schemaUri.toUri().toString();
         node.put(SchemaKeyword.REF.asString(), scalar(schemaUriString));
@@ -511,7 +577,7 @@ public final class SchemaGenerator {
         }
     }
 
-    private List<Field> getAllFields(Class<?> clazz) {
+    private static List<Field> getAllFields(Class<?> clazz) {
         List<Field> fields = new ArrayList<>();
         Class<?> current = clazz;
 
@@ -538,7 +604,7 @@ public final class SchemaGenerator {
             || type.isEnum();
     }
 
-    private boolean isList(Class<?> type) {
+    private static boolean isList(Class<?> type) {
         return List.class.isAssignableFrom(type);
     }
 

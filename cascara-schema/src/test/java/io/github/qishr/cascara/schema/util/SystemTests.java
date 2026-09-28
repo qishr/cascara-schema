@@ -63,7 +63,6 @@ public class SystemTests extends SchemaTestBase {
     @Test
     void task_shouldInheritPropertiesFromItem() {
         // 1. Setup the CEMA Meta-Schema in the provider/cache
-        // (Assuming your test harness pre-loads the cascara://core/.../cema-meta)
 
         String json = """
             {
@@ -149,7 +148,6 @@ public class SystemTests extends SchemaTestBase {
     @Test
     void test1() {
         // 1. Setup the CEMA Meta-Schema in the provider/cache
-        // (Assuming your test harness pre-loads the cascara://core/.../cema-meta)
 
         String json = """
             {

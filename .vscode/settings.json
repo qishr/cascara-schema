@@ -4,10 +4,10 @@
 
 
 
-    "java.test.defaultConfig": "tests",
+    "java.test.defaultConfig": "test",
     "java.test.config": [
         {
-            "name": "tests",
+            "name": "test",
             "modulePaths": ["${workspaceFolder}/cascara-schema/build/modulepath"],
             "module": "cascara.schema",
             "classPaths": [
@@ -16,43 +16,15 @@
             ]
         },
         {
-            "name": "modular-tests",
-            "modulePaths": ["${workspaceFolder}/schema-test/build/modulepath"],
+            "name": "spl-test",
+            "modulePaths": ["${workspaceFolder}/spl-test/build/modulepath"],
             "module": "schema-test",
-            "vmArgs": [
-                "--module-path",
-                "${workspaceFolder}/schema-test/build/modulepath",
-            ],
-            "java.project.referencedLibraries": [
-                "${workspaceFolder}/schema-test/build/modulepath/*.jar"
+            "classPaths": [
+                "${workspaceFolder}/spl-test/build/classes/java/main",
+                "${workspaceFolder}/spl-test/build/resources/main"
             ]
         },
     ],
-
-    // "vmArgs": [
-        //     "--module-path",
-        //     "${workspaceFolder}/cascara-schema/build/modulepath",
-        // ],
-        // "java.project.referencedLibraries": [
-        //     "${workspaceFolder}/cascara-schema/build/modulepath/*.jar"
-        // ]
-
-    // "java.test.config": [
-        // {
-        //     "name": "schema-test",
-        //     "modulePaths": ["${workspaceFolder}/schema-test/build/modulepath"],
-        //     "module": "schema-test",
-        //     "vmArgs": [
-        //         "--module-path",
-        //         "${workspaceFolder}/schema-test/build/modulepath",
-        //     ],
-        //     "java.project.referencedLibraries": [
-        //         "${workspaceFolder}/schema-test/build/modulepath/*.jar"
-        //     ]
-        // },
-    // ],
-
-
 
     "java.project.outputPath": "build/classes/java/main",
     "files.exclude": {

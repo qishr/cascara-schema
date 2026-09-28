@@ -101,11 +101,11 @@ public final class CompiledSchema implements Schema {
     /// Validates and AST against this schema.
     /// @param data an `AstNode` representing a document or part of a
     ///             structured document (such as JSON or YAML) to validate.
-    /// @throws ValidationException if the AST is not valid.
+    /// @return true on success, false on failure.
     @Override
-    public void validate(AstNode data) {
-        SchemaValidator runner = new SchemaValidator(resolver);
-        runner.validate(data, this);
+    public boolean validate(AstNode data) {
+        SchemaValidator validator = new SchemaValidator(resolver);
+        return validator.validate(data, this);
     }
 
     /// Validates and AST against this schema.
@@ -113,6 +113,7 @@ public final class CompiledSchema implements Schema {
     ///             structured document (such as JSON or YAML) to validate.
     /// @return true on success, false on failure.
     /// @param reporter a reporter for collecting problem diagnostics.
+    /// @return true on success, false on failure.
     @Override
     public boolean validate(AstNode data, Reporter reporter) {
         SchemaValidator validator = new SchemaValidator(resolver);

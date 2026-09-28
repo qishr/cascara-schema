@@ -34,53 +34,43 @@
 
 package test.spl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
-import java.net.URI;
-import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.List;
 
-import io.github.qishr.cascara.common.service.ServiceProviderLayer;
-import io.github.qishr.cascara.schema.annotation.SchemaDefinition;
-import io.github.qishr.cascara.schema.annotation.SchemaProperty;
-import io.github.qishr.cascara.schema.util.Schema;
-import io.github.qishr.cascara.schema.util.SchemaResolver;
-import io.github.qishr.cascara.test.common.junit.util.VfsTestBase;
+import org.junit.jupiter.api.Test;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import io.github.qishr.cascara.common.service.ServiceMetadata;
+import io.github.qishr.cascara.common.service.SPL;
+import io.github.qishr.cascara.common.util.ContentTypeResolver;
 
-public class SchemaTestBase extends VfsTestBase {
-
-    @SchemaDefinition
-    public static class TestClass {
-        @SchemaProperty
-        private LocalDateTime dateTime;
+public class SplOverrideTests extends SchemaTestBase {
+    @Test
+    void test_modulesLoad() throws IOException {
+        SPL rootLayer = SPL.getRoot();
+        List<String> modules = rootLayer.getModules();
+        assertTrue(modules.contains("cascara.common.io"));
     }
 
-    @SchemaDefinition
-    public static class OuterTestClass {
-        @SchemaProperty
-        private TestClass inner;
-    }
 
-    protected SchemaResolver resolver;
 
-    @BeforeEach
-    protected void setUp() throws IOException {
-        super.setUp();
-        resolver = ServiceProviderLayer.loadDefault(SchemaResolver.class);
-    }
+    @Test
+    void test_splPrefsOverridesSchemaStore() throws IOException {
+        spl.registerClass(TestSchemaStore.class);
 
-    @AfterEach
-    protected void tearDown() throws IOException {
-        super.tearDown();
-    }
+        // Verify Alternative CTS is present
+        List<ServiceMetadata> providers = spl.findAllProviders(ContentTypeResolver.class);
+        assertEquals(2, providers.size());
 
-    protected void listCachedSchemas() {
-        Map<URI, Schema> schemas = resolver.getCachedSchemas();
-        for (Entry<URI, Schema> entry : schemas.entrySet()) {
-            System.out.println(entry.getKey());
+        boolean found = false;
+        for (ServiceMetadata m : providers) {
+            if (m.getType().equals(TestSchemaStore.class)) {
+                found = true;
+            }
         }
+
+        assertTrue(found);
     }
 }

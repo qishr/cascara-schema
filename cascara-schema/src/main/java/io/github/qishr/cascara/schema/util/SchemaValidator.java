@@ -108,14 +108,12 @@ public class SchemaValidator {
         }
 
         // 2. Invoke the rules already attached to this node
-        // (The same rules your GUI uses)
         for (ValidationRule rule : schema.getRules()) {
             valid &= rule.validate(data, path, reporter);
         }
 
         // 3. Recurse into children based on structure
         if (data instanceof MapAstNode<?, ? extends AstNode, ? extends MapEntryAstNode<?, ? extends AstNode>> map && schema instanceof ObjectSchemaNode obj) {
-        // if (data instanceof MapAstNode map && schema instanceof ObjectSchemaNode obj) {
             // TODO: We can make this faster yet.
             // If this for is using an iterator, change it to a regular for loop.
             // The only problem is how do we get the entry set without using

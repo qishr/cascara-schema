@@ -116,7 +116,6 @@ public interface SchemaNode extends AstNode {
         return null;
     }
 
-
     /// Returns the schema that defines the structure of THIS node.
     /// For a standard property, this returns the JSON Schema Meta-Schema.
     /// For a CEMA property, this might return the CEMA Meta-Schema.

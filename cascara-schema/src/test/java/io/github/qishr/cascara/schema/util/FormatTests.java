@@ -85,7 +85,7 @@ public class FormatTests {
         assertTrue(valid);
     }
 
-    // ServiceProviderLayer.getRoot(new StandardReporter().setLevel(Level.DEBUG));
+    // SPL.getRoot(new StandardReporter().setLevel(Level.DEBUG));
 
     @Test
     void test_invalidDateTime() {

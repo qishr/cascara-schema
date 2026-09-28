@@ -64,14 +64,13 @@ public class BasedTests extends SchemaTestBase {
         AstNode mockAst = mock(AstNode.class);
         URI baseUri = URI.create("https://myserver.com/schema.json");
         SchemaNode mockMeta = mock(SchemaNode.class);
-
         // 1. Remove "common", add mockMeta
         SchemaNode expectedNode = new ScalarSchemaNode(PrimitiveType.STRING, mockMeta);
 
         // 2. Add mockMeta to the end of LazySchemaNode constructor
         LazySchemaNode lazy = new LazySchemaNode("common.json", mockResolver, null, baseUri, mockAst, null, mockMeta);
 
-        // 3. Stub the 3-parameter version (same as your previous update)
+        // 3. Stub the 3-parameter version
         when(mockResolver.resolve(eq("common.json"), eq(lazy), any(DynamicScope.class)))
             .thenReturn(expectedNode);
 
@@ -175,7 +174,7 @@ public class BasedTests extends SchemaTestBase {
     //         assertTrue(map.containsKey("properties"),
     //             "The AST map should contain the String 'properties'");
 
-    //         // Verify the internal representation is a JsonScalarNode (from your JsonAstParser)
+    //         // Verify the internal representation is a JsonScalarNode
     //         assertTrue(firstKey instanceof JsonScalarNode,
     //             "Key should be a JsonScalarNode, but was: " + firstKey.getClass().getName());
     //     }

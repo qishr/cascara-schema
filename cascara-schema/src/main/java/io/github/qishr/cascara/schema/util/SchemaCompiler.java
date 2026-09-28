@@ -186,7 +186,7 @@ public class SchemaCompiler {
                 // TODO: This is annoying - it's too noisy in the logs for something
                 // that's not an exception. Should it be a warning? It should
                 // probably be using a global reporter to be configurable.
-                reporter.error(GenericDiagnosticCode.ERROR, "Could not resolve meta-schema " + metaUri + ": " + e.getMessage());
+                reporter.warn(GenericDiagnosticCode.ERROR, "Could not resolve meta-schema " + metaUri + ": " + e.getMessage());
             }
         }
 

@@ -44,7 +44,7 @@ import io.github.qishr.cascara.common.lang.type.ScalarDescriptor;
 import io.github.qishr.cascara.common.lang.type.TypeDescriptorFactory;
 
 public class FormatRule extends AbstractValidationRule implements ValidationRule {
-    // TODO: Configurable ServiceProviderLayer...
+    // TODO: Configurable SPL...
     private static final TypeDescriptorFactory FACTORY = new TypeDescriptorFactory();
 
     private final String format;

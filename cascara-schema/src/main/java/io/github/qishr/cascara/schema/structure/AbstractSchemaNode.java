@@ -256,4 +256,9 @@ public abstract class AbstractSchemaNode implements SchemaNode {
         // If this IS the root Meta-Schema, it returns itself to close the loop.
         return metaSchema != null ? metaSchema : this;
     }
+
+    @Override
+    public String toString() {
+        return getOriginUri().toString();
+    }
 }

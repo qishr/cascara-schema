@@ -41,7 +41,7 @@ import io.github.qishr.cascara.common.annotation.Nullable;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;
 import io.github.qishr.cascara.common.lang.ast.ScalarAstNode;
-import io.github.qishr.cascara.common.service.ServiceProviderLayer;
+import io.github.qishr.cascara.common.service.SPL;
 import io.github.qishr.cascara.schema.diagnostic.SchemaException;
 import io.github.qishr.cascara.schema.util.Schema;
 import io.github.qishr.cascara.schema.util.SchemaKeyword;
@@ -53,7 +53,7 @@ public class SchemaUtils {
 
     public static SchemaResolver getResolver() {
         if (resolver == null) {
-            resolver = ServiceProviderLayer.loadDefault(SchemaResolver.class);
+            resolver = SPL.load(SchemaResolver.class);
         }
         return resolver;
     }

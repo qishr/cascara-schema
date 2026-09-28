@@ -40,7 +40,8 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import io.github.qishr.cascara.common.service.ServiceProviderLayer;
+import io.github.qishr.cascara.common.diagnostic.Diagnostic.Level;
+import io.github.qishr.cascara.common.service.SPL;
 import io.github.qishr.cascara.schema.annotation.SchemaDefinition;
 import io.github.qishr.cascara.schema.annotation.SchemaProperty;
 import io.github.qishr.cascara.test.common.junit.util.VfsTestBase;
@@ -65,6 +66,26 @@ public class SchemaTestBase extends VfsTestBase {
         private TestClass inner;
     }
 
+    @BeforeEach
+    protected void setUp() throws IOException {
+        // dumpJvmInfo();
+        // setSplReportingLevel(Level.DEBUG);
+
+        super.setUp();
+        resolver = SPL.load(SchemaResolver.class);
+    }
+
+    @AfterEach
+    protected void tearDown() throws IOException {
+        super.tearDown();
+    }
+
+    protected void listCachedSchemas() {
+        Map<URI, Schema> schemas = resolver.getCachedSchemas();
+        for (Entry<URI, Schema> entry : schemas.entrySet()) {
+            System.out.println(entry.getKey());
+        }
+    }
 
     // private static void dumpProcessArgs() {
     //     ProcessHandle ph = ProcessHandle.current();
@@ -85,27 +106,4 @@ public class SchemaTestBase extends VfsTestBase {
     //     System.out.println("MODULE: " + getClass().getModule().getName());
     //     System.out.println("\n--------");
     // }
-
-
-    @BeforeEach
-    protected void setUp() throws IOException {
-        // dumpJvmInfo();
-        // setSplReportingLevel(Level.TRACE);
-
-        super.setUp();
-        resolver = ServiceProviderLayer.loadDefault(SchemaResolver.class);
-    }
-
-    @AfterEach
-    protected void tearDown() throws IOException {
-        super.tearDown();
-    }
-
-    protected void listCachedSchemas() {
-        Map<URI, Schema> schemas = resolver.getCachedSchemas();
-        for (Entry<URI, Schema> entry : schemas.entrySet()) {
-            System.out.println(entry.getKey());
-        }
-    }
-
 }

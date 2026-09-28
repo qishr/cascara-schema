@@ -56,8 +56,8 @@ public interface Schema {
     /// Validates an AST against this schema.
     /// @param root an `AstNode` representing a document or part of a
     ///             structured document (such as JSON or YAML) to validate.
-    /// @throws ValidationException if the AST is not valid.
-    void validate(AstNode root);
+    /// @return true on success, false on failure.
+    boolean validate(AstNode root);
 
     /// Validates an AST against this schema.
     /// @param root an `AstNode` representing a document or part of a
