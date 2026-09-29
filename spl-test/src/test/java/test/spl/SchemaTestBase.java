@@ -41,8 +41,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import io.github.qishr.cascara.common.service.SPL;
-import io.github.qishr.cascara.schema.annotation.SchemaDefinition;
-import io.github.qishr.cascara.schema.annotation.SchemaProperty;
+import io.github.qishr.cascara.common.annotation.SchemaDefinition;
+import io.github.qishr.cascara.common.annotation.SchemaProperty;
 import io.github.qishr.cascara.schema.util.Schema;
 import io.github.qishr.cascara.schema.util.SchemaResolver;
 import io.github.qishr.cascara.test.common.junit.util.VfsTestBase;

@@ -37,7 +37,7 @@ package io.github.qishr.cascara.schema.util;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
 import io.github.qishr.cascara.lang.json.processor.JsonConverter;
-import io.github.qishr.cascara.schema.annotation.SchemaProperty;
+import io.github.qishr.cascara.common.annotation.SchemaProperty;
 
 import org.junit.jupiter.api.Test;
 

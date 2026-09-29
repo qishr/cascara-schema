@@ -32,7 +32,6 @@
 // you do not wish to do so, delete this exception statement from your
 // version.
 
-
 package io.github.qishr.cascara.schema.util;
 
 import java.lang.reflect.Field;
@@ -48,8 +47,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.github.qishr.cascara.common.annotation.ContentMediaType;
 import io.github.qishr.cascara.common.annotation.DataField;
 import io.github.qishr.cascara.common.annotation.DataIgnore;
+import io.github.qishr.cascara.common.annotation.SchemaDefinition;
+import io.github.qishr.cascara.common.annotation.SchemaProperty;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;
 import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
 import io.github.qishr.cascara.common.lang.plain.PlainScalarNode;
@@ -62,9 +64,6 @@ import io.github.qishr.cascara.common.lang.type.TypeDescriptor;
 import io.github.qishr.cascara.common.lang.type.TypeDescriptorFactory;
 import io.github.qishr.cascara.common.property.Property;
 import io.github.qishr.cascara.common.lang.type.PrimitiveType;
-import io.github.qishr.cascara.schema.annotation.ContentMediaType;
-import io.github.qishr.cascara.schema.annotation.SchemaDefinition;
-import io.github.qishr.cascara.schema.annotation.SchemaProperty;
 import io.github.qishr.cascara.schema.constraint.FormatConstraint;
 import io.github.qishr.cascara.schema.constraint.NumberConstraint;
 import io.github.qishr.cascara.schema.constraint.ReadOnly;
@@ -73,6 +72,7 @@ import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
 import io.github.qishr.cascara.schema.diagnostic.SchemaException;
 import io.github.qishr.cascara.schema.internal.SchemaUtils;
 import io.github.qishr.cascara.common.trackable.property.TrackableProperty;
+import io.github.qishr.cascara.common.util.ReflectionUtils;
 
 public final class SchemaGenerator {
 
@@ -97,9 +97,6 @@ public final class SchemaGenerator {
     private String definitionsLocation = "#/" + SchemaKeyword.DEFS.asString();
 
     private URI originUri;
-
-    private Set<Class<?>> externalRefs = new HashSet<>();
-
 
     public void registerTypeAnalyzer(TypeAnalyzer ta) {
         typeAnalyzers.add(ta);
@@ -132,48 +129,30 @@ public final class SchemaGenerator {
     public PlainMapNode generate(MapAstNode<?,?,?> parentDoc, String fragment, Class<?> clazz, Object template) {
         processingStack.clear();
         definitions.clear();
-        externalRefs.clear();
         multiClassDocument = false;
         PlainMapNode schemaRoot = generateInternal(parentDoc, fragment, clazz, template);
         return schemaRoot;
     }
 
     public Set<Class<?>> getReferencedClasses(Class<?> clazz) {
-        Set<Class<?>> collected = new HashSet<>();
-        collectRefClasses(clazz, collected);
-        return collected;
-    }
-
-    //
-    //
-    //
-
-    private void collectRefClasses(Class<?> clazz, Set<Class<?>> collected) {
-        PlainMapNode node = new PlainMapNode();
-
-        for (Field field : getAllFields(clazz)) {
-            if (shouldInclude(field)) {
-                Class<?> type = extractFieldType(field);
-                applyTypeAnalysis(field, node);
-                String analyzedType = node.getString(SchemaKeyword.TYPE.asString());
-                if (isStandardScalarType(type) ||
-                    (analyzedType != null && !PrimitiveType.ARRAY.asString().equals(analyzedType) && !PrimitiveType.OBJECT.asString().equals(analyzedType) ||
-                    isList(type))
-                ) {
-                    // It doesn't need a schema
-                } else {
-                    List<ServiceMetadata> typeConverters = getTypeConverters(type);
-                    if (typeConverters.isEmpty()) {
-                        boolean isExternal = type.isAnnotationPresent(SchemaDefinition.class);
-
-                        if (isExternal) {
-                            collected.add(type);
-                            collectRefClasses(type, collected);
-                        }
-                    }
+        return ReflectionUtils.getReferencedClasses(clazz, c -> {
+            // Exclude standard scalar types
+            if (isStandardScalarType(c)) {
+                return true;
+            }
+            // Exclude lists and maps
+            if (isList(c) || isMap(c)) {
+                return true;
+            }
+            // Exclude types with a TypeCOnverter and types without @SchemaDefinition
+            List<ServiceMetadata> typeConverters = getTypeConverters(c);
+            if (typeConverters.isEmpty()) {
+                if (c.isAnnotationPresent(SchemaDefinition.class)) {
+                    return false;
                 }
             }
-        }
+            return true;
+        });
     }
 
     //
@@ -352,7 +331,7 @@ public final class SchemaGenerator {
 
         appendDefaultValue(node, field, template);
 
-        Class<?> type = extractFieldType(field);
+        Class<?> type = extractFieldClass(field);
 
         applyTypeAnalysis(field, node);
         String analyzedType = node.getString(SchemaKeyword.TYPE.asString());
@@ -401,8 +380,8 @@ public final class SchemaGenerator {
     }
 
     /// If the field is a JavaFX ObjectProperty, a Property, or a TrackableProperty,
-    /// use the raw type, otherwise use the field's declared type
-    private static Class<?> extractFieldType(Field field) {
+    /// use the parameter type, otherwise use the field's declared type
+    private static Class<?> extractFieldClass(Field field) {
         if (field.getGenericType() instanceof ParameterizedType paramaterizedType) {
             Type type = paramaterizedType.getRawType();
             String typeName = type.getTypeName();
@@ -463,7 +442,6 @@ public final class SchemaGenerator {
     }
 
     private void applyExternalRef(PlainMapNode node, Class<?> target, Field field) {
-        externalRefs.add(target);
         CascaraSchemaUri schemaUri = CascaraSchemaUri.of(target);
         String schemaUriString = schemaUri.toUri().toString();
         node.put(SchemaKeyword.REF.asString(), scalar(schemaUriString));
@@ -605,7 +583,11 @@ public final class SchemaGenerator {
     }
 
     private static boolean isList(Class<?> type) {
-        return List.class.isAssignableFrom(type);
+        return ReflectionUtils.canAssign(type, List.class);
+    }
+
+    private static boolean isMap(Class<?> type) {
+        return ReflectionUtils.canAssign(type, Map.class);
     }
 
     private Class<?> getListElementType(Field field) {

@@ -35,7 +35,7 @@
 
 package io.github.qishr.cascara.schema.util;
 
-import io.github.qishr.cascara.schema.annotation.SchemaProperty;
+import io.github.qishr.cascara.common.annotation.SchemaProperty;
 
 public class SimpleEntity {
     @SchemaProperty(title = "Name")

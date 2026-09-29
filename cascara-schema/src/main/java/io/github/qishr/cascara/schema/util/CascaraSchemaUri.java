@@ -35,6 +35,7 @@
 
 package io.github.qishr.cascara.schema.util;
 
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -57,6 +58,16 @@ public class CascaraSchemaUri {
     private final String version;
 
     public static CascaraSchemaUri of(Class<?> clazz) {
+        try {
+            Field schemaField = clazz.getField("schema");
+            Object fieldValue = schemaField.get(null);
+            if (fieldValue instanceof URI uri) {
+                return CascaraSchemaUri.of(uri);
+            }
+            if (fieldValue instanceof String string) {
+                return CascaraSchemaUri.of(URI.create(string));
+            }
+        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {}
         return new CascaraSchemaUri(Lifecycle.DYNAMIC, clazz.getModule().getName(), clazz.getName(), null);
     }
 

@@ -29,8 +29,33 @@
 			"path": "cascara-schema/src/test/java/io/github/qishr/cascara/schema/util/SchemaGeneratorTests.java",
 			"bookmarks": [
 				{
-					"line": 85,
+					"line": 84,
 					"column": 9,
+					"label": ""
+				}
+			]
+		},
+		{
+			"path": "cascara-schema/src/main/java/io/github/qishr/cascara/schema/util/SchemaGenerator.java",
+			"bookmarks": [
+				{
+					"line": 220,
+					"column": 34,
+					"label": ""
+				}
+			]
+		},
+		{
+			"path": "cascara-schema/src/main/java/io/github/qishr/cascara/schema/util/SchemaResolverImpl.java",
+			"bookmarks": [
+				{
+					"line": 156,
+					"column": 0,
+					"label": ""
+				},
+				{
+					"line": 205,
+					"column": 70,
 					"label": ""
 				}
 			]

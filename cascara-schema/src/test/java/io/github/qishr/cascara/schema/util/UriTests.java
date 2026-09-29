@@ -57,6 +57,9 @@ public class UriTests extends SchemaTestBase {
 
         Schema schema = compiler.compile(root, uri);
 
+        displayCachedSchemas();
+        displayVfs();
+
         URI schemaUri = schema.getOriginUri();
         assertEquals(uri, schemaUri);
     }

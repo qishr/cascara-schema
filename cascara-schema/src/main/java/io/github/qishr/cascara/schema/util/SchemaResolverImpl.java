@@ -32,7 +32,6 @@
 // you do not wish to do so, delete this exception statement from your
 // version.
 
-
 package io.github.qishr.cascara.schema.util;
 
 import java.io.IOException;
@@ -47,11 +46,12 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import io.github.qishr.cascara.common.io.ContentLoader;
-import io.github.qishr.cascara.common.io.IOUtils;
 import io.github.qishr.cascara.common.annotation.SingletonInitializer;
 import io.github.qishr.cascara.common.content.ResourceContent;
+import io.github.qishr.cascara.common.content.type.ContentTypeRegistry;
 import io.github.qishr.cascara.common.diagnostic.LocalizableIOException;
+import io.github.qishr.cascara.common.io.ContentLoader;
+import io.github.qishr.cascara.common.io.IOUtils;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;
 import io.github.qishr.cascara.common.lang.ast.SequenceAstNode;
@@ -97,6 +97,7 @@ public class SchemaResolverImpl implements SchemaResolver {
         this.contentLoaderService = new SchemaContentLoader();
         this.schemaStore = SchemaStore.instance();
         loadBuiltInMetaSchemas();
+        generateSchemaForClass(ContentTypeRegistry.class, null);
     }
 
     /// Returns the `Schema` indicated by the given `URI`.
@@ -111,22 +112,28 @@ public class SchemaResolverImpl implements SchemaResolver {
             CascaraSchemaUri schemaUri = CascaraSchemaUri.of(uri);
             if (schemaUri.getLifecycle() != Lifecycle.DYNAMIC) {
                 content = schemaStore.get(schemaUri);
+                AstNode doc = parseContent(content);
+                SchemaCompiler compiler = new SchemaCompiler(this);
+                return compiler.compile(doc, uri);
+            } else {
+                // TODO: Get class from schemaUri and generate schema
+                throw new SchemaException(SchemaDiagnosticCode.RESOLUTION_FAILED, uri);
             }
         }
-
-        if (content == null) {
+        else {
             try {
                 content = contentLoaderService.getContent(uri);
+
+                AstNode doc = parseContent(content);
+                SchemaCompiler compiler = new SchemaCompiler(this);
+                return compiler.compile(doc, uri);
+
             } catch (LocalizableIOException e) {
                 throw new SchemaException(e);
             } catch (Exception e) {
                 throw new SchemaException(e, SchemaDiagnosticCode.RESOLUTION_FAILED_REASON, uri, e.getMessage());
             }
         }
-
-        AstNode doc = parseContent(content);
-        SchemaCompiler compiler = new SchemaCompiler(this);
-        return compiler.compile(doc, uri);
     }
 
     public SchemaNode resolve(String ref, SchemaNode relativeTo) throws SchemaException {
@@ -145,7 +152,12 @@ public class SchemaResolverImpl implements SchemaResolver {
     }
 
     public Schema getSchemaForClass(Class<?> clazz, List<TypeAnalyzer> typeAnalyzers) {
+
+
+        // TODO: when schema is specifie in class
         URI uri = CascaraSchemaUri.of(clazz).toUri();
+
+
         Schema schema = schemaDocCache.get(uri);
         if (schema == null) {
             // This calls the compiler which adds the compiled schema to the cache
@@ -191,6 +203,7 @@ public class SchemaResolverImpl implements SchemaResolver {
         try {
             return resolveInternal(ref, relativeTo, scope);
         } catch (Exception e) {
+            // TODO: if we reach here for core metaschema, it is a bug
             throw new SchemaException(e, SchemaDiagnosticCode.RESOLUTION_FAILED_RELATIVE, ref, relativeTo);
         } finally {
             // Restore previous scope (handles nested resolutions)
@@ -224,20 +237,34 @@ public class SchemaResolverImpl implements SchemaResolver {
 
         // 2. Schema for the specified class
         URI originUri = CascaraSchemaUri.of(clazz).toUri();
-        SchemaCompiler compiler = new SchemaCompiler(this);
-        AstNode schemaDoc = generator.generate(clazz);
-        return compiler.compile(schemaDoc, originUri);
+
+        // SchemaCompiler compiler = new SchemaCompiler(this);
+        // AstNode schemaDoc = generator.generate(clazz);
+        // return compiler.compile(schemaDoc, originUri);
+
+        return compileSchemaForClass(clazz, originUri, generator);
+
     }
 
     private void generateSchemasForClasses(Set<Class<?>> referencedClasses, SchemaGenerator generator) throws SchemaException {
         for (Class<?> clazz : referencedClasses) {
             URI originUri = CascaraSchemaUri.of(clazz).toUri();
             if (!schemaDocCache.containsKey(originUri)) {
-                SchemaCompiler compiler = new SchemaCompiler(this);
-                AstNode schemaDoc = generator.generate(clazz);
-                compiler.compile(schemaDoc, originUri);
+
+                // SchemaCompiler compiler = new SchemaCompiler(this);
+                // AstNode schemaDoc = generator.generate(clazz);
+                // compiler.compile(schemaDoc, originUri);
+
+                compileSchemaForClass(clazz, originUri, generator);
+
             }
         }
+    }
+
+    private Schema compileSchemaForClass(Class<?> clazz, URI id, SchemaGenerator generator) {
+        SchemaCompiler compiler = new SchemaCompiler(this);
+        AstNode schemaDoc = generator.generate(clazz);
+        return compiler.compile(schemaDoc, id);
     }
 
     /// Internal version that carries the scope

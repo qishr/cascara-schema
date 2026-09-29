@@ -42,8 +42,8 @@ import org.junit.jupiter.api.Test;
 
 import io.github.qishr.cascara.common.property.Property;
 import io.github.qishr.cascara.common.property.StringProperty;
-import io.github.qishr.cascara.schema.annotation.SchemaDefinition;
-import io.github.qishr.cascara.schema.annotation.SchemaProperty;
+import io.github.qishr.cascara.common.annotation.SchemaDefinition;
+import io.github.qishr.cascara.common.annotation.SchemaProperty;
 import io.github.qishr.cascara.common.trackable.property.TrackableProperty;
 
 public class SchematicObjectTests extends SchemaTestBase {
