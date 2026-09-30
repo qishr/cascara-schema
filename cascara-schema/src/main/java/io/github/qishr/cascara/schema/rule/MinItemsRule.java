@@ -39,7 +39,7 @@ import io.github.qishr.cascara.common.diagnostic.Diagnostic;
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.SequenceAstNode;
-import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 
 import java.util.Collection;
 
@@ -55,7 +55,7 @@ public class MinItemsRule extends AbstractValidationRule implements ValidationRu
         if (node instanceof SequenceAstNode sequence) {
             return validateValue(sequence.getChildren(), path, node.getStartLine(), node.getStartColumn(), reporter);
         } else if (minItems > 0) {
-            error(path, node, reporter, SchemaDiagnosticCode.LESS_THAN_MIN_ITEMS, minItems);
+            error(path, node, reporter, SchemaDiagnosticMessage.LESS_THAN_MIN_ITEMS, minItems);
             return false;
         }
         return true;
@@ -79,7 +79,7 @@ public class MinItemsRule extends AbstractValidationRule implements ValidationRu
         }
 
         if (currentSize < minItems) {
-            error(path, line, column, reporter, SchemaDiagnosticCode.LESS_THAN_MIN_ITEMS_2, currentSize, minItems);
+            error(path, line, column, reporter, SchemaDiagnosticMessage.LESS_THAN_MIN_ITEMS_2, currentSize, minItems);
             return false;
         }
         return true;

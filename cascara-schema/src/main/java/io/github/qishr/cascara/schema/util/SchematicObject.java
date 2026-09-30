@@ -44,7 +44,7 @@ import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.type.PrimitiveType;
 import io.github.qishr.cascara.common.trackable.Trackable;
 import io.github.qishr.cascara.common.trackable.TrackableObject;
-import io.github.qishr.cascara.common.trackable.TrackingDiagnosticCode;
+import io.github.qishr.cascara.common.trackable.TrackingMessage;
 import io.github.qishr.cascara.common.trackable.TrackingException;
 import io.github.qishr.cascara.common.trackable.property.TrackableProperty;
 import io.github.qishr.cascara.schema.structure.SchemaNode;
@@ -66,7 +66,7 @@ public class SchematicObject extends TrackableObject {
         //
 
         if (objectSchema.getValue() == null) {
-            throw new TrackingException(TrackingDiagnosticCode.SCHEMA_GENERATION_ERROR, this.getClass().getSimpleName());
+            throw new TrackingException(TrackingMessage.SCHEMA_GENERATION_ERROR, this.getClass().getSimpleName());
         }
         registerProperties();
     }
@@ -108,7 +108,7 @@ public class SchematicObject extends TrackableObject {
             Schema compiledSchema = compiler.compile(doc, schemaUri.toUri());
             schemaNode = compiledSchema.getRoot();
             if (schemaNode == null) {
-                throw new TrackingException(TrackingDiagnosticCode.SCHEMA_COMPILATION_ERROR);
+                throw new TrackingException(TrackingMessage.SCHEMA_COMPILATION_ERROR);
             }
             objectSchemas.put(getClass(), schemaNode);
         }
@@ -170,7 +170,7 @@ public class SchematicObject extends TrackableObject {
                 field.set(this, property);
             } catch (Throwable e) {
                 // The field value was unset and we can't set it.
-                throw new TrackingException(e, TrackingDiagnosticCode.CANNOT_SET_VALUE, propertyName, e.getMessage());
+                throw new TrackingException(e, TrackingMessage.CANNOT_SET_VALUE, propertyName, e.getMessage());
             }
         }
 

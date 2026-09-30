@@ -68,7 +68,7 @@ import io.github.qishr.cascara.schema.constraint.FormatConstraint;
 import io.github.qishr.cascara.schema.constraint.NumberConstraint;
 import io.github.qishr.cascara.schema.constraint.ReadOnly;
 import io.github.qishr.cascara.schema.constraint.StringConstraint;
-import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 import io.github.qishr.cascara.schema.diagnostic.SchemaException;
 import io.github.qishr.cascara.schema.internal.SchemaUtils;
 import io.github.qishr.cascara.common.trackable.property.TrackableProperty;
@@ -188,7 +188,7 @@ public final class SchemaGenerator {
             if (SchemaUtils.resolveFragment(parentDoc, fragment) instanceof PlainMapNode map) {
                 definitionsContainer = map;
             } else {
-                throw new SchemaException(originUri, fragment, SchemaDiagnosticCode.NOT_OBJECT);
+                throw new SchemaException(originUri, fragment, SchemaDiagnosticMessage.NOT_OBJECT);
             }
         }
 

@@ -39,7 +39,7 @@ import io.github.qishr.cascara.common.diagnostic.Diagnostic;
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;
-import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 
 import java.util.List;
 import java.util.Map;
@@ -70,7 +70,7 @@ public class RequiredRule extends AbstractValidationRule implements ValidationRu
         if (value instanceof Map<?, ?> map) {
             for (String key : requiredKeys) {
                 if (!map.containsKey(key)) {
-                    error(path, line, column, reporter, SchemaDiagnosticCode.MISSING_REQUIRED_PROPERTY, key);
+                    error(path, line, column, reporter, SchemaDiagnosticMessage.MISSING_REQUIRED_PROPERTY, key);
                     valid = false;
                 }
             }
@@ -78,7 +78,7 @@ public class RequiredRule extends AbstractValidationRule implements ValidationRu
             // Helper for the bridge
             for (String key : requiredKeys) {
                 if (mapNode.get(key) == null) {
-                    error(path, line, column, reporter, SchemaDiagnosticCode.MISSING_REQUIRED_PROPERTY, key);
+                    error(path, line, column, reporter, SchemaDiagnosticMessage.MISSING_REQUIRED_PROPERTY, key);
                     valid = false;
                 }
             }

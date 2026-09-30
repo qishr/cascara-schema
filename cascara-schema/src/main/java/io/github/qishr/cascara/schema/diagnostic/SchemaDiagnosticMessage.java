@@ -35,9 +35,9 @@
 
 package io.github.qishr.cascara.schema.diagnostic;
 
-import io.github.qishr.cascara.common.diagnostic.code.DiagnosticCode;
+import io.github.qishr.cascara.common.diagnostic.message.DiagnosticMessage;
 
-public enum SchemaDiagnosticCode implements DiagnosticCode {
+public enum SchemaDiagnosticMessage implements DiagnosticMessage {
     ERROR("SCHEMA-101", "Error: {0}"),
 
     // Schema URI
@@ -97,13 +97,13 @@ public enum SchemaDiagnosticCode implements DiagnosticCode {
 
 
     private final String code;
-    private final String message;
+    private final String format;
 
-    SchemaDiagnosticCode(String code, String message) {
+    SchemaDiagnosticMessage(String code, String format) {
         this.code = code;
-        this.message = message;
+        this.format = format;
     }
 
     @Override public String getCode() { return code; }
-    @Override public String getMessage() { return message; }
+    @Override public String getFormat() { return format; }
 }

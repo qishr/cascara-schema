@@ -39,7 +39,7 @@ import io.github.qishr.cascara.common.diagnostic.Diagnostic;
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.ScalarAstNode;
-import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 
 public class MinLengthRule extends AbstractValidationRule implements ValidationRule {
     private final int min;
@@ -65,7 +65,7 @@ public class MinLengthRule extends AbstractValidationRule implements ValidationR
         if (value instanceof String str) {
             int length = str.length();
             if (length < min) {
-                error(path, line, column, reporter, SchemaDiagnosticCode.LESS_THAN_MIN_LENGTH, length, min);
+                error(path, line, column, reporter, SchemaDiagnosticMessage.LESS_THAN_MIN_LENGTH, length, min);
                 return false;
             }
         }

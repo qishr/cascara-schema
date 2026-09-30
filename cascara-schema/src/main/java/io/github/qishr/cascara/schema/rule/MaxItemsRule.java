@@ -39,7 +39,7 @@ import io.github.qishr.cascara.common.diagnostic.Diagnostic;
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.SequenceAstNode;
-import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 
 import java.util.Collection;
 
@@ -76,7 +76,7 @@ public class MaxItemsRule extends AbstractValidationRule implements ValidationRu
         }
 
         if (currentSize > maxItems) {
-            error(path, line, column, reporter, SchemaDiagnosticCode.MORE_THAN_MAX_ITEMS, currentSize, maxItems);
+            error(path, line, column, reporter, SchemaDiagnosticMessage.MORE_THAN_MAX_ITEMS, currentSize, maxItems);
             return false;
         }
         return true;

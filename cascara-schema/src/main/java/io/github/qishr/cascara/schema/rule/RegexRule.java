@@ -41,7 +41,7 @@ import io.github.qishr.cascara.common.diagnostic.Diagnostic;
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.ScalarAstNode;
-import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 
 public class RegexRule extends AbstractValidationRule implements ValidationRule {
     private final Pattern pattern;
@@ -69,7 +69,7 @@ public class RegexRule extends AbstractValidationRule implements ValidationRule 
         if (value != null) {
             String strValue = String.valueOf(value);
             if (!pattern.matcher(strValue).matches()) {
-                error(path, line, column, reporter, SchemaDiagnosticCode.DOES_NOT_MATCH_PATTERN, patternString);
+                error(path, line, column, reporter, SchemaDiagnosticMessage.DOES_NOT_MATCH_PATTERN, patternString);
                 return false;
             }
         }

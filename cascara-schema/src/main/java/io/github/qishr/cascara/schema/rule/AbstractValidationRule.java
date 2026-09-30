@@ -39,7 +39,7 @@ import java.net.URI;
 
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
-import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 import io.github.qishr.cascara.schema.diagnostic.ValidationException;
 
 public abstract class AbstractValidationRule {
@@ -48,7 +48,7 @@ public abstract class AbstractValidationRule {
         // Nothing to see here
     }
 
-    protected void error(String fragmentPath, AstNode node, Reporter reporter, SchemaDiagnosticCode code, Object... details) {
+    protected void error(String fragmentPath, AstNode node, Reporter reporter, SchemaDiagnosticMessage code, Object... details) {
         if (reporter == null || !reporter.collectsProblems()) {
             throw new ValidationException(fragmentPath, node, code, details);
         }
@@ -56,7 +56,7 @@ public abstract class AbstractValidationRule {
         reporter.errorAt(uri, node.getStartLine(), node.getStartColumn(), code, details);
     }
 
-    protected void error(String fragmentPath, int line, int column, Reporter reporter, SchemaDiagnosticCode code, Object... details) {
+    protected void error(String fragmentPath, int line, int column, Reporter reporter, SchemaDiagnosticMessage code, Object... details) {
         if (reporter == null || !reporter.collectsProblems()) {
             throw new ValidationException(fragmentPath, line, column, code, details);
         }

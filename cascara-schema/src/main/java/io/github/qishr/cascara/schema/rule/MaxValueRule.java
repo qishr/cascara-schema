@@ -39,7 +39,7 @@ import io.github.qishr.cascara.common.diagnostic.Diagnostic;
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.ScalarAstNode;
-import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 
 public class MaxValueRule extends AbstractValidationRule implements ValidationRule {
     private final double max;
@@ -64,7 +64,7 @@ public class MaxValueRule extends AbstractValidationRule implements ValidationRu
     private boolean validateValue(Object value, String path, int line, int column, Reporter reporter) {
         if (value instanceof Number num) {
             if (num.doubleValue() > max) {
-                error(path, line, column, reporter, SchemaDiagnosticCode.MORE_THAN_MAX_VALUE, num, max);
+                error(path, line, column, reporter, SchemaDiagnosticMessage.MORE_THAN_MAX_VALUE, num, max);
                 return false;
             }
         }

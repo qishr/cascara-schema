@@ -39,7 +39,7 @@ import io.github.qishr.cascara.common.diagnostic.Diagnostic;
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.ScalarAstNode;
-import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 
 public class MinValueRule extends AbstractValidationRule implements ValidationRule {
     private final double min;
@@ -64,7 +64,7 @@ public class MinValueRule extends AbstractValidationRule implements ValidationRu
     private boolean validateValue(Object value, String path, int line, int column, Reporter reporter) {
         if (value instanceof Number num) {
             if (num.doubleValue() < min) {
-                error(path, line, column, reporter, SchemaDiagnosticCode.LESS_THAN_MIN_VALUE, num, min);
+                error(path, line, column, reporter, SchemaDiagnosticMessage.LESS_THAN_MIN_VALUE, num, min);
                 return false;
             }
         }

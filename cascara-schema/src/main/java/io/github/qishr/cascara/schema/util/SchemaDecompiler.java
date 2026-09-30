@@ -45,7 +45,7 @@ import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
 import io.github.qishr.cascara.common.lang.plain.PlainScalarNode;
 import io.github.qishr.cascara.common.lang.plain.PlainSequenceNode;
 import io.github.qishr.cascara.common.lang.type.PrimitiveType;
-import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 import io.github.qishr.cascara.schema.diagnostic.SchemaException;
 import io.github.qishr.cascara.schema.rule.EnumRule;
 import io.github.qishr.cascara.schema.rule.MaxItemsRule;
@@ -192,7 +192,7 @@ public final class SchemaDecompiler {
         SchemaNode template = array.getItemSchema();
         if (template instanceof LazySchemaNode lazy) {
             if (lazy.getRef() == null || lazy.getRef().isEmpty()) {
-                throw new SchemaException(originUri, SchemaDiagnosticCode.MISSING_REF, array.getOriginUri());
+                throw new SchemaException(originUri, SchemaDiagnosticMessage.MISSING_REF, array.getOriginUri());
             }
             items.put(SchemaKeyword.REF.asString(), scalarValue(lazy.getRef()));
         }

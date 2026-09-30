@@ -39,7 +39,7 @@ import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.ScalarAstNode;
 import io.github.qishr.cascara.common.lang.type.PrimitiveType;
-import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 
 public class TypeRule extends AbstractValidationRule implements ValidationRule {
     private final PrimitiveType expectedType;
@@ -62,7 +62,7 @@ public class TypeRule extends AbstractValidationRule implements ValidationRule {
             };
 
             if (!valid) {
-                error(path, node, reporter, SchemaDiagnosticCode.EXPECTED_TYPE, expectedType, value.getClass().getSimpleName());
+                error(path, node, reporter, SchemaDiagnosticMessage.EXPECTED_TYPE, expectedType, value.getClass().getSimpleName());
                 return false;
             }
         }
@@ -81,7 +81,7 @@ public class TypeRule extends AbstractValidationRule implements ValidationRule {
         };
 
         if (!valid) {
-            error(path, line, column, reporter, SchemaDiagnosticCode.EXPECTED_TYPE, expectedType, value.getClass().getSimpleName());
+            error(path, line, column, reporter, SchemaDiagnosticMessage.EXPECTED_TYPE, expectedType, value.getClass().getSimpleName());
         }
         return valid;
     }

@@ -40,7 +40,7 @@ import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.ScalarAstNode;
 import io.github.qishr.cascara.common.lang.ast.SequenceAstNode;
-import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -66,7 +66,7 @@ public class UniqueItemsRule extends AbstractValidationRule implements Validatio
             if (item instanceof ScalarAstNode scalar) {
                 Object val = scalar.getPrimitive();
                 if (!seen.add(val)) {
-                    error(path + "[" + i + "]", item, reporter, SchemaDiagnosticCode.DUPLICATE_ITEM, val);
+                    error(path + "[" + i + "]", item, reporter, SchemaDiagnosticMessage.DUPLICATE_ITEM, val);
                     valid = false;
                 }
             }
@@ -88,7 +88,7 @@ public class UniqueItemsRule extends AbstractValidationRule implements Validatio
             Set<Object> seen = new HashSet<>();
             for (Object item : collection) {
                 if (!seen.add(item)) {
-                    error(path, line, col, reporter, SchemaDiagnosticCode.DUPLICATE_ITEM, item);
+                    error(path, line, col, reporter, SchemaDiagnosticMessage.DUPLICATE_ITEM, item);
                     valid = false;
                 }
             }

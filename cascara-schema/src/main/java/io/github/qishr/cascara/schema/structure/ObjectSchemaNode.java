@@ -44,7 +44,7 @@ import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;
 import io.github.qishr.cascara.common.lang.type.PrimitiveType;
-import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 import io.github.qishr.cascara.schema.diagnostic.ValidationException;
 
 public class ObjectSchemaNode extends AbstractSchemaNode {
@@ -87,7 +87,7 @@ public class ObjectSchemaNode extends AbstractSchemaNode {
                 if (dataNode != null) {
                     childSchema.validate(dataNode, childPath, reporter);
                 } else {
-                    error(childPath, node, reporter, null, SchemaDiagnosticCode.MISSING_REQUIRED_PROPERTY, key);
+                    error(childPath, node, reporter, null, SchemaDiagnosticMessage.MISSING_REQUIRED_PROPERTY, key);
                     valid = false;
                 }
             }
@@ -131,7 +131,7 @@ public class ObjectSchemaNode extends AbstractSchemaNode {
     //
     //
 
-    private void error(String fragmentPath, AstNode node, Reporter reporter, Throwable cause, SchemaDiagnosticCode code, Object... details) {
+    private void error(String fragmentPath, AstNode node, Reporter reporter, Throwable cause, SchemaDiagnosticMessage code, Object... details) {
         if (reporter == null || !reporter.collectsProblems()) {
             throw new ValidationException(fragmentPath, node, cause, code, details);
         }

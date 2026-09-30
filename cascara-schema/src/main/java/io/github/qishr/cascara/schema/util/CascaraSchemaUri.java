@@ -40,7 +40,7 @@ import java.net.URI;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 import io.github.qishr.cascara.schema.diagnostic.SchemaException;
 
 public class CascaraSchemaUri {
@@ -92,7 +92,7 @@ public class CascaraSchemaUri {
 
     public static CascaraSchemaUri of(URI uri) throws SchemaException {
         if (!uri.getHost().equalsIgnoreCase("core")) {
-            throw new SchemaException(SchemaDiagnosticCode.INVALID_SCHEMA_URI, uri);
+            throw new SchemaException(SchemaDiagnosticMessage.INVALID_SCHEMA_URI, uri);
         }
 
         Queue<String> segmentQueue = new LinkedList<>();
@@ -106,14 +106,14 @@ public class CascaraSchemaUri {
         segmentQueue.poll(); // Remove the empty one
 
         if (!segmentQueue.poll().equalsIgnoreCase("schema-service")) {
-            throw new SchemaException(SchemaDiagnosticCode.INVALID_SCHEMA_URI, uri);
+            throw new SchemaException(SchemaDiagnosticMessage.INVALID_SCHEMA_URI, uri);
         }
 
         Lifecycle lifecycle;
         String lifecycleString = segmentQueue.poll();
 
         if (lifecycleString == null) {
-            throw new SchemaException(SchemaDiagnosticCode.INVALID_SCHEMA_URI, uri);
+            throw new SchemaException(SchemaDiagnosticMessage.INVALID_SCHEMA_URI, uri);
         }
         else if (lifecycleString.equals("dynamic")) {
             // Runtime Generation: dynamic/<module-name>/<schema-name>
@@ -127,17 +127,17 @@ public class CascaraSchemaUri {
             // The "Latest" Alias: draft/<module-name>/<schema-name>
             lifecycle = Lifecycle.RESOURCE;
         } else {
-            throw new SchemaException(uri, SchemaDiagnosticCode.UNRECOGNIZED_LIFECYCLE, lifecycleString);
+            throw new SchemaException(uri, SchemaDiagnosticMessage.UNRECOGNIZED_LIFECYCLE, lifecycleString);
         }
 
         String moduleName = segmentQueue.poll();
         if (moduleName == null) {
-            throw new SchemaException(SchemaDiagnosticCode.MISSING_MODULE_NAME, uri);
+            throw new SchemaException(SchemaDiagnosticMessage.MISSING_MODULE_NAME, uri);
         }
 
         String schemaName = segmentQueue.poll();
         if (schemaName == null) {
-            throw new SchemaException(SchemaDiagnosticCode.MISSING_SCHEMA_NAME, uri);
+            throw new SchemaException(SchemaDiagnosticMessage.MISSING_SCHEMA_NAME, uri);
         }
 
         String version = null;
@@ -145,7 +145,7 @@ public class CascaraSchemaUri {
             // Versioned Disk Assets: draft/<module-name>/<schema-name>/<version>
             version = segmentQueue.poll();
             if (version == null) {
-                throw new SchemaException(SchemaDiagnosticCode.MISSING_VERSION, uri);
+                throw new SchemaException(SchemaDiagnosticMessage.MISSING_VERSION, uri);
             }
         }
 

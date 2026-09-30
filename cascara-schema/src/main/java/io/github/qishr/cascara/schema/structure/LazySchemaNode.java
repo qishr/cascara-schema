@@ -38,7 +38,7 @@ package io.github.qishr.cascara.schema.structure;
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.type.PrimitiveType;
-import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 import io.github.qishr.cascara.schema.diagnostic.SchemaException;
 import io.github.qishr.cascara.schema.diagnostic.ValidationException;
 import io.github.qishr.cascara.schema.rule.ValidationRule;
@@ -96,7 +96,7 @@ public class LazySchemaNode extends AbstractSchemaNode {
 
             if (result == null) {
                 // Fallback for error reporting
-                throw new SchemaException(getOriginUri(), ref, getStartLine(), getStartColumn(), SchemaDiagnosticCode.RESOLUTION_FAILED);
+                throw new SchemaException(getOriginUri(), ref, getStartLine(), getStartColumn(), SchemaDiagnosticMessage.RESOLUTION_FAILED);
             }
         }
         return resolvedNode;
@@ -115,11 +115,11 @@ public class LazySchemaNode extends AbstractSchemaNode {
             if (target != null) {
                 valid &= target.validate(node, path, reporter);
             } else {
-                error(path, node, reporter, null, SchemaDiagnosticCode.TARGET_IS_NULL, ref);
+                error(path, node, reporter, null, SchemaDiagnosticMessage.TARGET_IS_NULL, ref);
                 valid = false;
             }
         } catch (Exception e) {
-            error(path, node, reporter, e, SchemaDiagnosticCode.BROKEN_SCHEMA_REF, ref, e.getMessage());
+            error(path, node, reporter, e, SchemaDiagnosticMessage.BROKEN_SCHEMA_REF, ref, e.getMessage());
             valid = false;
         }
         return valid;
@@ -199,7 +199,7 @@ public class LazySchemaNode extends AbstractSchemaNode {
     //
     //
 
-    private void error(String fragmentPath, AstNode node, Reporter reporter, Throwable cause, SchemaDiagnosticCode code, Object... details) {
+    private void error(String fragmentPath, AstNode node, Reporter reporter, Throwable cause, SchemaDiagnosticMessage code, Object... details) {
         if (reporter == null || !reporter.collectsProblems()) {
             throw new ValidationException(fragmentPath, node, cause, code, details);
         }

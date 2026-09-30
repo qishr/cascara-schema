@@ -40,14 +40,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import io.github.qishr.cascara.common.content.ResourceContent;
-import io.github.qishr.cascara.common.diagnostic.code.GenericDiagnosticCode;
+import io.github.qishr.cascara.common.diagnostic.message.GenericMessage;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.service.ServiceProviderFactory;
 import io.github.qishr.cascara.common.util.Cascara;
 import io.github.qishr.cascara.common.util.ContentType;
 import io.github.qishr.cascara.common.util.ContentTypeResolver;
 import io.github.qishr.cascara.lang.json.processor.JsonConverter;
-import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 import io.github.qishr.cascara.schema.diagnostic.SchemaException;
 import io.github.qishr.cascara.schema.util.CascaraSchemaUri.Lifecycle;
 
@@ -79,7 +79,7 @@ public class SchemaStore {
         try {
             schemaSource = Files.readString(schemaFile);
         } catch (IOException e) {
-            throw new SchemaException(schemaUri.toUri(), GenericDiagnosticCode.IO_ERROR, e.getMessage());
+            throw new SchemaException(schemaUri.toUri(), GenericMessage.IO_ERROR, e.getMessage());
         }
 
         ResourceContent rc = new ResourceContent(schemaSource, getJsonSchemaContentType());
@@ -115,7 +115,7 @@ public class SchemaStore {
             Files.writeString(path, schemaString);
         } catch (IOException e) {
             e.printStackTrace();
-            throw new SchemaException(schemaUri.toUri(), e, SchemaDiagnosticCode.FAILED_TO_STORE, e.getMessage());
+            throw new SchemaException(schemaUri.toUri(), e, SchemaDiagnosticMessage.FAILED_TO_STORE, e.getMessage());
         }
     }
 
@@ -126,7 +126,7 @@ public class SchemaStore {
         Path versionDir;
         if (schemaUri.getLifecycle() == Lifecycle.RESOURCE) {
             // TODO: Find latest version
-            throw new SchemaException(schemaUri.toUri(), SchemaDiagnosticCode.UNIMPLEMENTED, "Lifecycle.RESOURCE");
+            throw new SchemaException(schemaUri.toUri(), SchemaDiagnosticMessage.UNIMPLEMENTED, "Lifecycle.RESOURCE");
         } else {
             versionDir = schemaDir.resolve(schemaUri.getVersion());
             return versionDir;
@@ -134,10 +134,10 @@ public class SchemaStore {
     }
 
     private SchemaException notFound(CascaraSchemaUri schemaUri) {
-        return new SchemaException(schemaUri.toUri(), SchemaDiagnosticCode.NOT_FOUND, schemaUri);
+        return new SchemaException(schemaUri.toUri(), SchemaDiagnosticMessage.NOT_FOUND, schemaUri);
     }
 
     private SchemaException illegalLifecycle(CascaraSchemaUri schemaUri) {
-        return new SchemaException(schemaUri.toUri(), SchemaDiagnosticCode.DYNAMIC_NOT_ALLOWED);
+        return new SchemaException(schemaUri.toUri(), SchemaDiagnosticMessage.DYNAMIC_NOT_ALLOWED);
     }
 }

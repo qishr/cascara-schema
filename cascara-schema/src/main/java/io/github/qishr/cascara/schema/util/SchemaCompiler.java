@@ -43,11 +43,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.github.qishr.cascara.common.diagnostic.GlobalReporter;
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.diagnostic.StandardReporter;
 import io.github.qishr.cascara.common.diagnostic.UnexpectedNullParameterException;
 import io.github.qishr.cascara.common.diagnostic.UnexpectedNullReturnException;
-import io.github.qishr.cascara.common.diagnostic.code.GenericDiagnosticCode;
+import io.github.qishr.cascara.common.diagnostic.message.GenericMessage;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;
 import io.github.qishr.cascara.common.lang.ast.MapEntryAstNode;
@@ -56,7 +57,7 @@ import io.github.qishr.cascara.common.lang.ast.SequenceAstNode;
 import io.github.qishr.cascara.common.lang.type.ScalarDescriptor;
 import io.github.qishr.cascara.common.lang.type.TypeDescriptorFactory;
 import io.github.qishr.cascara.common.lang.type.PrimitiveType;
-import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 import io.github.qishr.cascara.schema.diagnostic.SchemaException;
 import io.github.qishr.cascara.schema.internal.CompiledSchema;
 import io.github.qishr.cascara.schema.internal.SchemaUtils;
@@ -79,6 +80,7 @@ import io.github.qishr.cascara.schema.structure.SchemaNode;
 import io.github.qishr.cascara.schema.util.SchemaCompiler;
 
 public class SchemaCompiler {
+    private Reporter reporter = GlobalReporter.forClass(SchemaCompiler.class);
 
     private static final TypeDescriptorFactory FACTORY = new TypeDescriptorFactory();
 
@@ -93,7 +95,6 @@ public class SchemaCompiler {
     private static final String ITEM = "item";
 
     private SchemaResolver resolver;
-    private Reporter reporter = new StandardReporter();
 
     private final Map<String,ScalarDescriptor<?>> typeDescriptors = new HashMap<>();
 
@@ -125,7 +126,7 @@ public class SchemaCompiler {
 
     public SchemaCompiler setReporter(Reporter reporter) {
         if (reporter == null) {
-            this.reporter.error(GenericDiagnosticCode.ERROR, "Reporter must not be null");
+            this.reporter.error(GenericMessage.ERROR, "Reporter must not be null");
         } else {
             this.reporter = reporter;
         }
@@ -143,14 +144,14 @@ public class SchemaCompiler {
 
     public Schema compile(AstNode root, URI originUri) {
         if (!(root instanceof MapAstNode map)) {
-            reporter.error(SchemaDiagnosticCode.ROOT_MUST_BE_MAP);
+            reporter.error(SchemaDiagnosticMessage.ROOT_MUST_BE_MAP);
             return null;
         }
 
         if (originUri == null) {
             AstNode idNode = map.get(SchemaKeyword.ID.asString());
             if (!(idNode instanceof ScalarAstNode scalarId)) {
-                throw new SchemaException(SchemaDiagnosticCode.NO_ID);
+                throw new SchemaException(SchemaDiagnosticMessage.NO_ID);
             }
             originUri = URI.create(scalarId.asString());
         }
@@ -186,7 +187,7 @@ public class SchemaCompiler {
                 // TODO: This is annoying - it's too noisy in the logs for something
                 // that's not an exception. Should it be a warning? It should
                 // probably be using a global reporter to be configurable.
-                reporter.warn(GenericDiagnosticCode.ERROR, "Could not resolve meta-schema " + metaUri + ": " + e.getMessage());
+                reporter.warn(GenericMessage.ERROR, "Could not resolve meta-schema " + metaUri + ": " + e.getMessage());
             }
         }
 
@@ -230,12 +231,12 @@ public class SchemaCompiler {
                     try {
                         currentMeta = resolver.getSchema(metaUri).getRoot();
                     } catch (Exception e) {
-                        reporter.error(SchemaDiagnosticCode.LOCAL_RESOLUTION_FAILED, localSchema);
+                        reporter.error(SchemaDiagnosticMessage.LOCAL_RESOLUTION_FAILED, localSchema);
                     }
                 }
             } catch (Exception e) {
                 // Fallback to the parent meta if the local one fails to load
-                reporter.warn(SchemaDiagnosticCode.LOCAL_RESOLUTION_FAILED, localSchema);
+                reporter.warn(SchemaDiagnosticMessage.LOCAL_RESOLUTION_FAILED, localSchema);
             }
         }
 

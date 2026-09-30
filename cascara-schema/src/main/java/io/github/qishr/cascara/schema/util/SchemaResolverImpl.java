@@ -60,7 +60,7 @@ import io.github.qishr.cascara.common.lang.util.ProcessorFactory;
 import io.github.qishr.cascara.common.service.ServiceException;
 import io.github.qishr.cascara.common.util.UriScheme;
 import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
-import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 import io.github.qishr.cascara.schema.diagnostic.SchemaException;
 import io.github.qishr.cascara.schema.internal.SchemaUtils;
 import io.github.qishr.cascara.schema.structure.ArraySchemaNode;
@@ -117,7 +117,7 @@ public class SchemaResolverImpl implements SchemaResolver {
                 return compiler.compile(doc, uri);
             } else {
                 // TODO: Get class from schemaUri and generate schema
-                throw new SchemaException(SchemaDiagnosticCode.RESOLUTION_FAILED, uri);
+                throw new SchemaException(SchemaDiagnosticMessage.RESOLUTION_FAILED, uri);
             }
         }
         else {
@@ -131,7 +131,7 @@ public class SchemaResolverImpl implements SchemaResolver {
             } catch (LocalizableIOException e) {
                 throw new SchemaException(e);
             } catch (Exception e) {
-                throw new SchemaException(e, SchemaDiagnosticCode.RESOLUTION_FAILED_REASON, uri, e.getMessage());
+                throw new SchemaException(e, SchemaDiagnosticMessage.RESOLUTION_FAILED_REASON, uri, e.getMessage());
             }
         }
     }
@@ -204,7 +204,7 @@ public class SchemaResolverImpl implements SchemaResolver {
             return resolveInternal(ref, relativeTo, scope);
         } catch (Exception e) {
             // TODO: if we reach here for core metaschema, it is a bug
-            throw new SchemaException(e, SchemaDiagnosticCode.RESOLUTION_FAILED_RELATIVE, ref, relativeTo);
+            throw new SchemaException(e, SchemaDiagnosticMessage.RESOLUTION_FAILED_RELATIVE, ref, relativeTo);
         } finally {
             // Restore previous scope (handles nested resolutions)
             if (previous != null) {
@@ -303,7 +303,7 @@ public class SchemaResolverImpl implements SchemaResolver {
 
         if (schemaNode == null) {
             throw new SchemaException(baseUri, ref, relativeTo.getStartLine(),
-                                      relativeTo.getStartColumn(), SchemaDiagnosticCode.RESOLUTION_FAILED);
+                                      relativeTo.getStartColumn(), SchemaDiagnosticMessage.RESOLUTION_FAILED);
         }
 
         // 5. Update Cache and return
@@ -359,7 +359,7 @@ public class SchemaResolverImpl implements SchemaResolver {
         SchemaNode found = findNodeByAst(schemaDoc.getRoot(), targetAst);
 
         if (found == null) {
-            throw new SchemaException(schemaDoc.getOriginUri(), fragment, SchemaDiagnosticCode.NODE_NOT_FOUND, fragment);
+            throw new SchemaException(schemaDoc.getOriginUri(), fragment, SchemaDiagnosticMessage.NODE_NOT_FOUND, fragment);
         }
 
         // 3. Update the Dynamic Scope and return
@@ -509,7 +509,7 @@ public class SchemaResolverImpl implements SchemaResolver {
                 }
             }
         } catch (IOException e) {
-            throw new SchemaException((URI)null, e, SchemaDiagnosticCode.META_INITIALIZATION_FAILURE);
+            throw new SchemaException((URI)null, e, SchemaDiagnosticMessage.META_INITIALIZATION_FAILURE);
         }
 
         // 2. Temporarily swap the content loader for one that only loads cached meta schemas

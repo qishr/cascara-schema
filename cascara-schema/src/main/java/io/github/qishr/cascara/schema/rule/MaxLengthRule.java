@@ -39,7 +39,7 @@ import io.github.qishr.cascara.common.diagnostic.Diagnostic;
 import io.github.qishr.cascara.common.diagnostic.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.ScalarAstNode;
-import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticCode;
+import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 
 public class MaxLengthRule extends AbstractValidationRule implements ValidationRule {
     private final int max;
@@ -65,7 +65,7 @@ public class MaxLengthRule extends AbstractValidationRule implements ValidationR
         if (value instanceof String str) {
             int length = str.length();
             if (length > max) {
-                error(path, line, column, reporter, SchemaDiagnosticCode.MORE_THAN_MAX_LENGTH, length, max);
+                error(path, line, column, reporter, SchemaDiagnosticMessage.MORE_THAN_MAX_LENGTH, length, max);
                 return false;
             }
         }
