@@ -78,7 +78,8 @@ public final class SchemaGenerator {
 
     private static final TypeDescriptorFactory FACTORY = new TypeDescriptorFactory();
 
-    private static final String OBJECT_PROPERTY_CLASS = "javafx.beans.property.ObjectProperty";
+    private static final String FX_OBJECT_PROPERTY_CLASS = "javafx.beans.property.ObjectProperty";
+    private static final String PROPERTY_CLASS = Property.class.getName();
     private static final String TRACKABLE_PROPERTY_CLASS = TrackableProperty.class.getName();
 
     // TODO: These should be able to be overridden by the caller
@@ -125,7 +126,6 @@ public final class SchemaGenerator {
         return generate(parentDoc, fragment, clazz, null);
     }
 
-    // TODO: Perhaps fragment should be specified as a SchemaNode or AstNode?
     public PlainMapNode generate(MapAstNode<?,?,?> parentDoc, String fragment, Class<?> clazz, Object template) {
         processingStack.clear();
         definitions.clear();
@@ -136,14 +136,26 @@ public final class SchemaGenerator {
 
     public Set<Class<?>> getReferencedClasses(Class<?> clazz) {
         return ReflectionUtils.getReferencedClasses(clazz, c -> {
+
             // Exclude standard scalar types
             if (isStandardScalarType(c)) {
                 return true;
             }
+
             // Exclude lists and maps
             if (isList(c) || isMap(c)) {
                 return true;
             }
+
+            // Exclude properties
+            String className = c.getName();
+            if (className.equals(FX_OBJECT_PROPERTY_CLASS) ||
+                className.equals(TRACKABLE_PROPERTY_CLASS) ||
+                className.equals(PROPERTY_CLASS)
+            ) {
+                return true;
+            }
+
             // Exclude types with a TypeCOnverter and types without @SchemaDefinition
             List<ServiceMetadata> typeConverters = getTypeConverters(c);
             if (typeConverters.isEmpty()) {
@@ -164,7 +176,7 @@ public final class SchemaGenerator {
         List<ServiceMetadata> typeConverters = rootLayer.getProviders(
             TypeDescriptor.class,
             CapabilityQueries.allOf(
-                CapabilityQueries.hasExactValue("javaType", type.getName())
+                CapabilityQueries.hasExactValue(SPL.JVM_TYPE, type.getName())
             )
         );
         return typeConverters;
@@ -350,14 +362,6 @@ public final class SchemaGenerator {
             // If there isn't, then use a $ref
             List<ServiceMetadata> typeConverters = getTypeConverters(type);
 
-            // SPL rootLayer = SPL.getRoot();
-            // List<ServiceMetadata> typeConverters = rootLayer.getProviders(
-            //     TypeDescriptor.class,
-            //     CapabilityQueries.allOf(
-            //         CapabilityQueries.hasExactValue("javaType", type.getName())
-            //     )
-            // );
-
             if (typeConverters.isEmpty()) {
                 if (isExternalEntityType(type)) {
                     // External entity -> external $ref
@@ -387,14 +391,13 @@ public final class SchemaGenerator {
             String typeName = type.getTypeName();
             Type[] paramTypes = paramaterizedType.getActualTypeArguments();
 
-            if (paramTypes.length == 1 && typeName.equals(OBJECT_PROPERTY_CLASS)) {
+            if (paramTypes.length == 1 && typeName.equals(FX_OBJECT_PROPERTY_CLASS)) {
                 Type paramType = paramTypes[0];
                 if (paramType instanceof Class clazz) {
                     return clazz;
                 }
             }
 
-            String PROPERTY_CLASS = Property.class.getName();
             if (paramTypes.length == 1 && typeName.equals(PROPERTY_CLASS)) {
                 Type paramType = paramTypes[0];
                 if (paramType instanceof Class clazz) {
