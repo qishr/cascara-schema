@@ -35,7 +35,7 @@
 
 package io.github.qishr.cascara.schema.structure;
 
-import io.github.qishr.cascara.common.diagnostic.Reporter;
+import io.github.qishr.cascara.common.diagnostic.report.Reporter;
 import io.github.qishr.cascara.common.annotation.Nullable;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.CommentAstNode;

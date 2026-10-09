@@ -34,6 +34,7 @@
 
 package io.github.qishr.cascara.schema.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -41,10 +42,14 @@ import java.net.URI;
 
 import org.junit.jupiter.api.Test;
 
+import io.github.qishr.cascara.common.diagnostic.Diagnostic.Level;
 import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
 import io.github.qishr.cascara.lang.json.processor.JsonConverter;
 
 public class SchemaGeneratorTests extends SchemaTestBase {
+
+    // TODO: These tests just check that the generator didn't return an empty schema.
+    // They should check that the generated schema constains expected definitions and properties.
 
     @Test
     void test_buildSchema_2classes() {
@@ -115,6 +120,27 @@ public class SchemaGeneratorTests extends SchemaTestBase {
         assertNotNull(json);
     }
 
+    @Test
+    void test_generateSchema_classWithArray() {
+        reporter.setLevel(Level.DEBUG);
+        SchemaGenerator generator = new SchemaGenerator();
+        PlainMapNode root = generator.generate(TestClassWithArray.class);
 
+        PlainMapNode properties = root.getMap("properties");
 
+        PlainMapNode strings = properties.getMap("strings");
+        assertEquals("array", strings.getString("type"));
+        PlainMapNode stringsItems = strings.getMap("items");
+        assertEquals("string", stringsItems.getString("type"));
+
+        PlainMapNode objects = properties.getMap("objects");
+        assertEquals("array", objects.getString("type"));
+        PlainMapNode objectsItems = objects.getMap("items");
+        assertEquals("object", objectsItems.getString("type"));
+
+        String json = new JsonConverter().toString(root);
+        assertNotNull(json);
+
+        reporter.debug(json);
+    }
 }

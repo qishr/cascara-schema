@@ -36,16 +36,23 @@ module test.spl {
     requires java.net.http;
     requires cascara.common;
     requires cascara.common.io;
-    requires cascara.lang.json;
     requires transitive cascara.schema;
 
+    // IPC / Serialization
+    requires java.rmi;
+    requires cascara.lang.json;
+
+    // Logging
+    requires cascara.logging.log4j;
+    requires org.apache.logging.log4j.core;
+
+    // Test
     requires cascara.test.common.junit;
     requires org.junit.jupiter.api;
     requires org.mockito;
 
+
     exports test.spl;
 
-
     opens test.spl;
-
 }

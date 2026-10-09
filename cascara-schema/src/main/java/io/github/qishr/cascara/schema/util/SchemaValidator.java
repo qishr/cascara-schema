@@ -35,8 +35,8 @@
 
 package io.github.qishr.cascara.schema.util;
 
-import io.github.qishr.cascara.common.diagnostic.NoOpReporter;
-import io.github.qishr.cascara.common.diagnostic.Reporter;
+import io.github.qishr.cascara.common.diagnostic.report.NoOpReporter;
+import io.github.qishr.cascara.common.diagnostic.report.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;
 import io.github.qishr.cascara.common.lang.ast.MapEntryAstNode;

@@ -44,9 +44,9 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import io.github.qishr.cascara.common.diagnostic.Diagnostic;
-import io.github.qishr.cascara.common.diagnostic.SilentCollectingReporter;
+import io.github.qishr.cascara.common.diagnostic.report.SilentCollectingReporter;
 import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
-import io.github.qishr.cascara.common.lang.type.DateTimeTypeDescriptor;
+import io.github.qishr.cascara.common.lang.type.ZonedDateTimeDescriptor;
 import io.github.qishr.cascara.lang.json.ast.JsonNode;
 import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
 import io.github.qishr.cascara.common.annotation.SchemaDefinition;
@@ -62,7 +62,7 @@ public class FormatTests {
     @Test
     void test_validDateTime() {
         SchemaGenerator generator = new SchemaGenerator();
-        generator.registerTypeDescriptor(new DateTimeTypeDescriptor());
+        generator.registerTypeDescriptor(new ZonedDateTimeDescriptor());
         PlainMapNode schemaDoc = generator.generate(TestClass.class);
 
         Schema schema = new SchemaCompiler().compile(schemaDoc);
@@ -85,7 +85,7 @@ public class FormatTests {
         assertTrue(valid);
     }
 
-    // SPL.getRoot(new StandardReporter().setLevel(Level.DEBUG));
+    // SPL.getRoot(new LocalReporter().setLevel(Level.DEBUG));
 
     @Test
     void test_invalidDateTime() {

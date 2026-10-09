@@ -46,7 +46,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import io.github.qishr.cascara.common.diagnostic.StandardReporter;
+import io.github.qishr.cascara.common.diagnostic.report.LocalReporter;
 import io.github.qishr.cascara.common.diagnostic.Diagnostic.Level;
 import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
 import io.github.qishr.cascara.common.lang.plain.PlainScalarNode;
@@ -142,7 +142,7 @@ public class SchemaResolverTests extends SchemaTestBase {
 
         JsonAstParser parser = new JsonAstParser()
             .setOptions(JsonOptions.JSON5)
-            .setReporter(new StandardReporter().setLevel(Level.INFO));
+            .setReporter(new LocalReporter().setLevel(Level.INFO));
         JsonNode doc = parser.parse(json);
         SchemaCompiler compiler = new SchemaCompiler(resolver);
         Schema schema = compiler.compile(doc);

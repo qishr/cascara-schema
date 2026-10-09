@@ -41,13 +41,19 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import io.github.qishr.cascara.common.service.SPL;
+import io.github.qishr.cascara.logging.log4j.Log4jLogger;
 import io.github.qishr.cascara.common.annotation.SchemaDefinition;
 import io.github.qishr.cascara.common.annotation.SchemaProperty;
+import io.github.qishr.cascara.common.diagnostic.Diagnostic.Level;
+import io.github.qishr.cascara.common.diagnostic.log.ConsoleLogger;
+import io.github.qishr.cascara.common.diagnostic.report.GlobalReporter;
+import io.github.qishr.cascara.common.diagnostic.log.TimeSequencedAggregatorLogger;
 import io.github.qishr.cascara.schema.util.Schema;
 import io.github.qishr.cascara.schema.util.SchemaResolver;
 import io.github.qishr.cascara.test.common.junit.util.VfsTestBase;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 
 public class SchemaTestBase extends VfsTestBase {
@@ -66,9 +72,20 @@ public class SchemaTestBase extends VfsTestBase {
 
     protected SchemaResolver resolver;
 
+    @BeforeAll
+    static void init() {
+        // TODO: Make this configurable at *TestBase level
+        // Configurator.setLevel("integration.test", org.apache.logging.log4j.Level.DEBUG);
+        // ConsoleLogger logger = new ConsoleLogger();
+        // TimeSequencedAggregatorLogger aggregator = new TimeSequencedAggregatorLogger(logger, 800);
+        // GlobalReporter.globalInstance().addLogger(aggregator);
+        // GlobalReporter.globalInstance().setSystemOutputEnabled(false);
+    }
+
     @BeforeEach
     protected void setUp() throws IOException {
         super.setUp();
+        reporter.setLevel(Level.INFO);
         resolver = SPL.load(SchemaResolver.class);
     }
 

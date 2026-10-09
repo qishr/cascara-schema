@@ -37,7 +37,7 @@ package io.github.qishr.cascara.schema.rule;
 
 import java.net.URI;
 
-import io.github.qishr.cascara.common.diagnostic.Reporter;
+import io.github.qishr.cascara.common.diagnostic.report.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 import io.github.qishr.cascara.schema.diagnostic.ValidationException;

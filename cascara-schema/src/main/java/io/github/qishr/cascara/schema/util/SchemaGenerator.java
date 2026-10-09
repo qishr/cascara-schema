@@ -72,6 +72,7 @@ import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 import io.github.qishr.cascara.schema.diagnostic.SchemaException;
 import io.github.qishr.cascara.schema.internal.SchemaUtils;
 import io.github.qishr.cascara.common.trackable.property.TrackableProperty;
+import io.github.qishr.cascara.common.util.JreUtils;
 import io.github.qishr.cascara.common.util.ReflectionUtils;
 
 public final class SchemaGenerator {
@@ -114,6 +115,11 @@ public final class SchemaGenerator {
         return generate(null, null, null, template);
     }
 
+    /// Generates a schema for a class.
+    /// If the class is annotated with @SchemaDefinition, the name and description
+    /// specified there is used in the generated schema.
+    /// Fields must be annotated with @SchemaProperty to be included in the
+    /// generated schema.
     public PlainMapNode generate(Class<?> clazz) {
         return generate(null, null, clazz, null);
     }
@@ -367,6 +373,11 @@ public final class SchemaGenerator {
                     // External entity -> external $ref
                     applyExternalRef(node, type, field);
                 }
+                if (type.isArray()) {
+                    Class<?> elementType = type.componentType();
+                    node.put(SchemaKeyword.TYPE.asString(), scalar(PrimitiveType.ARRAY.asString()));
+                    node.put(SchemaKeyword.ITEMS.asString(), createItemsNode(elementType, field));
+                }
                 else {
                     // Embedded/value object -> internal definition + $ref
                     applyInternalRef(node, type);
@@ -419,7 +430,7 @@ public final class SchemaGenerator {
     private PlainMapNode createItemsNode(Class<?> elementType, Field field) {
         PlainMapNode items = new PlainMapNode();
 
-        if (isStandardScalarType(elementType)) {
+        if (isStandardScalarType(elementType) || elementType.isArray() || elementType == Object.class) {
             fillTypeInfo(items, elementType, field);
         } else if (isExternalEntityType(elementType)) {
             applyExternalRef(items, elementType, field);
@@ -494,6 +505,10 @@ public final class SchemaGenerator {
             node.put(SchemaKeyword.TYPE.asString(), scalar(PrimitiveType.NUMBER.asString()));
         } else if (type == String.class || type.isEnum()) {
             node.put(SchemaKeyword.TYPE.asString(), scalar(PrimitiveType.STRING.asString()));
+        } else if (type == Object.class) {
+            node.put(SchemaKeyword.TYPE.asString(), scalar(PrimitiveType.OBJECT.asString()));
+        } else if (type.isArray()) {
+            node.put(SchemaKeyword.TYPE.asString(), scalar(PrimitiveType.ARRAY.asString()));
         }
 
         applyConstraints(node, field);
@@ -552,7 +567,7 @@ public final class SchemaGenerator {
 
     private Object instantiate(Class<?> clazz) {
         try {
-            return clazz.getDeclaredConstructor().newInstance();
+            return ReflectionUtils.createInstance(clazz);
         } catch (Exception e) {
             return null;
         }

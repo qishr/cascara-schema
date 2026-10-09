@@ -43,6 +43,7 @@ import java.util.Map.Entry;
 import io.github.qishr.cascara.common.service.SPL;
 import io.github.qishr.cascara.common.annotation.SchemaDefinition;
 import io.github.qishr.cascara.common.annotation.SchemaProperty;
+import io.github.qishr.cascara.common.diagnostic.Diagnostic.Level;
 import io.github.qishr.cascara.test.common.junit.util.VfsTestBase;
 
 import org.junit.jupiter.api.AfterEach;
@@ -53,23 +54,11 @@ public class SchemaTestBase extends VfsTestBase {
 
     protected SchemaResolver resolver;
 
-    @SchemaDefinition
-    public static class TestClass {
-        @SchemaProperty
-        private LocalDateTime dateTime;
-    }
-
-    @SchemaDefinition
-    public static class OuterTestClass {
-        @SchemaProperty
-        private TestClass inner;
-    }
-
     @BeforeEach
     protected void setUp() throws IOException {
         // GlobalReporter.globalInstance().setLevel(Level.TRACE);
-
         super.setUp();
+        reporter.setLevel(Level.INFO);
         resolver = SPL.load(SchemaResolver.class);
     }
 
@@ -104,4 +93,29 @@ public class SchemaTestBase extends VfsTestBase {
     //     System.out.println("MODULE: " + getClass().getModule().getName());
     //     System.out.println("\n--------");
     // }
+
+    //
+    //
+    //
+
+    @SchemaDefinition
+    public static class TestClass {
+        @SchemaProperty
+        private LocalDateTime dateTime;
+    }
+
+    @SchemaDefinition
+    public static class OuterTestClass {
+        @SchemaProperty
+        private TestClass inner;
+    }
+
+    @SchemaDefinition
+    public static class TestClassWithArray {
+        @SchemaProperty
+        private String[] strings;
+
+        @SchemaProperty
+        private Object[] objects;
+    }
 }

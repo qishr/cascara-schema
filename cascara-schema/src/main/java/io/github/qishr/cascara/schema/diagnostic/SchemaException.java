@@ -38,8 +38,8 @@ package io.github.qishr.cascara.schema.diagnostic;
 import java.net.URI;
 
 import io.github.qishr.cascara.common.diagnostic.Diagnostic;
-import io.github.qishr.cascara.common.diagnostic.LocalizableException;
-import io.github.qishr.cascara.common.diagnostic.LocatableException;
+import io.github.qishr.cascara.common.diagnostic.exception.LocalizableException;
+import io.github.qishr.cascara.common.diagnostic.exception.LocatableException;
 import io.github.qishr.cascara.common.diagnostic.message.DiagnosticMessage;
 
 public class SchemaException extends LocatableException {

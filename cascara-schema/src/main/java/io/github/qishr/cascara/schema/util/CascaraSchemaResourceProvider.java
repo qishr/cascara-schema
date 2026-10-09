@@ -39,7 +39,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
-import io.github.qishr.cascara.common.diagnostic.LocalizableIOException;
+import io.github.qishr.cascara.common.diagnostic.exception.LocalizableIOException;
 import io.github.qishr.cascara.common.io.ResourceStream;
 import io.github.qishr.cascara.common.io.provider.AbstractResourceProvider;
 import io.github.qishr.cascara.common.lang.ast.AstNode;

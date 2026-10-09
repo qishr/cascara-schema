@@ -38,7 +38,7 @@ package io.github.qishr.cascara.schema.util;
 import java.net.URI;
 import java.util.Collection;
 
-import io.github.qishr.cascara.common.diagnostic.Reporter;
+import io.github.qishr.cascara.common.diagnostic.report.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.schema.structure.SchemaNode;
 

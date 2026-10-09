@@ -43,10 +43,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.github.qishr.cascara.common.diagnostic.GlobalReporter;
-import io.github.qishr.cascara.common.diagnostic.Reporter;
-import io.github.qishr.cascara.common.diagnostic.UnexpectedNullParameterException;
-import io.github.qishr.cascara.common.diagnostic.UnexpectedNullReturnException;
+import io.github.qishr.cascara.common.diagnostic.report.GlobalReporter;
+import io.github.qishr.cascara.common.diagnostic.report.Reporter;
+import io.github.qishr.cascara.common.diagnostic.exception.UnexpectedNullParameterException;
+import io.github.qishr.cascara.common.diagnostic.exception.UnexpectedNullReturnException;
 import io.github.qishr.cascara.common.diagnostic.message.GenericMessage;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;

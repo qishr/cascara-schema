@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-import io.github.qishr.cascara.common.diagnostic.LocalizableIOException;
+import io.github.qishr.cascara.common.diagnostic.exception.LocalizableIOException;
 import io.github.qishr.cascara.common.util.JreUtils;
 import io.github.qishr.cascara.lang.json.ast.JsonNode;
 import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
