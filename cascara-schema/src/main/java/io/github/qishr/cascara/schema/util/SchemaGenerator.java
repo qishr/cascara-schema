@@ -47,11 +47,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.github.qishr.cascara.common.annotation.ContentMediaType;
+import io.github.qishr.cascara.schema.annotation.ContentMediaType;
 import io.github.qishr.cascara.common.annotation.DataField;
 import io.github.qishr.cascara.common.annotation.DataIgnore;
-import io.github.qishr.cascara.common.annotation.SchemaDefinition;
-import io.github.qishr.cascara.common.annotation.SchemaProperty;
+import io.github.qishr.cascara.schema.annotation.SchemaDefinition;
+import io.github.qishr.cascara.schema.annotation.SchemaProperty;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;
 import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
 import io.github.qishr.cascara.common.lang.plain.PlainScalarNode;

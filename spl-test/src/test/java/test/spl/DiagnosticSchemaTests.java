@@ -2,8 +2,6 @@ package test.spl;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.net.URI;
-
 import org.junit.jupiter.api.Test;
 
 import io.github.qishr.cascara.common.diagnostic.Diagnostic;

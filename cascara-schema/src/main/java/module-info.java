@@ -38,6 +38,7 @@ module cascara.schema {
     requires transitive cascara.common.io;
     requires cascara.lang.json;
 
+    exports io.github.qishr.cascara.schema.annotation;
     exports io.github.qishr.cascara.schema.diagnostic;
     exports io.github.qishr.cascara.schema.structure;
     exports io.github.qishr.cascara.schema.constraint;

@@ -42,8 +42,8 @@ import java.util.Map.Entry;
 
 import io.github.qishr.cascara.common.service.SPL;
 import io.github.qishr.cascara.logging.log4j.Log4jLogger;
-import io.github.qishr.cascara.common.annotation.SchemaDefinition;
-import io.github.qishr.cascara.common.annotation.SchemaProperty;
+import io.github.qishr.cascara.schema.annotation.SchemaDefinition;
+import io.github.qishr.cascara.schema.annotation.SchemaProperty;
 import io.github.qishr.cascara.common.diagnostic.Diagnostic.Level;
 import io.github.qishr.cascara.common.diagnostic.log.ConsoleLogger;
 import io.github.qishr.cascara.common.diagnostic.report.GlobalReporter;
