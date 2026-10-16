@@ -58,11 +58,11 @@ import io.github.qishr.cascara.common.lang.plain.PlainSequenceNode;
 import io.github.qishr.cascara.common.service.CapabilityQueries;
 import io.github.qishr.cascara.common.service.SPL;
 import io.github.qishr.cascara.common.service.ServiceMetadata;
-import io.github.qishr.cascara.common.lang.type.ScalarDescriptor;
-import io.github.qishr.cascara.common.lang.type.TypeDescriptor;
-import io.github.qishr.cascara.common.lang.type.TypeDescriptorFactory;
+import io.github.qishr.cascara.common.type.ScalarDescriptor;
+import io.github.qishr.cascara.common.type.TypeDescriptor;
+import io.github.qishr.cascara.common.type.TypeDescriptorFactory;
 import io.github.qishr.cascara.common.property.Property;
-import io.github.qishr.cascara.common.lang.type.PrimitiveType;
+import io.github.qishr.cascara.common.type.PrimitiveType;
 import io.github.qishr.cascara.schema.constraint.FormatConstraint;
 import io.github.qishr.cascara.schema.constraint.NumberConstraint;
 import io.github.qishr.cascara.schema.constraint.ReadOnly;
@@ -142,7 +142,7 @@ public final class SchemaGenerator {
         return ReflectionUtils.getReferencedClasses(clazz, c -> {
 
             // Exclude standard scalar types
-            if (ReflectionUtils.isScalarType(c)) {
+            if (PrimitiveType.of(c).isScalar()) {
                 return true;
             }
 
@@ -340,7 +340,7 @@ public final class SchemaGenerator {
         applyTypeAnalysis(field, node);
         String analyzedType = node.getString(SchemaKeyword.TYPE.asString());
 
-        if (ReflectionUtils.isScalarType(type) || (analyzedType != null &&
+        if (PrimitiveType.of(type).isScalar() || (analyzedType != null &&
             !PrimitiveType.ARRAY.asString().equals(analyzedType) && !PrimitiveType.OBJECT.asString().equals(analyzedType))
         ) {
             fillTypeInfo(node, type, field);
@@ -416,7 +416,7 @@ public final class SchemaGenerator {
     private PlainMapNode createItemsNode(Class<?> elementType, Field field) {
         PlainMapNode items = new PlainMapNode();
 
-        if (ReflectionUtils.isScalarType(elementType) || elementType.isArray() || elementType == Object.class) {
+        if (PrimitiveType.of(elementType).isScalar() || elementType.isArray() || elementType == Object.class) {
             fillTypeInfo(items, elementType, field);
         } else if (isExternalEntityType(elementType)) {
             applyExternalRef(items, elementType, field);

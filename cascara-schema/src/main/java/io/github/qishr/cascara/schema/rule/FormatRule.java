@@ -40,8 +40,8 @@ import io.github.qishr.cascara.common.diagnostic.Diagnostic;
 import io.github.qishr.cascara.common.diagnostic.report.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.ScalarAstNode;
-import io.github.qishr.cascara.common.lang.type.ScalarDescriptor;
-import io.github.qishr.cascara.common.lang.type.TypeDescriptorFactory;
+import io.github.qishr.cascara.common.type.ScalarDescriptor;
+import io.github.qishr.cascara.common.type.TypeDescriptorFactory;
 
 public class FormatRule extends AbstractValidationRule implements ValidationRule {
     // TODO: Configurable SPL...

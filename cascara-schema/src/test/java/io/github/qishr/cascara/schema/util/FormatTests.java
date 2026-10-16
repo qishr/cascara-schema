@@ -46,7 +46,7 @@ import org.junit.jupiter.api.Test;
 import io.github.qishr.cascara.common.diagnostic.Diagnostic;
 import io.github.qishr.cascara.common.diagnostic.report.SilentCollectingReporter;
 import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
-import io.github.qishr.cascara.common.lang.type.ZonedDateTimeDescriptor;
+import io.github.qishr.cascara.common.type.ZonedDateTimeDescriptor;
 import io.github.qishr.cascara.lang.json.ast.JsonNode;
 import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
 import io.github.qishr.cascara.schema.annotation.SchemaDefinition;

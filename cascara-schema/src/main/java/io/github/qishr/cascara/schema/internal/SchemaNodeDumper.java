@@ -35,7 +35,7 @@
 
 package io.github.qishr.cascara.schema.internal;
 
-import io.github.qishr.cascara.common.lang.type.PrimitiveType;
+import io.github.qishr.cascara.common.type.PrimitiveType;
 import io.github.qishr.cascara.schema.structure.SchemaNode;
 
 public final class SchemaNodeDumper {

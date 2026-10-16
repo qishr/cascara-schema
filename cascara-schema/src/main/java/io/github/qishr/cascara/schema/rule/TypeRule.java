@@ -38,7 +38,7 @@ package io.github.qishr.cascara.schema.rule;
 import io.github.qishr.cascara.common.diagnostic.report.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.ScalarAstNode;
-import io.github.qishr.cascara.common.lang.type.PrimitiveType;
+import io.github.qishr.cascara.common.type.PrimitiveType;
 import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 
 public class TypeRule extends AbstractValidationRule implements ValidationRule {

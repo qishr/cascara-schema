@@ -41,7 +41,7 @@ import java.util.Map;
 
 import io.github.qishr.cascara.common.diagnostic.report.Reporter;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
-import io.github.qishr.cascara.common.lang.type.PrimitiveType;
+import io.github.qishr.cascara.common.type.PrimitiveType;
 import io.github.qishr.cascara.schema.rule.ValidationRule;
 
 public interface SchemaNode extends AstNode {

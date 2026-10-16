@@ -41,7 +41,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import io.github.qishr.cascara.common.lang.ast.AstNode;
-import io.github.qishr.cascara.common.lang.type.PrimitiveType;
+import io.github.qishr.cascara.common.type.PrimitiveType;
 import io.github.qishr.cascara.common.trackable.Trackable;
 import io.github.qishr.cascara.common.trackable.TrackableObject;
 import io.github.qishr.cascara.common.trackable.TrackingMessage;

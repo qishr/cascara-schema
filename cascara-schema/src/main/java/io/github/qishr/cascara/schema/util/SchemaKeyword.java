@@ -38,7 +38,7 @@ package io.github.qishr.cascara.schema.util;
 import java.util.Collections;
 import java.util.List;
 
-import io.github.qishr.cascara.common.lang.type.PrimitiveType;
+import io.github.qishr.cascara.common.type.PrimitiveType;
 
 public enum SchemaKeyword {
     // Core Identifiers
