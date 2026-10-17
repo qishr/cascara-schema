@@ -39,22 +39,37 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 
 import io.github.qishr.cascara.common.service.ServiceMetadata;
 import io.github.qishr.cascara.common.service.SPL;
 import io.github.qishr.cascara.common.util.ContentTypeResolver;
+import io.github.qishr.cascara.common.util.ModulePath;
 
 public class SplOverrideTests extends SchemaTestBase {
-    @Test
-    void test_modulesLoad() throws IOException {
-        SPL rootLayer = SPL.getRoot();
-        List<String> modules = rootLayer.getModules();
-        assertTrue(modules.contains("cascara.common.io"));
+    protected boolean isModularEnvironment() {
+        return SplOverrideTests.class.getModule().isNamed();
     }
 
+    @Test
+    @EnabledIf("isModularEnvironment")
+    void test_ModulePath_hasCascaraSchema() throws IOException {
+        // ModulePath mp = new ModulePath(new LocalReporter().setLevel(Level.DEBUG));
+        ModulePath mp = new ModulePath();
+        Set<String> mpModules = mp.getModules();
+        assertTrue(mpModules.contains("cascara.schema"), "ModulePath should contain cascara.schema");
+    }
 
+    @Test
+    @EnabledIf("isModularEnvironment")
+    void test_SPL_hasCascaraSchema() throws IOException {
+        SPL rootLayer = SPL.getRoot();
+        List<String> modules = rootLayer.getModules();
+        assertTrue(modules.contains("cascara.schema"), "SPL should contain cascara.schema");
+    }
 
     @Test
     void test_splPrefsOverridesSchemaStore() throws IOException {

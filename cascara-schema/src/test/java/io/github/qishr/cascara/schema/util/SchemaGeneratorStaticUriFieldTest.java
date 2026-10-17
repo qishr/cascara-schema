@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import io.github.qishr.cascara.common.lang.plain.PlainMapEntryNode;
-import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
+import io.github.qishr.cascara.common.lang.generic.GenericAstMapEntry;
+import io.github.qishr.cascara.common.lang.generic.GenericAstMap;
 
 public class SchemaGeneratorStaticUriFieldTest {
     public static class SchemaFieldTestClass {
@@ -17,12 +17,12 @@ public class SchemaGeneratorStaticUriFieldTest {
     @Test
     void test_staticSchemaUri() {
         SchemaGenerator generator = new SchemaGenerator();
-        PlainMapNode schemaDoc = generator.generate(SchemaFieldTestClass.class);
+        GenericAstMap schemaDoc = generator.generate(SchemaFieldTestClass.class);
         assertTrue(schemaDoc != null);
 
         // SCHEMA should not end up as a property
-        PlainMapNode props = schemaDoc.getMap("properties");
-        for (PlainMapEntryNode entry : props.entrySet()) {
+        GenericAstMap props = schemaDoc.getMap("properties");
+        for (GenericAstMapEntry entry : props.entrySet()) {
             String name = entry.getKeyString();
             assertNotEquals("SCHEMA", name, "SCHEMA should not be a property");
         }

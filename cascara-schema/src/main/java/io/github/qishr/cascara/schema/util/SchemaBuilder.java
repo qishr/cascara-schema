@@ -37,8 +37,8 @@ package io.github.qishr.cascara.schema.util;
 
 import java.net.URI;
 
-import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
-import io.github.qishr.cascara.common.lang.plain.PlainScalarNode;
+import io.github.qishr.cascara.common.lang.generic.GenericAstMap;
+import io.github.qishr.cascara.common.lang.generic.GenericAstScalar;
 import io.github.qishr.cascara.schema.internal.SchemaUtils;
 
 public class SchemaBuilder {
@@ -64,11 +64,11 @@ public class SchemaBuilder {
 
     public Schema buildSchema(URI originUri, Class<?>... classes)  {
         Schema schema;
-        PlainMapNode syntheticRoot = new PlainMapNode();
-        PlainMapNode definitions = new PlainMapNode();
+        GenericAstMap syntheticRoot = new GenericAstMap();
+        GenericAstMap definitions = new GenericAstMap();
 
         syntheticRoot.put(SchemaKeyword.DEFS.asString(), definitions);
-        syntheticRoot.put(SchemaKeyword.ID.asString(), new PlainScalarNode(originUri));
+        syntheticRoot.put(SchemaKeyword.ID.asString(), new GenericAstScalar(originUri));
 
         for (Class<?> clazz : classes) {
             // Give the generator the synthentic root AST and

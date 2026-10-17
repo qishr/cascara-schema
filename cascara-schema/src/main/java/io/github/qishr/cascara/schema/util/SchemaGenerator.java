@@ -52,9 +52,9 @@ import io.github.qishr.cascara.common.annotation.DataIgnore;
 import io.github.qishr.cascara.schema.annotation.SchemaDefinition;
 import io.github.qishr.cascara.schema.annotation.SchemaProperty;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;
-import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
-import io.github.qishr.cascara.common.lang.plain.PlainScalarNode;
-import io.github.qishr.cascara.common.lang.plain.PlainSequenceNode;
+import io.github.qishr.cascara.common.lang.generic.GenericAstMap;
+import io.github.qishr.cascara.common.lang.generic.GenericAstScalar;
+import io.github.qishr.cascara.common.lang.generic.GenericAstSequence;
 import io.github.qishr.cascara.common.service.CapabilityQueries;
 import io.github.qishr.cascara.common.service.SPL;
 import io.github.qishr.cascara.common.service.ServiceMetadata;
@@ -87,13 +87,13 @@ public final class SchemaGenerator {
     public static final String ENUM_KEY = "x-i18n-enum";
 
     private final Set<Class<?>> processingStack = new HashSet<>();
-    private final Map<Class<?>, PlainMapNode> definitions = new LinkedHashMap<>();
+    private final Map<Class<?>, GenericAstMap> definitions = new LinkedHashMap<>();
     private final Set<TypeAnalyzer> typeAnalyzers = new HashSet<>();
     private final Map<Class<?>,TypeDescriptor<?>> typeDescriptorsByJvmType = new HashMap<>();
     private final Map<String,ScalarDescriptor<?>> typeDescriptorsByFormat = new HashMap<>();
 
     private boolean multiClassDocument = false;
-    private PlainMapNode definitionsContainer;
+    private GenericAstMap definitionsContainer;
     private String definitionsLocation = "#/" + SchemaKeyword.DEFS.asString();
 
     private URI originUri;
@@ -109,7 +109,7 @@ public final class SchemaGenerator {
         }
     }
 
-    public PlainMapNode generate(Object template) {
+    public GenericAstMap generate(Object template) {
         return generate(null, null, null, template);
     }
 
@@ -118,23 +118,23 @@ public final class SchemaGenerator {
     /// specified there is used in the generated schema.
     /// Fields must be annotated with @SchemaProperty to be included in the
     /// generated schema.
-    public PlainMapNode generate(Class<?> clazz) {
+    public GenericAstMap generate(Class<?> clazz) {
         return generate(null, null, clazz, null);
     }
 
-    public PlainMapNode generate(PlainMapNode parentDoc, Class<?> clazz) {
+    public GenericAstMap generate(GenericAstMap parentDoc, Class<?> clazz) {
         return generate(parentDoc, null, clazz, null);
     }
 
-    public PlainMapNode generate(MapAstNode<?,?,?> parentDoc, String fragment, Class<?> clazz) {
+    public GenericAstMap generate(MapAstNode<?,?,?> parentDoc, String fragment, Class<?> clazz) {
         return generate(parentDoc, fragment, clazz, null);
     }
 
-    public PlainMapNode generate(MapAstNode<?,?,?> parentDoc, String fragment, Class<?> clazz, Object template) {
+    public GenericAstMap generate(MapAstNode<?,?,?> parentDoc, String fragment, Class<?> clazz, Object template) {
         processingStack.clear();
         definitions.clear();
         multiClassDocument = false;
-        PlainMapNode schemaRoot = generateInternal(parentDoc, fragment, clazz, template);
+        GenericAstMap schemaRoot = generateInternal(parentDoc, fragment, clazz, template);
         return schemaRoot;
     }
 
@@ -186,7 +186,7 @@ public final class SchemaGenerator {
         return typeConverters;
     }
 
-    private PlainMapNode generateInternal(MapAstNode<?,?,?> parentDoc, String fragment, Class<?> clazz, Object template) {
+    private GenericAstMap generateInternal(MapAstNode<?,?,?> parentDoc, String fragment, Class<?> clazz, Object template) {
         if (parentDoc != null) {
             multiClassDocument = true;
             String id = parentDoc.getString(SchemaKeyword.ID.asString());
@@ -201,25 +201,25 @@ public final class SchemaGenerator {
 
             // The caller must create the definitions container as we don't know
             // what concrete implementation it should be.
-            if (SchemaUtils.resolveFragment(parentDoc, fragment) instanceof PlainMapNode map) {
+            if (SchemaUtils.resolveFragment(parentDoc, fragment) instanceof GenericAstMap map) {
                 definitionsContainer = map;
             } else {
                 throw new SchemaException(originUri, fragment, SchemaDiagnosticMessage.NOT_OBJECT);
             }
         }
 
-        PlainMapNode classRoot = generateClassRoot(clazz, template, multiClassDocument);
+        GenericAstMap classRoot = generateClassRoot(clazz, template, multiClassDocument);
 
         if (multiClassDocument) {
-            for (Map.Entry<Class<?>, PlainMapNode> e : definitions.entrySet()) {
+            for (Map.Entry<Class<?>, GenericAstMap> e : definitions.entrySet()) {
                 String defName = e.getKey().getSimpleName();
                 definitionsContainer.put(defName, e.getValue());
             }
             definitionsContainer.put(clazz.getSimpleName(), classRoot);
         } else {
             if (!definitions.isEmpty()) {
-                PlainMapNode defsNode = new PlainMapNode();
-                for (Map.Entry<Class<?>, PlainMapNode> e : definitions.entrySet()) {
+                GenericAstMap defsNode = new GenericAstMap();
+                for (Map.Entry<Class<?>, GenericAstMap> e : definitions.entrySet()) {
                     String defName = e.getKey().getSimpleName();
                     defsNode.put(defName, e.getValue());
                 }
@@ -229,11 +229,11 @@ public final class SchemaGenerator {
         return classRoot;
     }
 
-    private PlainMapNode generateClassRoot(Class<?> clazz, Object template, boolean multiClassDocument) {
+    private GenericAstMap generateClassRoot(Class<?> clazz, Object template, boolean multiClassDocument) {
         if (clazz == null) {
             clazz = template.getClass();
         }
-        PlainMapNode root = new PlainMapNode();
+        GenericAstMap root = new GenericAstMap();
 
         if (!multiClassDocument) {
             String id = getSchemaId(clazz);
@@ -243,7 +243,7 @@ public final class SchemaGenerator {
         fillObjectMetadata(clazz, root);
         root.put(SchemaKeyword.TYPE.asString(), createScalar(PrimitiveType.OBJECT.asString()));
 
-        PlainMapNode properties = new PlainMapNode();
+        GenericAstMap properties = new GenericAstMap();
         root.put(SchemaKeyword.PROPERTIES.asString(), properties);
 
         if (template == null) {
@@ -261,7 +261,7 @@ public final class SchemaGenerator {
         return root;
     }
 
-    private void fillObjectMetadata(Class<?> clazz, PlainMapNode root) {
+    private void fillObjectMetadata(Class<?> clazz, GenericAstMap root) {
         if (clazz.isAnnotationPresent(SchemaDefinition.class)) {
             SchemaDefinition definition = clazz.getAnnotation(SchemaDefinition.class);
 
@@ -301,8 +301,8 @@ public final class SchemaGenerator {
         }
     }
 
-    private PlainMapNode createFieldNode(Field field, Object template) {
-        PlainMapNode node = new PlainMapNode();
+    private GenericAstMap createFieldNode(Field field, Object template) {
+        GenericAstMap node = new GenericAstMap();
         SchemaProperty sf = field.getAnnotation(SchemaProperty.class);
 
         if (sf != null) {
@@ -413,8 +413,8 @@ public final class SchemaGenerator {
         return field.getType();
     }
 
-    private PlainMapNode createItemsNode(Class<?> elementType, Field field) {
-        PlainMapNode items = new PlainMapNode();
+    private GenericAstMap createItemsNode(Class<?> elementType, Field field) {
+        GenericAstMap items = new GenericAstMap();
 
         if (PrimitiveType.of(elementType).isScalar() || elementType.isArray() || elementType == Object.class) {
             fillTypeInfo(items, elementType, field);
@@ -427,7 +427,7 @@ public final class SchemaGenerator {
         return items;
     }
 
-    private void applyTypeAnalysis(Field field, PlainMapNode targetAst) {
+    private void applyTypeAnalysis(Field field, GenericAstMap targetAst) {
         for (TypeAnalyzer ta : typeAnalyzers) {
             ta.analyze(field, targetAst);
             ta.analyze(field.getType(), targetAst);
@@ -435,19 +435,19 @@ public final class SchemaGenerator {
     }
 
     // TODO: This might not work with ObjectProperty fields
-    private void applyTypeAnalysis(Class<?> clazz, PlainMapNode targetAst) {
+    private void applyTypeAnalysis(Class<?> clazz, GenericAstMap targetAst) {
         for (TypeAnalyzer ta : typeAnalyzers) {
             ta.analyze(clazz, targetAst);
         }
     }
 
-    private void applyExternalRef(PlainMapNode node, Class<?> target, Field field) {
+    private void applyExternalRef(GenericAstMap node, Class<?> target, Field field) {
         CascaraSchemaUri schemaUri = CascaraSchemaUri.of(target);
         String schemaUriString = schemaUri.toUri().toString();
         node.put(SchemaKeyword.REF.asString(), createScalar(schemaUriString));
     }
 
-    private void applyInternalRef(PlainMapNode node, Class<?> target) {
+    private void applyInternalRef(GenericAstMap node, Class<?> target) {
         ensureDefinition(target);
         node.put(SchemaKeyword.REF.asString(), createScalar(definitionsLocation + "/" + target.getSimpleName()));
     }
@@ -458,12 +458,12 @@ public final class SchemaGenerator {
 
         processingStack.add(clazz);
         try {
-            PlainMapNode def = new PlainMapNode();
+            GenericAstMap def = new GenericAstMap();
             def.put(SchemaKeyword.TYPE.asString(), createScalar(PrimitiveType.OBJECT.asString()));
 
             fillObjectMetadata(clazz, def);
 
-            PlainMapNode properties = new PlainMapNode();
+            GenericAstMap properties = new GenericAstMap();
 
             def.put(SchemaKeyword.PROPERTIES.asString(), properties);
 
@@ -480,7 +480,7 @@ public final class SchemaGenerator {
         }
     }
 
-    private void fillTypeInfo(PlainMapNode node, Class<?> type, Field field) {
+    private void fillTypeInfo(GenericAstMap node, Class<?> type, Field field) {
         if (type == boolean.class || type == Boolean.class) {
             node.put(SchemaKeyword.TYPE.asString(), createScalar(PrimitiveType.BOOLEAN.asString()));
         } else if (type == int.class || type == Integer.class
@@ -500,12 +500,12 @@ public final class SchemaGenerator {
         applyConstraints(node, field);
     }
 
-    private void applyConstraints(PlainMapNode node, Field field) {
+    private void applyConstraints(GenericAstMap node, Field field) {
         if (field.isAnnotationPresent(StringConstraint.class)) {
             StringConstraint constraint = field.getAnnotation(StringConstraint.class);
 
             if (constraint.options().length > 0) {
-                PlainSequenceNode enumNode = new PlainSequenceNode();
+                GenericAstSequence enumNode = new GenericAstSequence();
                 for (String opt : constraint.options()) {
                     enumNode.add(createScalar(opt));
                 }
@@ -540,7 +540,7 @@ public final class SchemaGenerator {
         }
     }
 
-    private void appendDefaultValue(PlainMapNode node, Field field, Object instance) {
+    private void appendDefaultValue(GenericAstMap node, Field field, Object instance) {
         if (instance == null) return;
         try {
             field.setAccessible(true);
@@ -563,8 +563,8 @@ public final class SchemaGenerator {
         }
     }
 
-    private PlainScalarNode createScalar(Object value) {
-        return new PlainScalarNode(value);
+    private GenericAstScalar createScalar(Object value) {
+        return new GenericAstScalar(value);
     }
 
     private static boolean shouldInclude(Field field) {

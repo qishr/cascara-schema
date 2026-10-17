@@ -37,11 +37,11 @@ package io.github.qishr.cascara.schema.util;
 
 import java.lang.reflect.Field;
 
-import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
+import io.github.qishr.cascara.common.lang.generic.GenericAstMap;
 
 public interface TypeAnalyzer {
     /// Inspects a field and adds "hints" to the MapAstNode
     /// being built before the compiler sees it.
-    void analyze(Field field, PlainMapNode targetAst);
-    void analyze(Class<?> clazz, PlainMapNode targetAst);
+    void analyze(Field field, GenericAstMap targetAst);
+    void analyze(Class<?> clazz, GenericAstMap targetAst);
 }

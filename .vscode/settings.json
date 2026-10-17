@@ -10,6 +10,9 @@
             "name": "test",
             "modulePaths": ["${workspaceFolder}/cascara-schema/build/modulepath"],
             "module": "cascara.schema",
+            "vmArgs": [
+                "--add-reads", "cascara.schema=cascara.test.common.junit"
+            ],
             "classPaths": [
                 "${workspaceFolder}/cascara-schema/build/classes/java/main",
                 "${workspaceFolder}/cascara-schema/build/resources/main"

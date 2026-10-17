@@ -43,9 +43,9 @@ import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
-import io.github.qishr.cascara.common.lang.plain.PlainScalarNode;
-import io.github.qishr.cascara.common.lang.plain.PlainSequenceNode;
+import io.github.qishr.cascara.common.lang.generic.GenericAstMap;
+import io.github.qishr.cascara.common.lang.generic.GenericAstScalar;
+import io.github.qishr.cascara.common.lang.generic.GenericAstSequence;
 import io.github.qishr.cascara.schema.structure.ObjectSchemaNode;
 
 public class SchemaCompilerTests extends SchemaTestBase {
@@ -61,30 +61,30 @@ public class SchemaCompilerTests extends SchemaTestBase {
     @Test
     void shouldCaptureUnevaluatedPropertiesAndTypedHints() {
         // 1. Setup 'parent' with x-tracked: true (Boolean)
-        PlainMapNode parentProps = new PlainMapNode();
+        GenericAstMap parentProps = new GenericAstMap();
         parentProps.put("status", createScalarProperty("string", "x-tracked", true));
 
-        PlainMapNode parentDef = new PlainMapNode();
-        parentDef.put("type", new PlainScalarNode("object"));
+        GenericAstMap parentDef = new GenericAstMap();
+        parentDef.put("type", new GenericAstScalar("object"));
         parentDef.put("properties", parentProps);
 
         // 2. Setup 'child' with allOf: [parent] and unevaluatedProperties: false
-        PlainSequenceNode allOf = new PlainSequenceNode();
-        PlainMapNode refNode = new PlainMapNode();
-        refNode.put("$ref", new PlainScalarNode("#/definitions/parent"));
+        GenericAstSequence allOf = new GenericAstSequence();
+        GenericAstMap refNode = new GenericAstMap();
+        refNode.put("$ref", new GenericAstScalar("#/definitions/parent"));
         allOf.add(refNode);
 
-        PlainMapNode childDef = new PlainMapNode();
-        childDef.put("type", new PlainScalarNode("object"));
+        GenericAstMap childDef = new GenericAstMap();
+        childDef.put("type", new GenericAstScalar("object"));
         childDef.put("allOf", allOf);
-        childDef.put("unevaluatedProperties", new PlainScalarNode(false));
+        childDef.put("unevaluatedProperties", new GenericAstScalar(false));
 
-        PlainMapNode defs = new PlainMapNode();
+        GenericAstMap defs = new GenericAstMap();
         defs.put("parent", parentDef);
         defs.put("child", childDef);
 
-        PlainMapNode root = new PlainMapNode();
-        root.put("$id", new PlainScalarNode("cascara://core/schema-service/dynamic/cascara.schema/compiler-unevaluated-test"));
+        GenericAstMap root = new GenericAstMap();
+        root.put("$id", new GenericAstScalar("cascara://core/schema-service/dynamic/cascara.schema/compiler-unevaluated-test"));
         root.put("definitions", defs);
 
         Schema compiled = compiler.compile(root);
@@ -105,28 +105,28 @@ public class SchemaCompilerTests extends SchemaTestBase {
     @Test
     void shouldFlattenAllOfInheritance() {
         // 1. Create Parent
-        PlainMapNode parentProps = new PlainMapNode();
+        GenericAstMap parentProps = new GenericAstMap();
         parentProps.put("base_field", createScalarProperty("string", "x-tracked", true));
 
-        PlainMapNode parentDef = new PlainMapNode();
-        parentDef.put("type", new PlainScalarNode("object"));
+        GenericAstMap parentDef = new GenericAstMap();
+        parentDef.put("type", new GenericAstScalar("object"));
         parentDef.put("properties", parentProps);
 
         // 2. Create Child using allOf
-        PlainSequenceNode allOf = new PlainSequenceNode();
-        PlainMapNode refNode = new PlainMapNode();
-        refNode.put("$ref", new PlainScalarNode("#/definitions/parent"));
+        GenericAstSequence allOf = new GenericAstSequence();
+        GenericAstMap refNode = new GenericAstMap();
+        refNode.put("$ref", new GenericAstScalar("#/definitions/parent"));
         allOf.add(refNode);
 
-        PlainMapNode childDef = new PlainMapNode();
+        GenericAstMap childDef = new GenericAstMap();
         childDef.put("allOf", allOf);
 
-        PlainMapNode defs = new PlainMapNode();
+        GenericAstMap defs = new GenericAstMap();
         defs.put("parent", parentDef);
         defs.put("child", childDef);
 
-        PlainMapNode root = new PlainMapNode();
-        root.put("$id", new PlainScalarNode("cascara://core/schema-service/dynamic/cascara.schema/compiler-flatten-test"));
+        GenericAstMap root = new GenericAstMap();
+        root.put("$id", new GenericAstScalar("cascara://core/schema-service/dynamic/cascara.schema/compiler-flatten-test"));
         root.put("definitions", defs);
 
         Schema compiled = compiler.compile(root);
@@ -141,10 +141,10 @@ public class SchemaCompilerTests extends SchemaTestBase {
 
     @Test
     void shouldRespectAdditionalPropertiesFalse() {
-        PlainMapNode root = new PlainMapNode();
-        root.put("$id", new PlainScalarNode("cascara://core/schema-service/dynamic/cascara.schema/compiler-additional-properties-test"));
-        root.put("type", new PlainScalarNode("object"));
-        root.put("additionalProperties", new PlainScalarNode(false));
+        GenericAstMap root = new GenericAstMap();
+        root.put("$id", new GenericAstScalar("cascara://core/schema-service/dynamic/cascara.schema/compiler-additional-properties-test"));
+        root.put("type", new GenericAstScalar("object"));
+        root.put("additionalProperties", new GenericAstScalar(false));
 
         Schema compiled = compiler.compile(root);
         ObjectSchemaNode rootNode = (ObjectSchemaNode) compiled.getRoot();
@@ -152,10 +152,10 @@ public class SchemaCompilerTests extends SchemaTestBase {
         assertFalse(rootNode.areAdditionalPropertiesAllowed());
     }
 
-    private PlainMapNode createScalarProperty(String type, String hintKey, Object hintVal) {
-        PlainMapNode prop = new PlainMapNode();
-        prop.put("type", new PlainScalarNode(type));
-        prop.put(hintKey, new PlainScalarNode(hintVal));
+    private GenericAstMap createScalarProperty(String type, String hintKey, Object hintVal) {
+        GenericAstMap prop = new GenericAstMap();
+        prop.put("type", new GenericAstScalar(type));
+        prop.put(hintKey, new GenericAstScalar(hintVal));
         return prop;
     }
 }

@@ -48,8 +48,8 @@ import org.junit.jupiter.api.Test;
 
 import io.github.qishr.cascara.common.diagnostic.report.LocalReporter;
 import io.github.qishr.cascara.common.diagnostic.Diagnostic.Level;
-import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
-import io.github.qishr.cascara.common.lang.plain.PlainScalarNode;
+import io.github.qishr.cascara.common.lang.generic.GenericAstMap;
+import io.github.qishr.cascara.common.lang.generic.GenericAstScalar;
 import io.github.qishr.cascara.lang.json.ast.JsonNode;
 import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
 import io.github.qishr.cascara.lang.json.util.JsonOptions;
@@ -69,26 +69,26 @@ public class SchemaResolverTests extends SchemaTestBase {
         decompiler = new SchemaDecompiler();
     }
 
-    PlainMapNode createTagDoc() {
-        // PlainScalarNode id =
-        PlainMapNode root = new PlainMapNode();
-        root.put("$id", new PlainScalarNode(URI.create("cascara://core/schema-service/dynamic/cascara.schema/Tag")));
+    GenericAstMap createTagDoc() {
+        // GenericAstScalar id =
+        GenericAstMap root = new GenericAstMap();
+        root.put("$id", new GenericAstScalar(URI.create("cascara://core/schema-service/dynamic/cascara.schema/Tag")));
         return root;
     }
 
-    PlainMapNode createTaskDoc() {
-        PlainMapNode items = new PlainMapNode();
-        items.put("$ref", new PlainScalarNode(URI.create("cascara://core/schema-service/dynamic/cascara.schema/Tag")));
+    GenericAstMap createTaskDoc() {
+        GenericAstMap items = new GenericAstMap();
+        items.put("$ref", new GenericAstScalar(URI.create("cascara://core/schema-service/dynamic/cascara.schema/Tag")));
 
-        PlainMapNode tags = new PlainMapNode();
-        tags.put("type", new PlainScalarNode("array"));
+        GenericAstMap tags = new GenericAstMap();
+        tags.put("type", new GenericAstScalar("array"));
         tags.put("items", items);
 
-        PlainMapNode properties = new PlainMapNode();
+        GenericAstMap properties = new GenericAstMap();
         properties.put("tags", tags);
 
-        PlainMapNode root = new PlainMapNode();
-        root.put("$id", new PlainScalarNode(URI.create("cascara://core/schema-service/dynamic/cascara.schema/Task")));
+        GenericAstMap root = new GenericAstMap();
+        root.put("$id", new GenericAstScalar(URI.create("cascara://core/schema-service/dynamic/cascara.schema/Task")));
         root.put("properties", properties);
         return root;
     }
@@ -96,8 +96,8 @@ public class SchemaResolverTests extends SchemaTestBase {
     @Test
     void test_synthetic_uri() {
 
-        PlainMapNode tagDoc = createTagDoc();
-        PlainMapNode taskDoc = createTaskDoc();
+        GenericAstMap tagDoc = createTagDoc();
+        GenericAstMap taskDoc = createTaskDoc();
 
         SchemaCompiler compiler = new SchemaCompiler(resolver);
 
@@ -329,14 +329,14 @@ public class SchemaResolverTests extends SchemaTestBase {
     @Test
     void resolution_shouldSurviveDecompilationRoundTrip() {
         // 1. SETUP: Create the AST for 'doc' manually
-        PlainMapNode rootAst = new PlainMapNode();
-        rootAst.put("$id", new PlainScalarNode("cascara://test"));
+        GenericAstMap rootAst = new GenericAstMap();
+        rootAst.put("$id", new GenericAstScalar("cascara://test"));
 
-        PlainMapNode defsAst = new PlainMapNode();
+        GenericAstMap defsAst = new GenericAstMap();
 
         // Create 'TestLayer' definition
-        PlainMapNode testLayerAst = new PlainMapNode();
-        testLayerAst.put("type", new PlainScalarNode("object"));
+        GenericAstMap testLayerAst = new GenericAstMap();
+        testLayerAst.put("type", new GenericAstScalar("object"));
         defsAst.put("TestLayer", testLayerAst);
 
         rootAst.put("definitions", defsAst);
@@ -347,7 +347,7 @@ public class SchemaResolverTests extends SchemaTestBase {
 
         // 3. DECOMPILE: Move from Compiled Graph back to AST
         SchemaDecompiler decompiler = new SchemaDecompiler();
-        PlainMapNode decompiledAst = decompiler.decompile(original);
+        GenericAstMap decompiledAst = decompiler.decompile(original);
 
         // 4. RE-COMPILE: Re-hydrate the AST back into a Compiled Schema
         // This is where the Migration Service was failing

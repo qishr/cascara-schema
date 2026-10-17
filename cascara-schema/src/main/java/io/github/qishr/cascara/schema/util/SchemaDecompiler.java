@@ -40,10 +40,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.github.qishr.cascara.common.lang.util.QuoteStyle;
-import io.github.qishr.cascara.common.lang.plain.PlainMapEntryNode;
-import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
-import io.github.qishr.cascara.common.lang.plain.PlainScalarNode;
-import io.github.qishr.cascara.common.lang.plain.PlainSequenceNode;
+import io.github.qishr.cascara.common.lang.generic.GenericAstMapEntry;
+import io.github.qishr.cascara.common.lang.generic.GenericAstMap;
+import io.github.qishr.cascara.common.lang.generic.GenericAstScalar;
+import io.github.qishr.cascara.common.lang.generic.GenericAstSequence;
 import io.github.qishr.cascara.common.type.PrimitiveType;
 import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 import io.github.qishr.cascara.schema.diagnostic.SchemaException;
@@ -65,11 +65,11 @@ public final class SchemaDecompiler {
 
     private URI originUri;
 
-    public PlainMapNode decompile(Schema compiled) {
+    public GenericAstMap decompile(Schema compiled) {
         if (compiled == null || compiled.getRoot() == null) return null;
 
         SchemaNode compiledRoot = compiled.getRoot();
-        PlainMapNode root = new PlainMapNode();
+        GenericAstMap root = new GenericAstMap();
 
         // DYNAMIC DIALECT: Use the Meta-Schema URI actually associated with the node
         // This handles CEMA vs Vanilla automatically.
@@ -83,15 +83,15 @@ public final class SchemaDecompiler {
         originUri = compiled.getOriginUri();
         root.put(SchemaKeyword.ID.asString(), scalarValue(originUri));
 
-        PlainMapNode decompiled = decompileInternal(compiledRoot);
-        for (PlainMapEntryNode entry : decompiled.getEntries()) {
+        GenericAstMap decompiled = decompileInternal(compiledRoot);
+        for (GenericAstMapEntry entry : decompiled.getEntries()) {
             root.put(entry.getKeyString(), entry.getValue());
         }
         return root;
     }
 
-    private PlainMapNode decompileInternal(SchemaNode compiled) throws SchemaException {
-        PlainMapNode decompiled = new PlainMapNode();
+    private GenericAstMap decompileInternal(SchemaNode compiled) throws SchemaException {
+        GenericAstMap decompiled = new GenericAstMap();
 
         if (compiled.getContentMediaType() instanceof String mediaType) {
             decompiled.put(SchemaKeyword.CONTENT_MEDIA_TYPE.asString(), scalarValue(mediaType));
@@ -110,16 +110,16 @@ public final class SchemaDecompiler {
         });
 
         // type-specific structure
-        PlainMapNode node = switch (compiled.getType()) {
+        GenericAstMap node = switch (compiled.getType()) {
             case OBJECT  -> {
                 if (compiled instanceof ObjectSchemaNode o) {
                     yield object(o);
                 }
                 else if (compiled instanceof LazySchemaNode lazy) {
-                    // PlainMapNode map = new PlainMapNode();
+                    // GenericAstMap map = new GenericAstMap();
                     // String reference = bridge.getRef();
 
-                    PlainMapNode refMap = new PlainMapNode();
+                    GenericAstMap refMap = new GenericAstMap();
                     String ref = lazy.getRef();
                     String refKey = (ref != null && ref.startsWith("#") && !ref.contains("/")) ? SchemaKeyword.DYNAMIC_REF.asString() : SchemaKeyword.REF.asString();
                     refMap.put(refKey, scalarValue(ref));
@@ -135,7 +135,7 @@ public final class SchemaDecompiler {
         };
 
         if (node != null) {
-            for (PlainMapEntryNode entry : node.getEntries()) {
+            for (GenericAstMapEntry entry : node.getEntries()) {
                 decompiled.put(entry.getKeyString(), entry.getValue());
             }
         }
@@ -146,13 +146,13 @@ public final class SchemaDecompiler {
         return decompiled;
     }
 
-    private PlainMapNode object(ObjectSchemaNode object) throws SchemaException {
-        PlainMapNode map = new PlainMapNode();
+    private GenericAstMap object(ObjectSchemaNode object) throws SchemaException {
+        GenericAstMap map = new GenericAstMap();
         map.put(SchemaKeyword.TYPE.asString(), scalarValue(PrimitiveType.OBJECT.asString()));
 
         // definitions
         if (!object.getDefinitions().isEmpty()) {
-            PlainMapNode definitions = new PlainMapNode();
+            GenericAstMap definitions = new GenericAstMap();
             for (var e : object.getDefinitions().entrySet()) {
                 definitions.put(e.getKey(), decompileInternal(e.getValue()));
             }
@@ -161,7 +161,7 @@ public final class SchemaDecompiler {
 
         // properties
         if (!object.getProperties().isEmpty()) {
-            PlainMapNode properties = new PlainMapNode();
+            GenericAstMap properties = new GenericAstMap();
             for (var e : object.getProperties().entrySet()) {
                 properties.put(e.getKey(), decompileInternal(e.getValue()));
             }
@@ -171,22 +171,22 @@ public final class SchemaDecompiler {
         if (object.getAdditionalPropertiesSchema() != null) {
             map.put("additionalProperties", decompileInternal(object.getAdditionalPropertiesSchema()));
         } else if (!object.areAdditionalPropertiesAllowed()) {
-            map.put("additionalProperties", new PlainScalarNode(false));
+            map.put("additionalProperties", new GenericAstScalar(false));
         }
 
         // Handle unevaluatedProperties
         if (object.getUnevaluatedPropertiesSchema() != null) {
             map.put("unevaluatedProperties", decompileInternal(object.getUnevaluatedPropertiesSchema()));
         } else if (!object.areUnevaluatedPropertiesAllowed()) {
-            map.put("unevaluatedProperties", new PlainScalarNode(false));
+            map.put("unevaluatedProperties", new GenericAstScalar(false));
         }
 
         return map;
     }
 
-    private PlainMapNode array(ArraySchemaNode array) {
-        PlainMapNode map = new PlainMapNode();
-        PlainMapNode items = new PlainMapNode();
+    private GenericAstMap array(ArraySchemaNode array) {
+        GenericAstMap map = new GenericAstMap();
+        GenericAstMap items = new GenericAstMap();
         map.put(SchemaKeyword.TYPE.asString(), scalarValue(PrimitiveType.ARRAY.asString()));
 
         SchemaNode template = array.getItemSchema();
@@ -208,8 +208,8 @@ public final class SchemaDecompiler {
         return map;
     }
 
-    private PlainMapNode scalar(SchemaNode node) {
-        PlainMapNode map = new PlainMapNode();
+    private GenericAstMap scalar(SchemaNode node) {
+        GenericAstMap map = new GenericAstMap();
         String type = node.getType().toString().toLowerCase();
         if (type != null && node.getType() != PrimitiveType.ANY) {
             map.put(SchemaKeyword.TYPE.asString(), scalarValue(type));
@@ -217,8 +217,8 @@ public final class SchemaDecompiler {
         return map;
     }
 
-    private PlainScalarNode scalarValue(Object value) {
-        PlainScalarNode scalar = new PlainScalarNode(value);
+    private GenericAstScalar scalarValue(Object value) {
+        GenericAstScalar scalar = new GenericAstScalar(value);
         if (value instanceof String) {
             scalar.setQuoteStyle(QuoteStyle.DOUBLE);
         }
@@ -248,8 +248,8 @@ public final class SchemaDecompiler {
         return map;
     }
 
-    private PlainMapNode convertToSimpleMap(Map<?, ?> map) {
-        PlainMapNode node = new PlainMapNode();
+    private GenericAstMap convertToSimpleMap(Map<?, ?> map) {
+        GenericAstMap node = new GenericAstMap();
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             Object val = entry.getValue();
             if (val instanceof Map<?, ?> subMap) {
@@ -261,15 +261,15 @@ public final class SchemaDecompiler {
         return node;
     }
 
-    private PlainSequenceNode sequenceOf(Iterable<?> values) {
-        PlainSequenceNode seq = new PlainSequenceNode();
+    private GenericAstSequence sequenceOf(Iterable<?> values) {
+        GenericAstSequence seq = new GenericAstSequence();
         for (Object v : values) {
             seq.add(scalarValue(v));
         }
         return seq;
     }
 
-    private void applyRules(SchemaNode node, PlainMapNode target) {
+    private void applyRules(SchemaNode node, GenericAstMap target) {
         for (ValidationRule r : node.getRules()) {
             if (r instanceof EnumRule er) {
                 target.put("enum", sequenceOf(er.getAllowedValues()));

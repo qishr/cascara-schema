@@ -44,7 +44,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import io.github.qishr.cascara.common.annotation.DataIgnore;
-import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
+import io.github.qishr.cascara.common.lang.generic.GenericAstMap;
 import io.github.qishr.cascara.common.type.PrimitiveType;
 import io.github.qishr.cascara.schema.annotation.SchemaProperty;
 import io.github.qishr.cascara.schema.structure.ArraySchemaNode;
@@ -59,7 +59,7 @@ public class SimpleEntityTests extends SchemaTestBase {
         SchemaGenerator generator = new SchemaGenerator();
         SchemaCompiler compiler = new SchemaCompiler(resolver);
 
-        PlainMapNode doc = generator.generate(SimpleEntity.class);
+        GenericAstMap doc = generator.generate(SimpleEntity.class);
         Schema schema = compiler.compile(doc, URI.create("runtime://schema"));
 
         Map<String, SchemaNode> props = schema.getRoot().getProperties();
@@ -73,7 +73,7 @@ public class SimpleEntityTests extends SchemaTestBase {
         SchemaGenerator generator = new SchemaGenerator();
         SchemaCompiler compiler = new SchemaCompiler(resolver);
 
-        PlainMapNode doc = generator.generate(RefEntity.class);
+        GenericAstMap doc = generator.generate(RefEntity.class);
         Schema schema = compiler.compile(doc, URI.create("runtime://schema"));
 
         SchemaNode child = schema.getRoot().getProperties().get("child");
@@ -107,7 +107,7 @@ public class SimpleEntityTests extends SchemaTestBase {
         SchemaGenerator generator = new SchemaGenerator();
         SchemaCompiler compiler = new SchemaCompiler(resolver);
 
-        PlainMapNode doc = generator.generate(IgnoreEntity.class);
+        GenericAstMap doc = generator.generate(IgnoreEntity.class);
         Schema schema = compiler.compile(doc, URI.create("runtime://schema"));
 
         Map<String, SchemaNode> props = schema.getRoot().getProperties();
@@ -123,7 +123,7 @@ public class SimpleEntityTests extends SchemaTestBase {
         SchemaCompiler compiler = new SchemaCompiler(resolver);
 
         URI uri = URI.create("runtime://schema");
-        PlainMapNode doc = generator.generate(RefEntity.class);
+        GenericAstMap doc = generator.generate(RefEntity.class);
         Schema schema = compiler.compile(doc, uri);
 
         SchemaNode children = schema.getRoot().getProperties().get("children");

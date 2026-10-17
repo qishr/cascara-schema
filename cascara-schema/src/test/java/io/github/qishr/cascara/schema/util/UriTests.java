@@ -42,15 +42,15 @@ import org.junit.jupiter.api.Test;
 
 import io.github.qishr.cascara.common.diagnostic.exception.LocalizableIOException;
 import io.github.qishr.cascara.common.io.IOUtils;
-import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
-import io.github.qishr.cascara.common.lang.plain.PlainScalarNode;
+import io.github.qishr.cascara.common.lang.generic.GenericAstMap;
+import io.github.qishr.cascara.common.lang.generic.GenericAstScalar;
 
 public class UriTests extends SchemaTestBase {
     @Test
     void test_id() {
         URI uri = URI.create("cascara://core/schema-service/dynamic/cascara.schema/uri-tests");
-        PlainScalarNode id = new PlainScalarNode(uri);
-        PlainMapNode root = new PlainMapNode();
+        GenericAstScalar id = new GenericAstScalar(uri);
+        GenericAstMap root = new GenericAstMap();
         root.put("$id", id);
 
         SchemaCompiler compiler = new SchemaCompiler(resolver);

@@ -32,7 +32,7 @@
 // you do not wish to do so, delete this exception statement from your
 // version.
 
-
+/// JSON Schema compatible schema validator, resolver, generator, compiler, decompiler, and store.
 module cascara.schema {
     requires transitive cascara.common;
     requires transitive cascara.common.io;

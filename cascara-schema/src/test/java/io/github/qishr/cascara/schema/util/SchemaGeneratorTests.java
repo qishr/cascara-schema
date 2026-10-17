@@ -43,7 +43,7 @@ import java.net.URI;
 import org.junit.jupiter.api.Test;
 
 import io.github.qishr.cascara.common.diagnostic.Diagnostic.Level;
-import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
+import io.github.qishr.cascara.common.lang.generic.GenericAstMap;
 import io.github.qishr.cascara.lang.json.processor.JsonConverter;
 
 public class SchemaGeneratorTests extends SchemaTestBase {
@@ -57,7 +57,7 @@ public class SchemaGeneratorTests extends SchemaTestBase {
         SchemaBuilder sb = new SchemaBuilder();
         Schema schema = sb.buildSchema(uri, OuterTestClass.class, TestClass.class);
 
-        PlainMapNode decompiled = new SchemaDecompiler().decompile(schema);
+        GenericAstMap decompiled = new SchemaDecompiler().decompile(schema);
         String json = new JsonConverter().toString(decompiled);
         assertNotNull(json);
     }
@@ -65,7 +65,7 @@ public class SchemaGeneratorTests extends SchemaTestBase {
     @Test
     void test_oneClass() {
         SchemaGenerator generator = new SchemaGenerator();
-        PlainMapNode schemaDoc = generator.generate(TestClass.class);
+        GenericAstMap schemaDoc = generator.generate(TestClass.class);
         assertTrue(schemaDoc != null);
     }
 
@@ -77,7 +77,7 @@ public class SchemaGeneratorTests extends SchemaTestBase {
         // displayVfs();
         // listCachedSchemas();
 
-        PlainMapNode decompiled = new SchemaDecompiler().decompile(schema);
+        GenericAstMap decompiled = new SchemaDecompiler().decompile(schema);
         String json = new JsonConverter().toString(decompiled);
         assertNotNull(json);
     }
@@ -89,15 +89,15 @@ public class SchemaGeneratorTests extends SchemaTestBase {
         SchemaGenerator generator = new SchemaGenerator();
         SchemaCompiler compiler = new SchemaCompiler();
 
-        PlainMapNode testClassSchemaRoot = generator.generate(TestClass.class);
+        GenericAstMap testClassSchemaRoot = generator.generate(TestClass.class);
         compiler.compile(testClassSchemaRoot);
 
-        PlainMapNode outerTestClassSchemaRoot = generator.generate(OuterTestClass.class);
+        GenericAstMap outerTestClassSchemaRoot = generator.generate(OuterTestClass.class);
         Schema outerTestClassSchema = compiler.compile(outerTestClassSchemaRoot);
 
         // listCachedSchemas();
 
-        PlainMapNode decompiled = new SchemaDecompiler().decompile(outerTestClassSchema);
+        GenericAstMap decompiled = new SchemaDecompiler().decompile(outerTestClassSchema);
         String json = new JsonConverter().toString(decompiled);
         assertNotNull(json);
     }
@@ -107,7 +107,7 @@ public class SchemaGeneratorTests extends SchemaTestBase {
         SchemaGenerator generator = new SchemaGenerator();
         SchemaCompiler compiler = new SchemaCompiler();
 
-        PlainMapNode testClassSchemaRoot = generator.generate(TestClass.class);
+        GenericAstMap testClassSchemaRoot = generator.generate(TestClass.class);
         compiler.compile(testClassSchemaRoot);
 
         Schema outerTestClassSchema = resolver.getSchemaForClass(OuterTestClass.class);
@@ -115,7 +115,7 @@ public class SchemaGeneratorTests extends SchemaTestBase {
         // displayVfs();
         // listCachedSchemas();
 
-        PlainMapNode decompiled = new SchemaDecompiler().decompile(outerTestClassSchema);
+        GenericAstMap decompiled = new SchemaDecompiler().decompile(outerTestClassSchema);
         String json = new JsonConverter().toString(decompiled);
         assertNotNull(json);
     }
@@ -124,18 +124,18 @@ public class SchemaGeneratorTests extends SchemaTestBase {
     void test_generateSchema_classWithArray() {
         reporter.setLevel(Level.DEBUG);
         SchemaGenerator generator = new SchemaGenerator();
-        PlainMapNode root = generator.generate(TestClassWithArray.class);
+        GenericAstMap root = generator.generate(TestClassWithArray.class);
 
-        PlainMapNode properties = root.getMap("properties");
+        GenericAstMap properties = root.getMap("properties");
 
-        PlainMapNode strings = properties.getMap("strings");
+        GenericAstMap strings = properties.getMap("strings");
         assertEquals("array", strings.getString("type"));
-        PlainMapNode stringsItems = strings.getMap("items");
+        GenericAstMap stringsItems = strings.getMap("items");
         assertEquals("string", stringsItems.getString("type"));
 
-        PlainMapNode objects = properties.getMap("objects");
+        GenericAstMap objects = properties.getMap("objects");
         assertEquals("array", objects.getString("type"));
-        PlainMapNode objectsItems = objects.getMap("items");
+        GenericAstMap objectsItems = objects.getMap("items");
         assertEquals("object", objectsItems.getString("type"));
 
         String json = new JsonConverter().toString(root);

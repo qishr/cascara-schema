@@ -45,8 +45,8 @@ import org.junit.jupiter.api.Test;
 
 import io.github.qishr.cascara.common.diagnostic.Diagnostic;
 import io.github.qishr.cascara.common.diagnostic.report.SilentCollectingReporter;
-import io.github.qishr.cascara.common.lang.plain.PlainMapNode;
-import io.github.qishr.cascara.common.type.ZonedDateTimeDescriptor;
+import io.github.qishr.cascara.common.lang.generic.GenericAstMap;
+import io.github.qishr.cascara.common.type.time.ZonedDateTimeDescriptor;
 import io.github.qishr.cascara.lang.json.ast.JsonNode;
 import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
 import io.github.qishr.cascara.schema.annotation.SchemaDefinition;
@@ -63,11 +63,11 @@ public class FormatTests {
     void test_validDateTime() {
         SchemaGenerator generator = new SchemaGenerator();
         generator.registerTypeDescriptor(new ZonedDateTimeDescriptor());
-        PlainMapNode schemaDoc = generator.generate(TestClass.class);
+        GenericAstMap schemaDoc = generator.generate(TestClass.class);
 
         Schema schema = new SchemaCompiler().compile(schemaDoc);
 
-        // PlainMapNode decompiled = new SchemaDecompiler().decompile(schema);
+        // GenericAstMap decompiled = new SchemaDecompiler().decompile(schema);
         // String schemaString = new JsonConverter().toString(decompiled);
         // System.out.println(schemaString);
 
@@ -90,7 +90,7 @@ public class FormatTests {
     @Test
     void test_invalidDateTime() {
         SchemaGenerator generator = new SchemaGenerator();
-        PlainMapNode schemaDoc = generator.generate(TestClass.class);
+        GenericAstMap schemaDoc = generator.generate(TestClass.class);
 
         SchemaCompiler compiler = new SchemaCompiler();
         Schema schema = compiler.compile(schemaDoc);
