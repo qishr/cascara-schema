@@ -5,14 +5,17 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
 
 import io.github.qishr.cascara.common.diagnostic.Diagnostic;
+import io.github.qishr.cascara.common.diagnostic.report.Reporter;
 import io.github.qishr.cascara.common.lang.generic.GenericAstMap;
 import io.github.qishr.cascara.lang.json.processor.JsonConverter;
 import io.github.qishr.cascara.schema.util.SchemaGenerator;
 
 public class DiagnosticSchemaTests extends SchemaTestBase {
+    private static final Reporter REPORTER = Reporter.forClass(DiagnosticSchemaTests.class);
+
     @Test
     void test_diagnosticSchema() {
-        reporter.debug("Hello, World!");
+        REPORTER.debug("Hello, World!");
 
         SchemaGenerator generator = new SchemaGenerator();
         GenericAstMap decompiled = generator.generate(Diagnostic.class);
@@ -20,6 +23,6 @@ public class DiagnosticSchemaTests extends SchemaTestBase {
         String json = new JsonConverter().toString(decompiled);
         assertNotNull(json);
 
-        reporter.debug(json);
+        REPORTER.debug(json);
     }
 }

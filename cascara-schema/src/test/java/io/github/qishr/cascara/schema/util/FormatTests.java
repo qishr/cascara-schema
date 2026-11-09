@@ -49,8 +49,8 @@ import io.github.qishr.cascara.common.lang.generic.GenericAstMap;
 import io.github.qishr.cascara.common.type.time.ZonedDateTimeDescriptor;
 import io.github.qishr.cascara.lang.json.ast.JsonNode;
 import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
-import io.github.qishr.cascara.schema.annotation.SchemaDefinition;
-import io.github.qishr.cascara.schema.annotation.SchemaProperty;
+import io.github.qishr.cascara.common.annotation.SchemaDefinition;
+import io.github.qishr.cascara.common.annotation.SchemaProperty;
 
 public class FormatTests {
     @SchemaDefinition

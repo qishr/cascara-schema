@@ -58,16 +58,16 @@ public class CascaraSchemaUri {
     private final String version;
 
     public static CascaraSchemaUri of(Class<?> clazz) {
-        try {
-            Field schemaField = clazz.getField("schema");
-            Object fieldValue = schemaField.get(null);
-            if (fieldValue instanceof URI uri) {
-                return CascaraSchemaUri.of(uri);
-            }
-            if (fieldValue instanceof String string) {
-                return CascaraSchemaUri.of(URI.create(string));
-            }
-        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {}
+        // try {
+        //     Field schemaField = clazz.getField("SCHEMA");
+        //     Object fieldValue = schemaField.get(null);
+        //     if (fieldValue instanceof URI uri) {
+        //         return CascaraSchemaUri.of(uri);
+        //     }
+        //     if (fieldValue instanceof String string) {
+        //         return CascaraSchemaUri.of(URI.create(string));
+        //     }
+        // } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {}
         return new CascaraSchemaUri(Lifecycle.DYNAMIC, clazz.getModule().getName(), clazz.getName(), null);
     }
 

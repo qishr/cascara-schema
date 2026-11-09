@@ -41,24 +41,27 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import io.github.qishr.cascara.common.service.SPL;
-import io.github.qishr.cascara.schema.annotation.SchemaDefinition;
-import io.github.qishr.cascara.schema.annotation.SchemaProperty;
+import io.github.qishr.cascara.common.annotation.SchemaDefinition;
+import io.github.qishr.cascara.common.annotation.SchemaProperty;
 import io.github.qishr.cascara.common.diagnostic.Diagnostic.Level;
-import io.github.qishr.cascara.test.common.junit.util.VfsTestBase;
+import io.github.qishr.cascara.common.diagnostic.report.GlobalReporter;
+import io.github.qishr.cascara.common.diagnostic.report.Reporter;
+import io.github.qishr.cascara.test.common.junit.base.VfsTestBase;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 
 public class SchemaTestBase extends VfsTestBase {
+    private static final Reporter REPORTER = Reporter.forClass(SchemaTestBase.class);
 
     protected SchemaResolver resolver;
 
     @BeforeEach
     protected void setUp() throws IOException {
-        // GlobalReporter.globalInstance().setLevel(Level.TRACE);
+        // GlobalReporter.globalInstance().setLevel(SPL.class.getName(), Level.TRACE);
+
         super.setUp();
-        reporter.setLevel(Level.INFO);
         resolver = SPL.load(SchemaResolver.class);
     }
 

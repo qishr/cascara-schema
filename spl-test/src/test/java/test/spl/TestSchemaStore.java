@@ -34,6 +34,7 @@
 
 package test.spl;
 
+import java.util.Collection;
 import java.util.List;
 
 import io.github.qishr.cascara.common.util.ContentType;
@@ -58,7 +59,7 @@ public class TestSchemaStore implements ContentTypeResolver {
     }
 
     @Override
-    public void addAll(List<? extends ContentType> contentTypes) {
+    public void addAll(Collection<? extends ContentType> contentTypes) {
         throw new UnimplementedMethodException();
     }
 

@@ -37,7 +37,7 @@ package io.github.qishr.cascara.schema.util;
 
 import java.util.List;
 
-import io.github.qishr.cascara.schema.annotation.SchemaProperty;
+import io.github.qishr.cascara.common.annotation.SchemaProperty;
 
 public class RefEntity {
     @SchemaProperty(title = "Child")

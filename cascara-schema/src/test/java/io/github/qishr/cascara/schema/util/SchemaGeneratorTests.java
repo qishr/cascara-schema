@@ -43,10 +43,12 @@ import java.net.URI;
 import org.junit.jupiter.api.Test;
 
 import io.github.qishr.cascara.common.diagnostic.Diagnostic.Level;
+import io.github.qishr.cascara.common.diagnostic.report.Reporter;
 import io.github.qishr.cascara.common.lang.generic.GenericAstMap;
 import io.github.qishr.cascara.lang.json.processor.JsonConverter;
 
 public class SchemaGeneratorTests extends SchemaTestBase {
+    private static final Reporter REPORTER = Reporter.forClass(SchemaGeneratorTests.class);
 
     // TODO: These tests just check that the generator didn't return an empty schema.
     // They should check that the generated schema constains expected definitions and properties.
@@ -73,7 +75,7 @@ public class SchemaGeneratorTests extends SchemaTestBase {
     void test_classReferingToOtherClass1() {
         Schema schema = resolver.getSchemaForClass(OuterTestClass.class);
 
-        // System.out.println(Cascara.getHomePath());
+        // System.out.println(Cascara.instance().getHomePath());
         // displayVfs();
         // listCachedSchemas();
 
@@ -122,7 +124,7 @@ public class SchemaGeneratorTests extends SchemaTestBase {
 
     @Test
     void test_generateSchema_classWithArray() {
-        reporter.setLevel(Level.DEBUG);
+        REPORTER.setLevel(Level.DEBUG);
         SchemaGenerator generator = new SchemaGenerator();
         GenericAstMap root = generator.generate(TestClassWithArray.class);
 
@@ -141,6 +143,6 @@ public class SchemaGeneratorTests extends SchemaTestBase {
         String json = new JsonConverter().toString(root);
         assertNotNull(json);
 
-        reporter.debug(json);
+        REPORTER.debug(json);
     }
 }

@@ -48,6 +48,7 @@ import io.github.qishr.cascara.common.service.ServiceMetadata;
 import io.github.qishr.cascara.common.service.SPL;
 import io.github.qishr.cascara.common.util.ContentTypeResolver;
 import io.github.qishr.cascara.common.util.ModulePath;
+import io.github.qishr.cascara.schema.util.SchemaResolver;
 
 public class SplOverrideTests extends SchemaTestBase {
     protected boolean isModularEnvironment() {
@@ -59,7 +60,7 @@ public class SplOverrideTests extends SchemaTestBase {
     void test_ModulePath_hasCascaraSchema() throws IOException {
         // ModulePath mp = new ModulePath(new LocalReporter().setLevel(Level.DEBUG));
         ModulePath mp = new ModulePath();
-        Set<String> mpModules = mp.getModules();
+        Set<String> mpModules = mp.getModuleNames();
         assertTrue(mpModules.contains("cascara.schema"), "ModulePath should contain cascara.schema");
     }
 
@@ -73,15 +74,15 @@ public class SplOverrideTests extends SchemaTestBase {
 
     @Test
     void test_splPrefsOverridesSchemaStore() throws IOException {
-        spl.registerClass(TestSchemaStore.class);
+        spl.registerClass(TestSchemaResolver.class);
 
         // Verify Alternative CTS is present
-        List<ServiceMetadata> providers = spl.findAllProviders(ContentTypeResolver.class);
+        List<ServiceMetadata> providers = spl.findAllProviders(SchemaResolver.class);
         assertEquals(2, providers.size());
 
         boolean found = false;
         for (ServiceMetadata m : providers) {
-            if (m.getType().equals(TestSchemaStore.class)) {
+            if (m.getType().equals(TestSchemaResolver.class)) {
                 found = true;
             }
         }

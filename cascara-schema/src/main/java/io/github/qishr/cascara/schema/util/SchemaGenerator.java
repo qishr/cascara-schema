@@ -34,12 +34,14 @@
 
 package io.github.qishr.cascara.schema.util;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -47,10 +49,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.github.qishr.cascara.schema.annotation.ContentMediaType;
 import io.github.qishr.cascara.common.annotation.DataIgnore;
-import io.github.qishr.cascara.schema.annotation.SchemaDefinition;
-import io.github.qishr.cascara.schema.annotation.SchemaProperty;
+import io.github.qishr.cascara.common.annotation.SchemaDefinition;
+import io.github.qishr.cascara.common.annotation.SchemaProperty;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;
 import io.github.qishr.cascara.common.lang.generic.GenericAstMap;
 import io.github.qishr.cascara.common.lang.generic.GenericAstScalar;
@@ -61,6 +62,7 @@ import io.github.qishr.cascara.common.service.ServiceMetadata;
 import io.github.qishr.cascara.common.type.ScalarDescriptor;
 import io.github.qishr.cascara.common.type.TypeDescriptor;
 import io.github.qishr.cascara.common.type.TypeDescriptorFactory;
+import io.github.qishr.cascara.common.property.Properties;
 import io.github.qishr.cascara.common.property.Property;
 import io.github.qishr.cascara.common.type.PrimitiveType;
 import io.github.qishr.cascara.schema.constraint.FormatConstraint;
@@ -71,6 +73,8 @@ import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
 import io.github.qishr.cascara.schema.diagnostic.SchemaException;
 import io.github.qishr.cascara.schema.internal.SchemaUtils;
 import io.github.qishr.cascara.common.trackable.property.TrackableProperty;
+import io.github.qishr.cascara.common.util.Classes;
+import io.github.qishr.cascara.common.util.JarFile;
 import io.github.qishr.cascara.common.util.ReflectionUtils;
 
 public final class SchemaGenerator {
@@ -85,6 +89,9 @@ public final class SchemaGenerator {
     public static final String TITLE_KEY = "x-i18n-title";
     public static final String DESCRIPTION_KEY = "x-i18n-description";
     public static final String ENUM_KEY = "x-i18n-enum";
+    public static final String X_CLASS_NAME = "x-class-name";
+    public static final String X_MODULE_NAME = "x-module-name";
+    public static final String X_MAVEN_ARTIFACT = "x-maven-artifact";
 
     private final Set<Class<?>> processingStack = new HashSet<>();
     private final Map<Class<?>, GenericAstMap> definitions = new LinkedHashMap<>();
@@ -180,7 +187,7 @@ public final class SchemaGenerator {
         List<ServiceMetadata> typeConverters = rootLayer.getProviders(
             TypeDescriptor.class,
             CapabilityQueries.allOf(
-                CapabilityQueries.hasExactValue(SPL.JVM_TYPE, type.getName())
+                CapabilityQueries.hasExactValue(SPL.SP_JVM_TYPE, type.getName())
             )
         );
         return typeConverters;
@@ -273,8 +280,6 @@ public final class SchemaGenerator {
 
             if (!definition.description().isEmpty()) {
                 root.put(SchemaKeyword.DESCRIPTION.asString(), definition.description());
-            } else {
-                root.put(SchemaKeyword.DESCRIPTION.asString(), clazz.getTypeName());
             }
 
 
@@ -288,10 +293,14 @@ public final class SchemaGenerator {
                 root.put(DESCRIPTION_KEY, createScalar(definition.descriptionKey()));
             }
 
+            if (!definition.contentMediaType().isEmpty()) {
+                root.put(SchemaKeyword.CONTENT_MEDIA_TYPE.asString(), createScalar(definition.contentMediaType()));
+            }
 
-            if (clazz.isAnnotationPresent(ContentMediaType.class)) {
-                ContentMediaType mediaType = clazz.getAnnotation(ContentMediaType.class);
-                root.put(SchemaKeyword.CONTENT_MEDIA_TYPE.asString(), mediaType.value());
+            root.put(X_CLASS_NAME, clazz.getTypeName());
+
+            if (clazz.getModule().isNamed()) {
+                root.put(X_MODULE_NAME, createScalar(clazz.getModule().getName()));
             }
 
             applyTypeAnalysis(clazz, root);
@@ -326,12 +335,15 @@ public final class SchemaGenerator {
             if (!sf.enumKey().isEmpty()) {
                 node.put(ENUM_KEY, createScalar(sf.enumKey()));
             }
+            if (!sf.contentMediaType().isEmpty()) {
+                node.put(SchemaKeyword.CONTENT_MEDIA_TYPE.asString(), createScalar(sf.contentMediaType()));
+            }
         }
 
-        if (field.isAnnotationPresent(ContentMediaType.class)) {
-            ContentMediaType mediaType = field.getAnnotation(ContentMediaType.class);
-            node.put(SchemaKeyword.CONTENT_MEDIA_TYPE.asString(), createScalar(mediaType.value()));
-        }
+        // if (field.isAnnotationPresent(ContentMediaType.class)) {
+        //     ContentMediaType mediaType = field.getAnnotation(ContentMediaType.class);
+        //     node.put(SchemaKeyword.CONTENT_MEDIA_TYPE.asString(), createScalar(mediaType.value()));
+        // }
 
         appendDefaultValue(node, field, template);
 

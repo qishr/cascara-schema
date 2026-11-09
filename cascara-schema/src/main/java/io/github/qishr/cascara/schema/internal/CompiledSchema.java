@@ -51,11 +51,12 @@ public final class CompiledSchema implements Schema {
     private final URI originUri; // Store explicitly as the schema's identity
     private Map<String, SchemaNode> properties;
     private Map<String, SchemaNode> definitions;
-    private SchemaResolver resolver = SchemaUtils.getResolver();
+    private SchemaResolver resolver; // = SchemaUtils.getResolver();
 
-    public CompiledSchema(URI originUri, SchemaNode root) {
+    public CompiledSchema(URI originUri, SchemaNode root, SchemaResolver resolver) {
         this.originUri = originUri;
         this.root = root;
+        this.resolver = resolver;
     }
 
     public Collection<SchemaNode> getProperties() {

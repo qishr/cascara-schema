@@ -40,6 +40,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Path;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -52,7 +54,8 @@ import io.github.qishr.cascara.common.lang.generic.GenericAstMap;
 import io.github.qishr.cascara.common.lang.generic.GenericAstScalar;
 import io.github.qishr.cascara.lang.json.ast.JsonNode;
 import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
-import io.github.qishr.cascara.lang.json.util.JsonOptions;
+import io.github.qishr.cascara.lang.json.processor.JsonConverter;
+import io.github.qishr.cascara.lang.json.util.JsonConfig;
 import io.github.qishr.cascara.schema.structure.ArraySchemaNode;
 import io.github.qishr.cascara.schema.structure.LazySchemaNode;
 import io.github.qishr.cascara.schema.structure.ObjectSchemaNode;
@@ -141,7 +144,7 @@ public class SchemaResolverTests extends SchemaTestBase {
                 """;
 
         JsonAstParser parser = new JsonAstParser()
-            .setOptions(JsonOptions.JSON5)
+            .setConfig(JsonConfig.JSON5)
             .setReporter(new LocalReporter().setLevel(Level.INFO));
         JsonNode doc = parser.parse(json);
         SchemaCompiler compiler = new SchemaCompiler(resolver);
@@ -362,5 +365,27 @@ public class SchemaResolverTests extends SchemaTestBase {
         assertNotNull(recompiledNode, "Fragment resolution failed after round-trip! Decompiler likely dropped 'definitions'");
         assertEquals(originalNode.getType(), recompiledNode.getType(), "Type mismatch after round-trip");
         // assertEquals("TestLayer", recompiledNode.getName(), "Node name was lost during round-trip");
+    }
+
+    @Test
+    void test_definingClass() {
+        // ModulePath mp = new ModulePath();
+        // ClassPath cp = new ClassPath();
+
+        // Path mPath = mp.getPathForModule("cascara.common");
+        // Set<String> cClasses = cp.getClasses();
+        // if (cClasses.contains(SplSignaturePolicy.class.getName())) {
+        //     System.out.println();
+        // }
+
+        URI uri = URI.create("https://qishr.github.io/schemas/spl-signature-policy.json");
+        Schema schema = resolver.getSchema(uri);
+        assertNotNull(schema);
+
+        SchemaDecompiler decompiler = new SchemaDecompiler();
+        GenericAstMap decompiledAst = decompiler.decompile(schema);
+        JsonConverter converter = new JsonConverter();
+        String json = converter.toString(decompiledAst);
+        System.out.println(json);
     }
 }

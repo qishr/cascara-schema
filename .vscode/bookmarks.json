@@ -29,7 +29,7 @@
 			"path": "cascara-schema/src/test/java/io/github/qishr/cascara/schema/util/SchemaGeneratorTests.java",
 			"bookmarks": [
 				{
-					"line": 89,
+					"line": 91,
 					"column": 9,
 					"label": ""
 				}
@@ -39,23 +39,8 @@
 			"path": "cascara-schema/src/main/java/io/github/qishr/cascara/schema/util/SchemaResolverImpl.java",
 			"bookmarks": [
 				{
-					"line": 156,
-					"column": 0,
-					"label": ""
-				},
-				{
-					"line": 205,
+					"line": 216,
 					"column": 70,
-					"label": ""
-				}
-			]
-		},
-		{
-			"path": "cascara-schema/src/test/java/io/github/qishr/cascara/schema/util/SchemaTestBase.java",
-			"bookmarks": [
-				{
-					"line": 60,
-					"column": 39,
 					"label": ""
 				}
 			]

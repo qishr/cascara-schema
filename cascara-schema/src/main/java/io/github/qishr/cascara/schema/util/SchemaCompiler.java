@@ -192,7 +192,7 @@ public class SchemaCompiler {
 
         SchemaNode schemaRoot = processNode(map, name, originUri, originUri, null, metaRoot);
 
-        CompiledSchema compiled = new CompiledSchema(originUri, schemaRoot);
+        CompiledSchema compiled = new CompiledSchema(originUri, schemaRoot, resolver);
         if (resolver != null) {
             resolver.registerSchema(originUri, compiled);
         }

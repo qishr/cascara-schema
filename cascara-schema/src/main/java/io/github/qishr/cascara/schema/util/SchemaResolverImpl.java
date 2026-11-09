@@ -36,6 +36,7 @@ package io.github.qishr.cascara.schema.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -46,10 +47,14 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import io.github.qishr.cascara.common.annotation.NonNull;
+import io.github.qishr.cascara.common.annotation.Nullable;
+import io.github.qishr.cascara.common.annotation.SchemaDefinition;
 import io.github.qishr.cascara.common.annotation.SingletonInitializer;
 import io.github.qishr.cascara.common.content.ResourceContent;
 import io.github.qishr.cascara.common.content.type.ContentTypeRegistry;
 import io.github.qishr.cascara.common.diagnostic.exception.LocalizableIOException;
+import io.github.qishr.cascara.common.diagnostic.exception.UnexpectedNullParameterException;
 import io.github.qishr.cascara.common.io.ContentLoader;
 import io.github.qishr.cascara.common.io.IOUtils;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
@@ -58,6 +63,7 @@ import io.github.qishr.cascara.common.lang.ast.SequenceAstNode;
 import io.github.qishr.cascara.common.lang.processor.AstParser;
 import io.github.qishr.cascara.common.lang.processor.ProcessorFactory;
 import io.github.qishr.cascara.common.service.ServiceException;
+import io.github.qishr.cascara.common.util.Classes;
 import io.github.qishr.cascara.common.util.UriScheme;
 import io.github.qishr.cascara.lang.json.processor.JsonAstParser;
 import io.github.qishr.cascara.schema.diagnostic.SchemaDiagnosticMessage;
@@ -74,30 +80,33 @@ public class SchemaResolverImpl implements SchemaResolver {
 
     private static final Map<URI,ResourceContent> metaSchemaResources = new HashMap<>();
 
-    private final Map<URI, SchemaNode> schemaNodeCache = new HashMap<>();
-    private final Map<URI, Schema> schemaDocCache = new HashMap<>();
+    private Map<URI, SchemaNode> schemaNodeCache = new HashMap<>();
+    private Map<URI, Schema> schemaDocCache = new HashMap<>();
 
-    private final ThreadLocal<DynamicScope> currentScope = new ThreadLocal<>();
+    private ThreadLocal<DynamicScope> currentScope = new ThreadLocal<>();
 
     private SchemaStore schemaStore;
 
-    private SchemaResolverImpl() {}
+    // TODO: Thread safety
+    private static boolean initializing = false;
 
-    // private static void dumpStackTrace() {
-    //     Thread c = Thread.currentThread();
-    //     String n = c.getName() + "/" + c.threadId() + "/" + c.hashCode();
-    //     StackTraceElement[] st = c.getStackTrace();
-    //     for (StackTraceElement el : st) {
-    //         System.out.println(n + " STACK: " + el.getClassName() + "." + el.getMethodName());
-    //     }
-    // }
+    private SchemaResolverImpl() {}
 
     @SingletonInitializer
     private void init() {
-        this.contentLoaderService = new SchemaContentLoader();
-        this.schemaStore = SchemaStore.instance();
-        loadBuiltInMetaSchemas();
-        generateSchemaForClass(ContentTypeRegistry.class, null);
+        if (!initializing) {
+            initializing = true;
+
+            schemaNodeCache = new HashMap<>();
+            schemaDocCache = new HashMap<>();
+            currentScope = new ThreadLocal<>();
+
+            this.contentLoaderService = new SchemaContentLoader();
+            this.schemaStore = SchemaStore.instance();
+            loadBuiltInMetaSchemas();
+            generateSchemaForClass(ContentTypeRegistry.class, null);
+            initializing = false;
+        }
     }
 
     /// Returns the `Schema` indicated by the given `URI`.
@@ -107,22 +116,29 @@ public class SchemaResolverImpl implements SchemaResolver {
         Schema schema = schemaDocCache.get(uri);
         if (schema != null) return schema;
 
-        ResourceContent content = null;
-        if (UriScheme.of(uri) == UriScheme.CASCARA) {
-            CascaraSchemaUri schemaUri = CascaraSchemaUri.of(uri);
-            if (schemaUri.getLifecycle() != Lifecycle.DYNAMIC) {
-                content = schemaStore.get(schemaUri);
-                AstNode doc = parseContent(content);
-                SchemaCompiler compiler = new SchemaCompiler(this);
-                return compiler.compile(doc, uri);
-            } else {
-                // TODO: Get class from schemaUri and generate schema
-                throw new SchemaException(SchemaDiagnosticMessage.RESOLUTION_FAILED, uri);
+        if (!initializing) {
+            Class<?> definingClass = getDefiningClass(uri);
+            if (definingClass != null) {
+                return getSchemaForClass(definingClass);
+            }
+
+            ResourceContent content = null;
+            if (UriScheme.of(uri) == UriScheme.CASCARA) {
+                CascaraSchemaUri schemaUri = CascaraSchemaUri.of(uri);
+                if (schemaUri.getLifecycle() != Lifecycle.DYNAMIC) {
+                    content = schemaStore.get(schemaUri);
+                    AstNode doc = parseContent(content);
+                    SchemaCompiler compiler = new SchemaCompiler(this);
+                    return compiler.compile(doc, uri);
+                } else {
+                    // TODO: Get class from schemaUri and generate schema
+                    throw new SchemaException(SchemaDiagnosticMessage.RESOLUTION_FAILED, uri);
+                }
             }
         }
-        else {
+        // else {
             try {
-                content = contentLoaderService.getContent(uri);
+                ResourceContent content = contentLoaderService.getContent(uri);
 
                 AstNode doc = parseContent(content);
                 SchemaCompiler compiler = new SchemaCompiler(this);
@@ -133,7 +149,7 @@ public class SchemaResolverImpl implements SchemaResolver {
             } catch (Exception e) {
                 throw new SchemaException(e, SchemaDiagnosticMessage.RESOLUTION_FAILED_REASON, uri, e.getMessage());
             }
-        }
+        // }
     }
 
     public SchemaNode resolve(String ref, SchemaNode relativeTo) throws SchemaException {
@@ -152,12 +168,7 @@ public class SchemaResolverImpl implements SchemaResolver {
     }
 
     public Schema getSchemaForClass(Class<?> clazz, List<TypeAnalyzer> typeAnalyzers) {
-
-
-        // TODO: when schema is specifie in class
-        URI uri = CascaraSchemaUri.of(clazz).toUri();
-
-
+        URI uri = getSchemaUriOfClass(clazz);
         Schema schema = schemaDocCache.get(uri);
         if (schema == null) {
             // This calls the compiler which adds the compiled schema to the cache
@@ -224,6 +235,50 @@ public class SchemaResolverImpl implements SchemaResolver {
     // Private Methods
     //
 
+    @Nullable
+    private Class<?> getDefiningClass(URI uri) {
+        if (uri == null) {
+            throw new UnexpectedNullParameterException("uri");
+        }
+        String uriString = uri.toString();
+        Set<String> defs = Classes.Annotated.with(SchemaDefinition.class);
+        for (String name : defs) {
+            try {
+                Class<?> candidate = Class.forName(name);
+                String declaredSchemaUri = getDeclaredSchemaUri(candidate);
+                if (uriString.equals(declaredSchemaUri)) {
+                    return candidate;
+                }
+            } catch (NoClassDefFoundError | ClassNotFoundException | SecurityException | IllegalArgumentException e) {
+            }
+        }
+        return null;
+    }
+
+    @NonNull
+    private URI getSchemaUriOfClass(Class<?> clazz) {
+        String declaredSchemaUri = getDeclaredSchemaUri(clazz);
+        URI uri = declaredSchemaUri == null
+            ? CascaraSchemaUri.of(clazz).toUri()
+            : URI.create(declaredSchemaUri);
+        return uri;
+    }
+
+    @Nullable
+    private String getDeclaredSchemaUri(Class<?> clazz) {
+        try {
+            // TODO: Use @SchemaUri to determine which field to use
+            Field f = clazz.getField("SCHEMA");
+            if (f != null) {
+                if (f.get(null) instanceof String declaredSchemaUri) {
+                    return declaredSchemaUri;
+                }
+            }
+        } catch (NoClassDefFoundError | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+        }
+        return null;
+    }
+
     private Schema generateSchemaForClass(Class<?> clazz, List<TypeAnalyzer> typeAnalyzers) throws SchemaException {
         // 1. Schemas for classes referenced by the specified class
         SchemaGenerator generator = new SchemaGenerator();
@@ -236,18 +291,14 @@ public class SchemaResolverImpl implements SchemaResolver {
         generateSchemasForClasses(referencedClasses, generator);
 
         // 2. Schema for the specified class
-        URI originUri = CascaraSchemaUri.of(clazz).toUri();
-
-        // SchemaCompiler compiler = new SchemaCompiler(this);
-        // AstNode schemaDoc = generator.generate(clazz);
-        // return compiler.compile(schemaDoc, originUri);
+        URI originUri = getSchemaUriOfClass(clazz);
 
         return compileSchemaForClass(clazz, originUri, generator);
-
     }
 
     private void generateSchemasForClasses(Set<Class<?>> referencedClasses, SchemaGenerator generator) throws SchemaException {
         for (Class<?> clazz : referencedClasses) {
+            // TODO: Might want to use getSchemaUriOfClass here to handle static schema URIs
             URI originUri = CascaraSchemaUri.of(clazz).toUri();
             if (!schemaDocCache.containsKey(originUri)) {
 

@@ -120,7 +120,7 @@ public class SchemaStore {
     }
 
     private Path getPath(CascaraSchemaUri schemaUri) throws SchemaException {
-        Path moduleDir = Cascara.getSchemasPath().resolve(schemaUri.getModuleName());
+        Path moduleDir = Cascara.instance().getSchemasPath().resolve(schemaUri.getModuleName());
         Path schemaDir = moduleDir.resolve(schemaUri.getSchemaName());
 
         Path versionDir;
