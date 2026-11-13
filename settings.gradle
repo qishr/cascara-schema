@@ -12,5 +12,5 @@ plugins {
 }
 
 
-include 'cascara-schema'
-include 'spl-test'
+include 'cascara-schema-lib'
+include 'integration-test'

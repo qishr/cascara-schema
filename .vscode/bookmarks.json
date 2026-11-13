@@ -1,7 +1,7 @@
 {
 	"files": [
 		{
-			"path": "cascara-schema-test/src/test/java/test/util/SchemaGeneratorTests.java",
+			"path": "cascara-schema-lib-test/src/test/java/test/util/SchemaGeneratorTests.java",
 			"bookmarks": [
 				{
 					"line": 79,
@@ -16,7 +16,7 @@
 			]
 		},
 		{
-			"path": "spl-test/src/test/java/test/spl/util/SystemTests.java",
+			"path": "integration-test/src/test/java/test/spl/util/SystemTests.java",
 			"bookmarks": [
 				{
 					"line": 66,
@@ -26,7 +26,7 @@
 			]
 		},
 		{
-			"path": "cascara-schema/src/test/java/io/github/qishr/cascara/schema/util/SchemaGeneratorTests.java",
+			"path": "cascara-schema-lib/src/test/java/io/github/qishr/cascara/schema/util/SchemaGeneratorTests.java",
 			"bookmarks": [
 				{
 					"line": 91,
@@ -36,7 +36,7 @@
 			]
 		},
 		{
-			"path": "cascara-schema/src/main/java/io/github/qishr/cascara/schema/util/SchemaResolverImpl.java",
+			"path": "cascara-schema-lib/src/main/java/io/github/qishr/cascara/schema/util/SchemaResolverImpl.java",
 			"bookmarks": [
 				{
 					"line": 216,

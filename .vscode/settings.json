@@ -8,23 +8,23 @@
     "java.test.config": [
         {
             "name": "test",
-            "modulePaths": ["${workspaceFolder}/cascara-schema/build/modulepath"],
+            "modulePaths": ["${workspaceFolder}/cascara-schema-lib/build/modulepath"],
             "module": "cascara.schema",
             "vmArgs": [
                 "--add-reads", "cascara.schema=cascara.test.common.junit"
             ],
             "classPaths": [
-                "${workspaceFolder}/cascara-schema/build/classes/java/main",
-                "${workspaceFolder}/cascara-schema/build/resources/main"
+                "${workspaceFolder}/cascara-schema-lib/build/classes/java/main",
+                "${workspaceFolder}/cascara-schema-lib/build/resources/main"
             ]
         },
         {
-            "name": "spl-test",
-            "modulePaths": ["${workspaceFolder}/spl-test/build/modulepath"],
-            "module": "schema-test",
+            "name": "integration-test",
+            "modulePaths": ["${workspaceFolder}/integration-test/build/modulepath"],
+            "module": "integration-test",
             "classPaths": [
-                "${workspaceFolder}/spl-test/build/classes/java/main",
-                "${workspaceFolder}/spl-test/build/resources/main"
+                "${workspaceFolder}/integration-test/build/classes/java/main",
+                "${workspaceFolder}/integration-test/build/resources/main"
             ]
         },
     ],
@@ -33,7 +33,4 @@
     "files.exclude": {
         "**/bin": true
     },
-
-    "workbench.colorTheme": "Cascara Retro Amber on Heavy Metal"
-
 }
