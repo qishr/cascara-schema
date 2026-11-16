@@ -38,9 +38,9 @@ package io.github.qishr.cascara.schema.diagnostic;
 import java.net.URI;
 
 import io.github.qishr.cascara.common.diagnostic.Diagnostic;
-import io.github.qishr.cascara.common.diagnostic.message.LocalizableMessage;
-import io.github.qishr.cascara.common.diagnostic.exception.LocalizableException;
-import io.github.qishr.cascara.common.diagnostic.exception.LocatableException;
+import io.github.qishr.cascara.common.i18n.LocalizableMessage;
+import io.github.qishr.cascara.common.i18n.exception.LocalizableException;
+import io.github.qishr.cascara.common.exception.LocatableException;
 
 public class SchemaException extends LocatableException {
     private static final int UNKNOWN_COORD = Diagnostic.UNKNOWN_COORD;

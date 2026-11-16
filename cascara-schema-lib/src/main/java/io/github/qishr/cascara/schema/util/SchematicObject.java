@@ -40,7 +40,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import io.github.qishr.cascara.common.annotation.DataIgnore;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
+import io.github.qishr.cascara.common.property.Property;
 import io.github.qishr.cascara.common.type.PrimitiveType;
 import io.github.qishr.cascara.common.trackable.Trackable;
 import io.github.qishr.cascara.common.trackable.TrackableObject;
@@ -50,10 +52,12 @@ import io.github.qishr.cascara.common.trackable.property.TrackableProperty;
 import io.github.qishr.cascara.schema.structure.SchemaNode;
 
 public class SchematicObject extends TrackableObject {
-    private static Map<Class<? extends SchematicObject>,SchemaNode> objectSchemas = new HashMap<>();
+    static Map<Class<? extends SchematicObject>,SchemaNode> OBJECT_SCHEMAS = new HashMap<>();
 
+    @DataIgnore
     private final TrackableProperty<SchemaNode> objectSchema = new TrackableProperty<>();
 
+    @DataIgnore
     private final TrackableProperty<String> displayStringProperty;
 
     public SchematicObject() {
@@ -88,7 +92,7 @@ public class SchematicObject extends TrackableObject {
     }
 
     private void createObjectSchema() {
-        SchemaNode schemaNode = objectSchemas.get(getClass());
+        SchemaNode schemaNode = OBJECT_SCHEMAS.get(getClass());
         if (schemaNode == null) {
 
 
@@ -110,7 +114,7 @@ public class SchematicObject extends TrackableObject {
             if (schemaNode == null) {
                 throw new TrackingException(TrackingMessage.SCHEMA_COMPILATION_ERROR);
             }
-            objectSchemas.put(getClass(), schemaNode);
+            OBJECT_SCHEMAS.put(getClass(), schemaNode);
         }
         objectSchema.setValue(schemaNode);
     }
@@ -134,7 +138,7 @@ public class SchematicObject extends TrackableObject {
             String propertyName = entry.getKey();
             SchemaNode propertySchema = entry.getValue();
             Field field = fieldMap.get(propertyName);
-            if (field != null && field.getType().equals(TrackableProperty.class)) {
+            if (field != null && field.getType().equals(Property.class)) {
                 // TODO: ObservableList fields
                 registerDeclaredProperty(field, propertySchema);
             } else {
@@ -175,7 +179,7 @@ public class SchematicObject extends TrackableObject {
         }
 
         configureProperty(property, propertyName, propertySchema.getType(), propertySchema.getContentMediaType(), true);
-        property.addTracker((p) -> invalidate());
+        property.addTracker((o,n) -> invalidate());
         field.setAccessible(accessible);
     }
 
@@ -185,14 +189,15 @@ public class SchematicObject extends TrackableObject {
             case OBJECT: {
                 TrackableProperty prop = new TrackableProperty<>(this, key, null);
                 configureProperty(prop, key, propertySchema.getType(), propertySchema.getContentMediaType(), false);
-                prop.addTracker((p) -> invalidate());
+                // prop.addTracker((o,n) -> invalidate());
+                prop.addInvalidationTracker(p -> invalidate());
                 return;
             }
             case ARRAY: {
                 TrackableProperty prop = new TrackableProperty<>(this, key, null);
                 configureProperty(prop, key, propertySchema.getType(), propertySchema.getContentMediaType(), false);
-                prop.addTracker((p) -> invalidate());
-
+                // prop.addTracker((o,n) -> invalidate());
+                prop.addInvalidationTracker(p -> invalidate());
 
 
                 // TODO: We used to do this when it was in ObservableObject.
@@ -219,25 +224,25 @@ public class SchematicObject extends TrackableObject {
             case STRING: {
                 TrackableProperty<String> prop = new TrackableProperty<>(this, key, null);
                 configureProperty(prop, key, propertySchema.getType(), propertySchema.getContentMediaType(), false);
-                prop.addTracker((p) -> invalidate());
+                prop.addTracker((o,n) -> invalidate());
                 return;
             }
             case NUMBER: {
                 TrackableProperty<Double> prop = new TrackableProperty<>(this, key, null);
                 configureProperty(prop, key, propertySchema.getType(), propertySchema.getContentMediaType(), false);
-                prop.addTracker((p) -> invalidate());
+                prop.addTracker((o,n) -> invalidate());
                 return;
             }
             case INTEGER: {
                 TrackableProperty<Long> prop = new TrackableProperty<>(this, key, null);
                 configureProperty(prop, key, propertySchema.getType(), propertySchema.getContentMediaType(), false);
-                prop.addTracker((p) -> invalidate());
+                prop.addTracker((o,n) -> invalidate());
                 return;
             }
             case BOOLEAN: {
                 TrackableProperty<Boolean> prop = new TrackableProperty<>(this, key, null);
                 configureProperty(prop, key, propertySchema.getType(), propertySchema.getContentMediaType(), false);
-                prop.addTracker((p) -> invalidate());
+                prop.addTracker((o,n) -> invalidate());
                 return;
             }
             default: {

@@ -41,11 +41,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import io.github.qishr.cascara.common.service.SPL;
+import io.github.qishr.cascara.lang.json.ast.JsonNode;
+import io.github.qishr.cascara.lang.json.processor.JsonConverter;
+import io.github.qishr.cascara.lang.json.processor.JsonSerializer;
+import io.github.qishr.cascara.lang.json.util.CascaraJson;
 import io.github.qishr.cascara.common.annotation.SchemaDefinition;
 import io.github.qishr.cascara.common.annotation.SchemaProperty;
 import io.github.qishr.cascara.common.diagnostic.Diagnostic.Level;
 import io.github.qishr.cascara.common.diagnostic.report.GlobalReporter;
+import io.github.qishr.cascara.common.diagnostic.report.ReportWriter;
 import io.github.qishr.cascara.common.diagnostic.report.Reporter;
+import io.github.qishr.cascara.common.lang.ast.MapAstNode;
 import io.github.qishr.cascara.test.common.junit.base.VfsTestBase;
 
 import org.junit.jupiter.api.AfterEach;
@@ -61,6 +67,9 @@ public class SchemaTestBase extends VfsTestBase {
     protected void setUp() throws IOException {
         // GlobalReporter.globalInstance().setLevel(SPL.class.getName(), Level.TRACE);
 
+
+        REPORTER.setLevel(Level.DEBUG);
+
         super.setUp();
         resolver = SPL.load(SchemaResolver.class);
     }
@@ -75,6 +84,18 @@ public class SchemaTestBase extends VfsTestBase {
         for (Entry<URI, Schema> entry : schemas.entrySet()) {
             System.out.println(entry.getKey());
         }
+    }
+
+    protected void displaySchema(Schema compiled) {
+        SchemaDecompiler decompiler = new SchemaDecompiler();
+        MapAstNode<?,?,?> root = (MapAstNode<?,?,?>)decompiler.decompile(compiled);
+        JsonConverter c = new JsonConverter();
+        JsonNode n = c.fromAst(root);
+        String json = new JsonSerializer().toString(n);
+        ReportWriter w = REPORTER.getWriter(Level.DEBUG);
+        w.write(2, json);
+
+
     }
 
     // private static void dumpProcessArgs() {

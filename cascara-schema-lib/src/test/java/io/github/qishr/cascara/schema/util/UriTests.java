@@ -40,7 +40,7 @@ import java.net.URI;
 
 import org.junit.jupiter.api.Test;
 
-import io.github.qishr.cascara.common.diagnostic.exception.LocalizableIOException;
+import io.github.qishr.cascara.common.i18n.exception.LocalizableIOException;
 import io.github.qishr.cascara.common.io.IOUtils;
 import io.github.qishr.cascara.common.lang.generic.GenericAstMap;
 import io.github.qishr.cascara.common.lang.generic.GenericAstScalar;

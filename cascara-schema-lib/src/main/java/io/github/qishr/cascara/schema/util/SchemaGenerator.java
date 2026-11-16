@@ -625,6 +625,9 @@ public final class SchemaGenerator {
     }
 
     private static List<Field> getAllFields(Class<?> clazz) {
+        if (SchematicObject.class.isAssignableFrom(clazz)) {
+            return ReflectionUtils.getAllFields(clazz, null, superClass -> superClass != SchematicObject.class);
+        }
         return ReflectionUtils.getAllFields(clazz);
     }
 

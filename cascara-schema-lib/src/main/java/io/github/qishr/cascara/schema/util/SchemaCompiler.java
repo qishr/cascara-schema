@@ -45,8 +45,8 @@ import java.util.Map;
 
 import io.github.qishr.cascara.common.diagnostic.report.GlobalReporter;
 import io.github.qishr.cascara.common.diagnostic.report.Reporter;
-import io.github.qishr.cascara.common.diagnostic.exception.UnexpectedNullParameterException;
-import io.github.qishr.cascara.common.diagnostic.exception.UnexpectedNullReturnException;
+import io.github.qishr.cascara.common.exception.UnexpectedNullParameterException;
+import io.github.qishr.cascara.common.exception.UnexpectedNullReturnException;
 import io.github.qishr.cascara.common.diagnostic.message.GenericMessage;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
 import io.github.qishr.cascara.common.lang.ast.MapAstNode;

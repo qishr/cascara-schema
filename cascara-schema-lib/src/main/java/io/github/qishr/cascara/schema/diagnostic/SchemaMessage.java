@@ -35,7 +35,7 @@
 
 package io.github.qishr.cascara.schema.diagnostic;
 
-import io.github.qishr.cascara.common.diagnostic.message.LocalizableMessage;
+import io.github.qishr.cascara.common.i18n.LocalizableMessage;
 
 public enum SchemaMessage implements LocalizableMessage {
     ERROR("SCHEMA-101", "Error: {0}"),

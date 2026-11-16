@@ -44,6 +44,31 @@
 					"label": ""
 				}
 			]
+		},
+		{
+			"path": "cascara-schema-lib/src/main/java/io/github/qishr/cascara/schema/util/SchematicObject.java",
+			"bookmarks": [
+				{
+					"line": 140,
+					"column": 33,
+					"label": ""
+				},
+				{
+					"line": 223,
+					"column": 0,
+					"label": ""
+				}
+			]
+		},
+		{
+			"path": "cascara-schema-lib/src/test/java/io/github/qishr/cascara/schema/util/SchematicObjectTests.java",
+			"bookmarks": [
+				{
+					"line": 115,
+					"column": 9,
+					"label": ""
+				}
+			]
 		}
 	]
 }

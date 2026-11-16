@@ -41,7 +41,7 @@ import io.github.qishr.cascara.common.util.ContentType;
 import io.github.qishr.cascara.common.util.ContentTypeResolver;
 import io.github.qishr.cascara.common.annotation.NoAutoRegistration;
 import io.github.qishr.cascara.common.annotation.Priority;
-import io.github.qishr.cascara.common.diagnostic.exception.UnimplementedMethodException;
+import io.github.qishr.cascara.common.exception.UnimplementedMethodException;
 
 // TODO: Make SchemaStore a neo-singleton and test with its interface instead of this...
 @Priority(Priority.LOWEST)
