@@ -54,7 +54,7 @@ import io.github.qishr.cascara.common.annotation.SingletonInitializer;
 import io.github.qishr.cascara.common.content.ResourceContent;
 import io.github.qishr.cascara.common.content.type.ContentTypeRegistry;
 import io.github.qishr.cascara.common.i18n.exception.LocalizableIOException;
-import io.github.qishr.cascara.common.exception.UnexpectedNullParameterException;
+import io.github.qishr.cascara.common.exception.UnexpectedNullValueException;
 import io.github.qishr.cascara.common.io.ContentLoader;
 import io.github.qishr.cascara.common.io.IOUtils;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
@@ -238,7 +238,7 @@ public class SchemaResolverImpl implements SchemaResolver {
     @Nullable
     private Class<?> getDefiningClass(URI uri) {
         if (uri == null) {
-            throw new UnexpectedNullParameterException("uri");
+            throw new UnexpectedNullValueException("uri");
         }
         String uriString = uri.toString();
         Set<String> defs = Classes.Annotated.with(SchemaDefinition.class);
@@ -583,7 +583,7 @@ public class SchemaResolverImpl implements SchemaResolver {
 
     private class SchemaContentLoader implements ContentLoader {
         @Override
-        public ResourceContent getContent(URI uri) throws LocalizableIOException {
+        public ResourceContent getContent(URI uri) throws IOException {
             return IOUtils.getResource(uri);
         }
     }

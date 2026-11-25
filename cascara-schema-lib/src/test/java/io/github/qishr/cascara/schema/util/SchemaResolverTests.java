@@ -66,7 +66,7 @@ public class SchemaResolverTests extends SchemaTestBase {
     SchemaDecompiler decompiler;
 
     @BeforeEach
-    protected void setUp() throws IOException {
+    protected void setUp() {
         super.setUp();
         compiler = new SchemaCompiler(resolver);
         decompiler = new SchemaDecompiler();

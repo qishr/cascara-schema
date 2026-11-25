@@ -57,6 +57,7 @@ import io.github.qishr.cascara.common.lang.generic.GenericAstSequence;
 import io.github.qishr.cascara.common.property.Property;
 import io.github.qishr.cascara.common.service.CapabilityQueries;
 import io.github.qishr.cascara.common.service.SPL;
+import io.github.qishr.cascara.common.service.SPL.ProviderProperty;
 import io.github.qishr.cascara.common.service.ServiceMetadata;
 import io.github.qishr.cascara.common.trackable.property.TrackableProperty;
 import io.github.qishr.cascara.common.type.PrimitiveType;
@@ -182,7 +183,7 @@ public final class SchemaGenerator {
         List<ServiceMetadata> typeConverters = rootLayer.getProviders(
             TypeDescriptor.class,
             CapabilityQueries.allOf(
-                CapabilityQueries.hasExactValue(SPL.SP_JVM_TYPE, type.getName())
+                CapabilityQueries.hasExactValue(ProviderProperty.JVM_TYPE.asString(), type.getName())
             )
         );
         return typeConverters;
@@ -626,7 +627,11 @@ public final class SchemaGenerator {
 
     private static List<Field> getAllFields(Class<?> clazz) {
         if (SchematicObject.class.isAssignableFrom(clazz)) {
-            return ReflectionUtils.getAllFields(clazz, null, superClass -> superClass != SchematicObject.class);
+            // TODO: Only annotated fiels?
+            return ReflectionUtils.getFields(clazz,
+                null,
+                superClass -> superClass != SchematicObject.class
+            );
         }
         return ReflectionUtils.getAllFields(clazz);
     }

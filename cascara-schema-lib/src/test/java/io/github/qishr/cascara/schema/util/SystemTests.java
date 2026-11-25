@@ -55,7 +55,7 @@ public class SystemTests extends SchemaTestBase {
     SchemaCompiler compiler;
 
     @BeforeEach
-    protected void setUp() throws IOException {
+    protected void setUp() {
         super.setUp();
         compiler = new SchemaCompiler(resolver);
     }

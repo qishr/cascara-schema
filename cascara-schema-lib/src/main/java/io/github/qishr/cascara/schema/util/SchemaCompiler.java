@@ -45,7 +45,7 @@ import java.util.Map;
 
 import io.github.qishr.cascara.common.diagnostic.report.GlobalReporter;
 import io.github.qishr.cascara.common.diagnostic.report.Reporter;
-import io.github.qishr.cascara.common.exception.UnexpectedNullParameterException;
+import io.github.qishr.cascara.common.exception.UnexpectedNullValueException;
 import io.github.qishr.cascara.common.exception.UnexpectedNullReturnException;
 import io.github.qishr.cascara.common.diagnostic.message.GenericMessage;
 import io.github.qishr.cascara.common.lang.ast.AstNode;
@@ -100,14 +100,14 @@ public class SchemaCompiler {
     @Deprecated
     public SchemaCompiler(SchemaResolver resolver, boolean resolveRefs) {
         if (resolver == null) {
-            throw new UnexpectedNullParameterException("resolver");
+            throw new UnexpectedNullValueException("resolver");
         }
         this.resolver = resolver;
     }
 
     public SchemaCompiler(SchemaResolver resolver) {
         if (resolver == null) {
-            throw new UnexpectedNullParameterException("resolver");
+            throw new UnexpectedNullValueException("resolver");
         }
         this.resolver = resolver;
     }

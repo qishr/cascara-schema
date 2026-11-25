@@ -75,7 +75,7 @@ public class SchemaGeneratorTests extends SchemaTestBase {
     void test_classReferingToOtherClass1() {
         Schema schema = resolver.getSchemaForClass(OuterTestClass.class);
 
-        // System.out.println(Cascara.instance().getHomePath());
+        // System.out.println(Cascara.get().getHomePath());
         // displayVfs();
         // listCachedSchemas();
 

@@ -36,6 +36,7 @@ package io.github.qishr.cascara.schema.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.IOException;
 import java.net.URI;
 
 import org.junit.jupiter.api.Test;
@@ -65,7 +66,7 @@ public class UriTests extends SchemaTestBase {
     }
 
     @Test
-    void test_absoluteFilePath() throws LocalizableIOException {
+    void test_absoluteFilePath() throws IOException {
         assertEquals(
             "file:///tmp/a",
             IOUtils.normalizeUri(URI.create(
@@ -75,7 +76,7 @@ public class UriTests extends SchemaTestBase {
     }
 
     @Test
-    void test_relativeFilePath() throws LocalizableIOException {
+    void test_relativeFilePath() throws IOException {
         assertEquals(
             "file://" + System.getProperty("user.dir") + "/tmp/a",
             IOUtils.normalizeUri(URI.create(

@@ -85,7 +85,7 @@ public class SchemaTestBase extends VfsTestBase {
     }
 
     @BeforeEach
-    protected void setUp() throws IOException {
+    protected void setUp() {
         // GlobalReporter.globalInstance().setLevel(SPL.class.getName(), Level.TRACE);
         super.setUp();
         resolver = SPL.load(SchemaResolver.class);

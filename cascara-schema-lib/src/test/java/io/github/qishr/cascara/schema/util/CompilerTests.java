@@ -36,6 +36,8 @@ package io.github.qishr.cascara.schema.util;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.io.IOException;
+
 import org.junit.jupiter.api.Test;
 
 import io.github.qishr.cascara.common.i18n.exception.LocalizableIOException;
@@ -73,7 +75,7 @@ public class CompilerTests extends SchemaTestBase {
     }
 
     @Test
-    void compiler_test_01() throws LocalizableIOException {
+    void compiler_test_01() throws IOException {
         String json = JreUtils.getResourceAsString(CompilerTests.class, "schema-01.json");
 
         JsonAstParser parser = new JsonAstParser();
